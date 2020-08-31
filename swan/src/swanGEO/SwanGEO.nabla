@@ -56,8 +56,8 @@ def nextLon: → ℝ;
 // options
 option ℝ X_EDGE_LENGTH = 20.0;
 option ℝ Y_EDGE_LENGTH = 20.0;
-option ℕ X_EDGE_ELEMS = 693; //input data has 1101
-option ℕ Y_EDGE_ELEMS = 333; //input data has 42
+option ℕ X_EDGE_ELEMS = 693;
+option ℕ Y_EDGE_ELEMS = 333;
 option ℝ X_LENGTH = X_EDGE_LENGTH * X_EDGE_ELEMS;
 option ℝ Y_LENGTH = Y_EDGE_LENGTH * Y_EDGE_ELEMS;
 option ℾ DConst = true;

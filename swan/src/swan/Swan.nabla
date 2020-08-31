@@ -132,7 +132,7 @@ InitBool:∀c∈cells(),
 }
 
 // bottom motion
-InitRijini: ∀ic∈innerCells(), Rijini{ic} = 0.0;//nextBottomMotion();
+InitRijini: ∀ic∈innerCells(), Rijini{ic} = 0.0;
 
 InitRij: 
 {
