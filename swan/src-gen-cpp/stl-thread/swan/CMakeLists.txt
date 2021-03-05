@@ -1,10 +1,12 @@
-#
-# Generated file - Do not overwrite
-#
+### GENERATED FILE - DO NOT OVERWRITE ###
 
 cmake_minimum_required(VERSION 3.10)
 
+set(LIBCPPNABLA_DIR $ENV{HOME}/workspaces/swan/swan/../LibCppNabla CACHE STRING "")
 set(NABLA_CXX_COMPILER /usr/bin/g++)
+set(BATHYLIB_DIR $ENV{HOME}/workspaces/swan/swan/../swan/src-gen-cpp/stl-thread/bathylib)
+
+project(SwanProject CXX)
 
 set(CMAKE_CXX_COMPILER ${NABLA_CXX_COMPILER} CACHE STRING "")
 
@@ -18,16 +20,18 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	endif()
 endif()
 
-project(SwanProject CXX)
-
-set(LIBCPPNABLA_BACKEND "STL")
-add_subdirectory(${CMAKE_SOURCE_DIR}/../libcppnabla ${CMAKE_SOURCE_DIR}/../libcppnabla)
+if(NOT TARGET bathylib)
+	add_subdirectory(${BATHYLIB_DIR} ${CMAKE_BINARY_DIR}/BathyLibCpp EXCLUDE_FROM_ALL)
+endif()
+if(NOT TARGET cppnabla)
+	add_subdirectory(${LIBCPPNABLA_DIR} ${CMAKE_BINARY_DIR}/LibCppNabla EXCLUDE_FROM_ALL)
+endif()
 
 
 add_executable(swan Swan.cc)
 target_include_directories(swan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
-target_link_libraries(swan PUBLIC cppnabla cppnablastl pthread)
+target_link_libraries(swan PUBLIC cppnabla cppnablastl pthread bathylib)
 
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Project.cmake)
-include(Project.cmake)
+	include(${CMAKE_CURRENT_SOURCE_DIR}/Project.cmake)
 endif()

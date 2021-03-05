@@ -1,7 +1,7 @@
 /*** GENERATED FILE - DO NOT OVERWRITE ***/
 
-#ifndef SWAN_H_
-#define SWAN_H_
+#ifndef SWANGEO_H_
+#define SWANGEO_H_
 
 #include <fstream>
 #include <iomanip>
@@ -23,29 +23,18 @@ using namespace nablalib::utils;
 using namespace nablalib::types;
 using namespace nablalib::utils::stl;
 
-/******************** Free functions declarations ********************/
-
-namespace SwanFuncs
-{
-template<size_t x>
-RealArray1D<x> sumR1(RealArray1D<x> a, RealArray1D<x> b);
-}
-
 /******************** Module declaration ********************/
 
-class Swan
+class Swangeo
 {
 public:
 	struct Options
 	{
 		std::string outputPath;
 		int outputPeriod;
-		double X_EDGE_LENGTH;
-		double Y_EDGE_LENGTH;
 		bool DConst;
 		double Dini;
 		double deltat;
-		double F;
 		int maxIter;
 		double stopTime;
 		bathylib::BathyLib bathyLib;
@@ -53,13 +42,14 @@ public:
 		void jsonInit(const char* jsonContent);
 	};
 
-	Swan(CartesianMesh2D* aMesh, Options& aOptions);
-	~Swan();
+	Swangeo(CartesianMesh2D* aMesh, Options& aOptions);
+	~Swangeo();
 
 	void simulate();
 	void computeTn() noexcept;
 	void initDijini() noexcept;
 	void initFxy() noexcept;
+	void initHini() noexcept;
 	void initRijini() noexcept;
 	void initTime() noexcept;
 	void initUini() noexcept;
@@ -73,13 +63,13 @@ public:
 	void updateVinner() noexcept;
 	void updateVouter() noexcept;
 	void initDij() noexcept;
+	void initH() noexcept;
 	void initRij() noexcept;
 	void initU() noexcept;
 	void initV() noexcept;
 	void initXcAndYc() noexcept;
 	void initBool() noexcept;
-	void initHini() noexcept;
-	void initH() noexcept;
+	void initdeltaxdeltay() noexcept;
 	void setUpTimeLoopN() noexcept;
 	void executeTimeLoopN() noexcept;
 
@@ -88,7 +78,7 @@ private:
 
 	// Mesh and mesh variables
 	CartesianMesh2D* mesh;
-	size_t nbNodes, nbFaces, nbInnerFaces, nbInnerVerticalFaces, nbInnerHorizontalFaces, nbCells, nbInnerCells, nbTopCells, nbBottomCells, nbLeftCells, nbRightCells, nbNodesOfCell;
+	size_t nbNodes, nbFaces, nbInnerFaces, nbInnerVerticalFaces, nbInnerHorizontalFaces, nbCells, nbInnerCells, nbOuterCells, nbTopCells, nbBottomCells, nbLeftCells, nbRightCells;
 
 	// User options
 	Options& options;
@@ -103,10 +93,15 @@ public:
 	// Global variables
 	int lastDump;
 	int n;
-	const double deltax;
-	const double deltay;
+	static constexpr double deltax_lon = 0.033;
+	static constexpr double deltay_lat = 0.033;
 	static constexpr double g = -9.8;
 	static constexpr double C = 40.0;
+	static constexpr double F = 0.0;
+	static constexpr double DEG2RAD_DP = 0.01745;
+	static constexpr double DEG2RAD = DEG2RAD_DP;
+	static constexpr double DEG2M_DP = 111194.9266;
+	static constexpr double DEG2M = DEG2M_DP;
 	double t_n;
 	double t_nplus1;
 	double t_n0;
@@ -114,6 +109,8 @@ public:
 	std::vector<RealArray1D<2>> Xc;
 	std::vector<double> xc;
 	std::vector<double> yc;
+	std::vector<double> deltax;
+	std::vector<double> deltay;
 	std::vector<double> U_n;
 	std::vector<double> U_nplus1;
 	std::vector<double> U_n0;

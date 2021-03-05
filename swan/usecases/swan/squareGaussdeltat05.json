@@ -8,7 +8,7 @@
 		"Y_EDGE_LENGTH":4000.0,
 		"DConst":false,
 		"Dini":-1000.0,
-		"deltat":10.0,
+		"deltat":0.5,
 		"F":0.0,
 		"maxIter":2500000,
 		"stopTime":2500.0,
@@ -18,7 +18,7 @@
 			"waveVarName":"z",
 			"depthFilename":"/home/oudotmp/workspaces/swan/swan/data/swan/depthSquare.grd",
 			"depthVarName":"z"
-		}			
+		}
 	},
 	"mesh":
 	{

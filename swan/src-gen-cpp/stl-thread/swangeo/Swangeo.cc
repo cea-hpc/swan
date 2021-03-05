@@ -1,27 +1,16 @@
 /*** GENERATED FILE - DO NOT OVERWRITE ***/
 
-#include "swan/Swan.h"
+#include "swangeo/Swangeo.h"
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
 
-/******************** Free functions definitions ********************/
-
-namespace SwanFuncs
-{
-template<size_t x>
-RealArray1D<x> sumR1(RealArray1D<x> a, RealArray1D<x> b)
-{
-	return a + b;
-}
-}
-
 /******************** Options definition ********************/
 
 void
-Swan::Options::jsonInit(const char* jsonContent)
+Swangeo::Options::jsonInit(const char* jsonContent)
 {
 	rapidjson::Document document;
 	assert(!document.Parse(jsonContent).HasParseError());
@@ -38,24 +27,6 @@ Swan::Options::jsonInit(const char* jsonContent)
 	const rapidjson::Value& valueof_outputPeriod = o["outputPeriod"];
 	assert(valueof_outputPeriod.IsInt());
 	outputPeriod = valueof_outputPeriod.GetInt();
-	// X_EDGE_LENGTH
-	if (o.HasMember("X_EDGE_LENGTH"))
-	{
-		const rapidjson::Value& valueof_X_EDGE_LENGTH = o["X_EDGE_LENGTH"];
-		assert(valueof_X_EDGE_LENGTH.IsDouble());
-		X_EDGE_LENGTH = valueof_X_EDGE_LENGTH.GetDouble();
-	}
-	else
-		X_EDGE_LENGTH = 20.0;
-	// Y_EDGE_LENGTH
-	if (o.HasMember("Y_EDGE_LENGTH"))
-	{
-		const rapidjson::Value& valueof_Y_EDGE_LENGTH = o["Y_EDGE_LENGTH"];
-		assert(valueof_Y_EDGE_LENGTH.IsDouble());
-		Y_EDGE_LENGTH = valueof_Y_EDGE_LENGTH.GetDouble();
-	}
-	else
-		Y_EDGE_LENGTH = 20.0;
 	// DConst
 	if (o.HasMember("DConst"))
 	{
@@ -82,16 +53,7 @@ Swan::Options::jsonInit(const char* jsonContent)
 		deltat = valueof_deltat.GetDouble();
 	}
 	else
-		deltat = 0.008;
-	// F
-	if (o.HasMember("F"))
-	{
-		const rapidjson::Value& valueof_F = o["F"];
-		assert(valueof_F.IsDouble());
-		F = valueof_F.GetDouble();
-	}
-	else
-		F = 0.0;
+		deltat = 2.0;
 	// maxIter
 	if (o.HasMember("maxIter"))
 	{
@@ -109,7 +71,7 @@ Swan::Options::jsonInit(const char* jsonContent)
 		stopTime = valueof_stopTime.GetDouble();
 	}
 	else
-		stopTime = 20.0;
+		stopTime = 7200.0;
 	// bathyLib
 	if (o.HasMember("bathyLib"))
 	{
@@ -122,7 +84,7 @@ Swan::Options::jsonInit(const char* jsonContent)
 
 /******************** Module definition ********************/
 
-Swan::Swan(CartesianMesh2D* aMesh, Options& aOptions)
+Swangeo::Swangeo(CartesianMesh2D* aMesh, Options& aOptions)
 : mesh(aMesh)
 , nbNodes(mesh->getNbNodes())
 , nbFaces(mesh->getNbFaces())
@@ -131,20 +93,20 @@ Swan::Swan(CartesianMesh2D* aMesh, Options& aOptions)
 , nbInnerHorizontalFaces(mesh->getNbInnerHorizontalFaces())
 , nbCells(mesh->getNbCells())
 , nbInnerCells(mesh->getNbInnerCells())
+, nbOuterCells(mesh->getNbOuterCells())
 , nbTopCells(mesh->getNbTopCells())
 , nbBottomCells(mesh->getNbBottomCells())
 , nbLeftCells(mesh->getNbLeftCells())
 , nbRightCells(mesh->getNbRightCells())
-, nbNodesOfCell(CartesianMesh2D::MaxNbNodesOfCell)
 , options(aOptions)
-, writer("Swan", options.outputPath)
+, writer("SwanGEO", options.outputPath)
 , lastDump(numeric_limits<int>::min())
-, deltax(options.X_EDGE_LENGTH)
-, deltay(options.Y_EDGE_LENGTH)
 , X(nbNodes)
 , Xc(nbCells)
 , xc(nbCells)
 , yc(nbCells)
+, deltax(nbCells)
+, deltay(nbCells)
 , U_n(nbFaces)
 , U_nplus1(nbFaces)
 , U_n0(nbFaces)
@@ -176,7 +138,7 @@ Swan::Swan(CartesianMesh2D* aMesh, Options& aOptions)
 	}
 }
 
-Swan::~Swan()
+Swangeo::~Swangeo()
 {
 }
 
@@ -185,7 +147,7 @@ Swan::~Swan()
  * In variables: deltat, t_n
  * Out variables: t_nplus1
  */
-void Swan::computeTn() noexcept
+void Swangeo::computeTn() noexcept
 {
 	t_nplus1 = t_n + options.deltat;
 }
@@ -195,7 +157,7 @@ void Swan::computeTn() noexcept
  * In variables: DConst, Dini
  * Out variables: Dijini
  */
-void Swan::initDijini() noexcept
+void Swangeo::initDijini() noexcept
 {
 	if (options.DConst) 
 	{
@@ -226,7 +188,7 @@ void Swan::initDijini() noexcept
  * In variables: 
  * Out variables: Fx, Fy
  */
-void Swan::initFxy() noexcept
+void Swangeo::initFxy() noexcept
 {
 	parallel_exec(nbCells, [&](const size_t& cCells)
 	{
@@ -236,11 +198,30 @@ void Swan::initFxy() noexcept
 }
 
 /**
+ * Job initHini called @1.0 in simulate method.
+ * In variables: 
+ * Out variables: Hini
+ */
+void Swangeo::initHini() noexcept
+{
+	{
+		const auto innerCells(mesh->getInnerCells());
+		const size_t nbInnerCells(innerCells.size());
+		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
+		{
+			const Id icId(innerCells[icInnerCells]);
+			const size_t icCells(icId);
+			Hini[icCells] = options.bathyLib.nextWaveHeight();
+		}
+	}
+}
+
+/**
  * Job initRijini called @1.0 in simulate method.
  * In variables: 
  * Out variables: Rijini
  */
-void Swan::initRijini() noexcept
+void Swangeo::initRijini() noexcept
 {
 	{
 		const auto innerCells(mesh->getInnerCells());
@@ -259,7 +240,7 @@ void Swan::initRijini() noexcept
  * In variables: 
  * Out variables: t_n0
  */
-void Swan::initTime() noexcept
+void Swangeo::initTime() noexcept
 {
 	t_n0 = 0.0;
 }
@@ -269,7 +250,7 @@ void Swan::initTime() noexcept
  * In variables: 
  * Out variables: Uini
  */
-void Swan::initUini() noexcept
+void Swangeo::initUini() noexcept
 {
 	{
 		const auto innerFaces(mesh->getInnerFaces());
@@ -288,7 +269,7 @@ void Swan::initUini() noexcept
  * In variables: 
  * Out variables: Vini
  */
-void Swan::initVini() noexcept
+void Swangeo::initVini() noexcept
 {
 	{
 		const auto innerFaces(mesh->getInnerFaces());
@@ -304,27 +285,22 @@ void Swan::initVini() noexcept
 
 /**
  * Job initXc called @1.0 in simulate method.
- * In variables: X
+ * In variables: 
  * Out variables: Xc
  */
-void Swan::initXc() noexcept
+void Swangeo::initXc() noexcept
 {
-	parallel_exec(nbCells, [&](const size_t& cCells)
 	{
-		const Id cId(cCells);
-		RealArray1D<2> reduction0({0.0, 0.0});
+		const auto innerCells(mesh->getInnerCells());
+		const size_t nbInnerCells(innerCells.size());
+		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
 		{
-			const auto nodesOfCellC(mesh->getNodesOfCell(cId));
-			const size_t nbNodesOfCellC(nodesOfCellC.size());
-			for (size_t pNodesOfCellC=0; pNodesOfCellC<nbNodesOfCellC; pNodesOfCellC++)
-			{
-				const Id pId(nodesOfCellC[pNodesOfCellC]);
-				const size_t pNodes(pId);
-				reduction0 = SwanFuncs::sumR1(reduction0, X[pNodes]);
-			}
+			const Id icId(innerCells[icInnerCells]);
+			const size_t icCells(icId);
+			Xc[icCells][0] = options.bathyLib.nextLon();
+			Xc[icCells][1] = options.bathyLib.nextLat();
 		}
-		Xc[cCells] = 0.25 * reduction0;
-	});
+	}
 }
 
 /**
@@ -332,7 +308,7 @@ void Swan::initXc() noexcept
  * In variables: Bool, Dij, H_n, Rij_n, Rij_nplus1, U_n, V_n, deltat, deltax, deltay
  * Out variables: H_nplus1
  */
-void Swan::updateHinner() noexcept
+void Swangeo::updateHinner() noexcept
 {
 	{
 		const auto innerCells(mesh->getInnerCells());
@@ -402,7 +378,7 @@ void Swan::updateHinner() noexcept
 				const size_t tfFaces(tfId);
 				const Id bfId(mesh->getBottomFaceOfCell(icId));
 				const size_t bfFaces(bfId);
-				H_nplus1[icCells] = (H_n[icCells] - options.deltat * (U_n[rfFaces] * TD1 / deltax - U_n[lfFaces] * TD2 / deltax + V_n[tfFaces] * TV1 / deltay - V_n[bfFaces] * TV2 / deltay) + Rij_nplus1[icCells] - Rij_n[icCells]) * Bool[icCells];
+				H_nplus1[icCells] = (H_n[icCells] - options.deltat * (U_n[rfFaces] * TD1 / deltax[icCells] - U_n[lfFaces] * TD2 / deltax[icCells] + V_n[tfFaces] * TV1 / deltay[icCells] - V_n[bfFaces] * TV2 / deltay[icCells]) + Rij_nplus1[icCells] - Rij_n[icCells]) * Bool[icCells];
 			}
 		});
 	}
@@ -413,7 +389,7 @@ void Swan::updateHinner() noexcept
  * In variables: H_n
  * Out variables: H_nplus1
  */
-void Swan::updateHouter() noexcept
+void Swangeo::updateHouter() noexcept
 {
 	{
 		const auto topCells(mesh->getTopCells());
@@ -470,7 +446,7 @@ void Swan::updateHouter() noexcept
  * In variables: 
  * Out variables: Rij_nplus1
  */
-void Swan::updateRij() noexcept
+void Swangeo::updateRij() noexcept
 {
 	parallel_exec(nbCells, [&](const size_t& cCells)
 	{
@@ -483,7 +459,7 @@ void Swan::updateRij() noexcept
  * In variables: Bool, C, Dij, F, Fx, H_n, U_n, V_n, deltat, deltax, deltay, g
  * Out variables: U_nplus1
  */
-void Swan::updateUinner() noexcept
+void Swangeo::updateUinner() noexcept
 {
 	{
 		const auto InnerVerticalFaces(mesh->getInnerVerticalFaces());
@@ -546,6 +522,7 @@ void Swan::updateUinner() noexcept
 				const size_t fijvFaces(fijvId);
 				SB = g * U_n[civfFaces] * (std::sqrt(U_n[civfFaces] * U_n[civfFaces] + V_n[fijvFaces] * V_n[fijvFaces])) / (C * C * (Dij[cijCells] + H_n[cijCells]));
 			}
+			SB = 0.0;
 			{
 				const Id fijvId(mesh->getBottomRightFaceNeighbour(civfId));
 				const size_t fijvFaces(fijvId);
@@ -553,7 +530,7 @@ void Swan::updateUinner() noexcept
 				const size_t cijCells(cijId);
 				const Id cimoins1jId(mesh->getBackCell(civfId));
 				const size_t cimoins1jCells(cimoins1jId);
-				U_nplus1[civfFaces] = (U_n[civfFaces] - options.deltat * (U_n[civfFaces] * TU1 / deltax + TV * TU2 / deltay) - (g * options.deltat * THU) / deltax + options.deltat * (-options.F * V_n[fijvFaces] - Fx[cijCells] + SB)) * Bool[cijCells] * Bool[cimoins1jCells];
+				U_nplus1[civfFaces] = (U_n[civfFaces] - options.deltat * (U_n[civfFaces] * TU1 / deltax[cijCells] + TV * TU2 / deltay[cijCells]) - (g * options.deltat * THU) / deltax[cijCells] + options.deltat * (-F * V_n[fijvFaces] - Fx[cijCells] + SB)) * Bool[cijCells] * Bool[cimoins1jCells];
 			}
 		});
 	}
@@ -564,7 +541,7 @@ void Swan::updateUinner() noexcept
  * In variables: U_n
  * Out variables: U_nplus1
  */
-void Swan::updateUouter() noexcept
+void Swangeo::updateUouter() noexcept
 {
 	{
 		const auto topCells(mesh->getTopCells());
@@ -627,7 +604,7 @@ void Swan::updateUouter() noexcept
  * In variables: Bool, C, Dij, F, Fy, H_n, U_n, V_n, deltat, deltax, deltay, g
  * Out variables: V_nplus1
  */
-void Swan::updateVinner() noexcept
+void Swangeo::updateVinner() noexcept
 {
 	{
 		const auto InnerHorizontalFaces(mesh->getInnerHorizontalFaces());
@@ -690,6 +667,7 @@ void Swan::updateVinner() noexcept
 				const size_t fijvFaces(fijvId);
 				SB = g * U_n[fijvFaces] * (std::sqrt(U_n[fijvFaces] * U_n[fijvFaces] + V_n[cihfFaces] * V_n[cihfFaces])) / (C * C * (Dij[cijCells] + H_n[cijCells]));
 			}
+			SB = 0.0;
 			{
 				const Id fijvId(mesh->getTopLeftFaceNeighbour(cihfId));
 				const size_t fijvFaces(fijvId);
@@ -697,7 +675,7 @@ void Swan::updateVinner() noexcept
 				const size_t cijCells(cijId);
 				const Id cijmoins1Id(mesh->getBackCell(cihfId));
 				const size_t cijmoins1Cells(cijmoins1Id);
-				V_nplus1[cihfFaces] = (V_n[cihfFaces] - options.deltat * (TU * TV1 / deltax + V_n[cihfFaces] * TV2 / deltay) - (g * options.deltat * THV) / deltay + options.deltat * (options.F * U_n[fijvFaces] - Fy[cijCells] + SB)) * Bool[cijmoins1Cells] * Bool[cijCells];
+				V_nplus1[cihfFaces] = (V_n[cihfFaces] - options.deltat * (TU * TV1 / deltax[cijCells] + V_n[cihfFaces] * TV2 / deltay[cijCells]) - (g * options.deltat * THV) / deltay[cijCells] + options.deltat * (F * U_n[fijvFaces] - Fy[cijCells] + SB)) * Bool[cijmoins1Cells] * Bool[cijCells];
 			}
 		});
 	}
@@ -708,7 +686,7 @@ void Swan::updateVinner() noexcept
  * In variables: V_n
  * Out variables: V_nplus1
  */
-void Swan::updateVouter() noexcept
+void Swangeo::updateVouter() noexcept
 {
 	{
 		const auto topCells(mesh->getTopCells());
@@ -771,7 +749,7 @@ void Swan::updateVouter() noexcept
  * In variables: Dijini
  * Out variables: Dij
  */
-void Swan::initDij() noexcept
+void Swangeo::initDij() noexcept
 {
 	{
 		const auto topCells(mesh->getTopCells());
@@ -834,11 +812,78 @@ void Swan::initDij() noexcept
 }
 
 /**
+ * Job initH called @2.0 in simulate method.
+ * In variables: Hini
+ * Out variables: H_n0
+ */
+void Swangeo::initH() noexcept
+{
+	{
+		const auto topCells(mesh->getTopCells());
+		const size_t nbTopCells(topCells.size());
+		parallel_exec(nbTopCells, [&](const size_t& tTopCells)
+		{
+			const Id tId(topCells[tTopCells]);
+			const size_t tCells(tId);
+			const Id btId(mesh->getBottomCell(tId));
+			const size_t btCells(btId);
+			H_n0[tCells] = Hini[btCells];
+		});
+	}
+	{
+		const auto bottomCells(mesh->getBottomCells());
+		const size_t nbBottomCells(bottomCells.size());
+		parallel_exec(nbBottomCells, [&](const size_t& bBottomCells)
+		{
+			const Id bId(bottomCells[bBottomCells]);
+			const size_t bCells(bId);
+			const Id tbId(mesh->getTopCell(bId));
+			const size_t tbCells(tbId);
+			H_n0[bCells] = Hini[tbCells];
+		});
+	}
+	{
+		const auto leftCells(mesh->getLeftCells());
+		const size_t nbLeftCells(leftCells.size());
+		parallel_exec(nbLeftCells, [&](const size_t& lLeftCells)
+		{
+			const Id lId(leftCells[lLeftCells]);
+			const size_t lCells(lId);
+			const Id rlId(mesh->getRightCell(lId));
+			const size_t rlCells(rlId);
+			H_n0[lCells] = Hini[rlCells];
+		});
+	}
+	{
+		const auto rightCells(mesh->getRightCells());
+		const size_t nbRightCells(rightCells.size());
+		parallel_exec(nbRightCells, [&](const size_t& rRightCells)
+		{
+			const Id rId(rightCells[rRightCells]);
+			const size_t rCells(rId);
+			const Id lrId(mesh->getLeftCell(rId));
+			const size_t lrCells(lrId);
+			H_n0[rCells] = Hini[lrCells];
+		});
+	}
+	{
+		const auto innerCells(mesh->getInnerCells());
+		const size_t nbInnerCells(innerCells.size());
+		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
+		{
+			const Id icId(innerCells[icInnerCells]);
+			const size_t icCells(icId);
+			H_n0[icCells] = Hini[icCells];
+		});
+	}
+}
+
+/**
  * Job initRij called @2.0 in simulate method.
  * In variables: Rijini
  * Out variables: Rij_n0
  */
-void Swan::initRij() noexcept
+void Swangeo::initRij() noexcept
 {
 	{
 		const auto topCells(mesh->getTopCells());
@@ -905,7 +950,7 @@ void Swan::initRij() noexcept
  * In variables: Uini
  * Out variables: U_n0
  */
-void Swan::initU() noexcept
+void Swangeo::initU() noexcept
 {
 	{
 		const auto topCells(mesh->getTopCells());
@@ -968,7 +1013,7 @@ void Swan::initU() noexcept
  * In variables: Vini
  * Out variables: V_n0
  */
-void Swan::initV() noexcept
+void Swangeo::initV() noexcept
 {
 	{
 		const auto topCells(mesh->getTopCells());
@@ -1031,7 +1076,7 @@ void Swan::initV() noexcept
  * In variables: Xc
  * Out variables: xc, yc
  */
-void Swan::initXcAndYc() noexcept
+void Swangeo::initXcAndYc() noexcept
 {
 	parallel_exec(nbCells, [&](const size_t& cCells)
 	{
@@ -1045,7 +1090,7 @@ void Swan::initXcAndYc() noexcept
  * In variables: Dij
  * Out variables: Bool
  */
-void Swan::initBool() noexcept
+void Swangeo::initBool() noexcept
 {
 	parallel_exec(nbCells, [&](const size_t& cCells)
 	{
@@ -1057,79 +1102,12 @@ void Swan::initBool() noexcept
 }
 
 /**
- * Job initHini called @4.0 in simulate method.
- * In variables: Bool
- * Out variables: Hini
+ * Job initdeltaxdeltay called @3.0 in simulate method.
+ * In variables: DEG2M, DEG2M_DP, DEG2RAD, deltax_lon, deltay_lat, yc
+ * Out variables: deltax, deltay
  */
-void Swan::initHini() noexcept
+void Swangeo::initdeltaxdeltay() noexcept
 {
-	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
-		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
-		{
-			const Id icId(innerCells[icInnerCells]);
-			const size_t icCells(icId);
-			Hini[icCells] = options.bathyLib.nextWaveHeight() * Bool[icCells];
-		}
-	}
-}
-
-/**
- * Job initH called @5.0 in simulate method.
- * In variables: Hini
- * Out variables: H_n0
- */
-void Swan::initH() noexcept
-{
-	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
-		parallel_exec(nbTopCells, [&](const size_t& tTopCells)
-		{
-			const Id tId(topCells[tTopCells]);
-			const size_t tCells(tId);
-			const Id btId(mesh->getBottomCell(tId));
-			const size_t btCells(btId);
-			H_n0[tCells] = Hini[btCells];
-		});
-	}
-	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
-		parallel_exec(nbBottomCells, [&](const size_t& bBottomCells)
-		{
-			const Id bId(bottomCells[bBottomCells]);
-			const size_t bCells(bId);
-			const Id tbId(mesh->getTopCell(bId));
-			const size_t tbCells(tbId);
-			H_n0[bCells] = Hini[tbCells];
-		});
-	}
-	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
-		parallel_exec(nbLeftCells, [&](const size_t& lLeftCells)
-		{
-			const Id lId(leftCells[lLeftCells]);
-			const size_t lCells(lId);
-			const Id rlId(mesh->getRightCell(lId));
-			const size_t rlCells(rlId);
-			H_n0[lCells] = Hini[rlCells];
-		});
-	}
-	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
-		parallel_exec(nbRightCells, [&](const size_t& rRightCells)
-		{
-			const Id rId(rightCells[rRightCells]);
-			const size_t rCells(rId);
-			const Id lrId(mesh->getLeftCell(rId));
-			const size_t lrCells(lrId);
-			H_n0[rCells] = Hini[lrCells];
-		});
-	}
 	{
 		const auto innerCells(mesh->getInnerCells());
 		const size_t nbInnerCells(innerCells.size());
@@ -1137,17 +1115,29 @@ void Swan::initH() noexcept
 		{
 			const Id icId(innerCells[icInnerCells]);
 			const size_t icCells(icId);
-			H_n0[icCells] = Hini[icCells];
+			deltax[icCells] = deltax_lon * DEG2M * std::cos(yc[icCells] * DEG2RAD);
+			deltay[icCells] = deltay_lat * DEG2M_DP;
+		});
+	}
+	{
+		const auto outerCells(mesh->getOuterCells());
+		const size_t nbOuterCells(outerCells.size());
+		parallel_exec(nbOuterCells, [&](const size_t& ocOuterCells)
+		{
+			const Id ocId(outerCells[ocOuterCells]);
+			const size_t ocCells(ocId);
+			deltax[ocCells] = 3000.0;
+			deltay[ocCells] = 3000.0;
 		});
 	}
 }
 
 /**
- * Job setUpTimeLoopN called @6.0 in simulate method.
+ * Job setUpTimeLoopN called @3.0 in simulate method.
  * In variables: H_n0, Rij_n0, U_n0, V_n0, t_n0
  * Out variables: H_n, Rij_n, U_n, V_n, t_n
  */
-void Swan::setUpTimeLoopN() noexcept
+void Swangeo::setUpTimeLoopN() noexcept
 {
 	t_n = t_n0;
 	for (size_t i1(0) ; i1<U_n.size() ; i1++)
@@ -1161,11 +1151,11 @@ void Swan::setUpTimeLoopN() noexcept
 }
 
 /**
- * Job executeTimeLoopN called @7.0 in simulate method.
+ * Job executeTimeLoopN called @4.0 in simulate method.
  * In variables: Bool, C, Dij, F, Fx, Fy, H_n, Rij_n, Rij_nplus1, U_n, V_n, deltat, deltax, deltay, g, t_n
  * Out variables: H_nplus1, U_nplus1, V_nplus1, t_nplus1
  */
-void Swan::executeTimeLoopN() noexcept
+void Swangeo::executeTimeLoopN() noexcept
 {
 	n = 0;
 	bool continueLoop = true;
@@ -1225,7 +1215,7 @@ void Swan::executeTimeLoopN() noexcept
 	dumpVariables(n, false);
 }
 
-void Swan::dumpVariables(int iteration, bool useTimer)
+void Swangeo::dumpVariables(int iteration, bool useTimer)
 {
 	if (!writer.isDisabled())
 	{
@@ -1251,6 +1241,10 @@ void Swan::dumpVariables(int iteration, bool useTimer)
 		for (size_t i=0 ; i<nbCells ; ++i)
 			writer.write(Rij_n[i]);
 		writer.closeCellArray();
+		writer.openCellArray("bool", 0);
+		for (size_t i=0 ; i<nbCells ; ++i)
+			writer.write(Bool[i]);
+		writer.closeCellArray();
 		writer.closeCellData();
 		writer.closeVtpFile();
 		lastDump = n;
@@ -1262,9 +1256,9 @@ void Swan::dumpVariables(int iteration, bool useTimer)
 	}
 }
 
-void Swan::simulate()
+void Swangeo::simulate()
 {
-	std::cout << "\n" << __BLUE_BKG__ << __YELLOW__ << __BOLD__ <<"\tStarting Swan ..." << __RESET__ << "\n\n";
+	std::cout << "\n" << __BLUE_BKG__ << __YELLOW__ << __BOLD__ <<"\tStarting SwanGEO ..." << __RESET__ << "\n\n";
 	
 	std::cout << "[" << __GREEN__ << "TOPOLOGY" << __RESET__ << "]  HWLOC unavailable cannot get topological informations" << std::endl;
 	
@@ -1275,6 +1269,7 @@ void Swan::simulate()
 
 	initDijini(); // @1.0
 	initFxy(); // @1.0
+	initHini(); // @1.0
 	initRijini(); // @1.0
 	initTime(); // @1.0
 	initUini(); // @1.0
@@ -1282,15 +1277,15 @@ void Swan::simulate()
 	initXc(); // @1.0
 	updateRij(); // @1.0
 	initDij(); // @2.0
+	initH(); // @2.0
 	initRij(); // @2.0
 	initU(); // @2.0
 	initV(); // @2.0
 	initXcAndYc(); // @2.0
 	initBool(); // @3.0
-	initHini(); // @4.0
-	initH(); // @5.0
-	setUpTimeLoopN(); // @6.0
-	executeTimeLoopN(); // @7.0
+	initdeltaxdeltay(); // @3.0
+	setUpTimeLoopN(); // @3.0
+	executeTimeLoopN(); // @4.0
 	
 	std::cout << __YELLOW__ << "\n\tDone ! Took " << __MAGENTA__ << __BOLD__ << globalTimer.print() << __RESET__ << std::endl;
 }
@@ -1307,7 +1302,7 @@ int main(int argc, char* argv[])
 	else
 	{
 		std::cerr << "[ERROR] Wrong number of arguments. Expecting 1 arg: dataFile." << std::endl;
-		std::cerr << "(Swan.json)" << std::endl;
+		std::cerr << "(SwanGEO.json)" << std::endl;
 		return -1;
 	}
 	
@@ -1330,21 +1325,21 @@ int main(int argc, char* argv[])
 	CartesianMesh2D* mesh = meshFactory.create();
 	
 	// Module instanciation(s)
-	Swan::Options swanOptions;
-	if (d.HasMember("swan"))
+	Swangeo::Options swangeoOptions;
+	if (d.HasMember("swangeo"))
 	{
 		rapidjson::StringBuffer strbuf;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
-		d["swan"].Accept(writer);
-		swanOptions.jsonInit(strbuf.GetString());
+		d["swangeo"].Accept(writer);
+		swangeoOptions.jsonInit(strbuf.GetString());
 	}
-	Swan* swan = new Swan(mesh, swanOptions);
+	Swangeo* swangeo = new Swangeo(mesh, swangeoOptions);
 	
 	// Start simulation
 	// Simulator must be a pointer when a finalize is needed at the end (Kokkos, omp...)
-	swan->simulate();
+	swangeo->simulate();
 	
-	delete swan;
+	delete swangeo;
 	delete mesh;
 	return ret;
 }

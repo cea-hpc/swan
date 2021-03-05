@@ -18,13 +18,14 @@
 			"waveVarName":"z",
 			"depthFilename":"/home/oudotmp/workspaces/swan/swan/data/swan/depthSquare.grd",
 			"depthVarName":"z"
-		}			
+		}
 	},
-	"mesh":
+		"mesh":
 	{
 		"nbXQuads":103,
 		"nbYQuads":103,
 		"xSize":4000.0,
 		"ySize":4000.0
 	}
+	
 }

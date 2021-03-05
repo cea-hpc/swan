@@ -1,0 +1,28 @@
+{
+	"swan":
+	{
+		"_outputPath_comment":"empty outputPath to disable output",
+		"outputPath":"output",
+		"outputPeriod":10,
+		"X_EDGE_LENGTH":200.0,
+		"Y_EDGE_LENGTH":200.0,
+		"DConst":true,
+		"Dini":-1000.0,
+		"deltat":0.1,
+		"F":0.0,
+		"maxIter":2500000,
+		"stopTime":50.0,
+		"bathyLib":
+		{
+			"waveFilename":"/home/oudotmp/workspaces/swan/swan/data/swan/waveCanal.grd",
+			"waveVarName":"z"
+		}
+	},
+	"mesh":
+	{
+		"nbXQuads":1103,
+		"nbYQuads":44,
+		"xSize":200.0,
+		"ySize":200.0
+	}
+}

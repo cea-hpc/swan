@@ -3,10 +3,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(LIBCPPNABLA_DIR $ENV{HOME}/workspaces/swan/swan/../LibCppNabla CACHE STRING "")
-set(NABLA_CXX_COMPILER /usr/bin/g++)
-set(BATHYLIB_DIR $ENV{HOME}/workspaces/swan/swan/../swan/src-gen-cpp/stl-thread/bathylib)
 
-project(SwanGEOProject CXX)
+project(BathyLibCpp CXX)
 
 set(CMAKE_CXX_COMPILER ${NABLA_CXX_COMPILER} CACHE STRING "")
 
@@ -20,17 +18,16 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	endif()
 endif()
 
-if(NOT TARGET bathylib)
-	add_subdirectory(${BATHYLIB_DIR} ${CMAKE_BINARY_DIR}/BathyLibCpp EXCLUDE_FROM_ALL)
-endif()
+MESSAGE(STATUS "Building library bathylib")
+
 if(NOT TARGET cppnabla)
 	add_subdirectory(${LIBCPPNABLA_DIR} ${CMAKE_BINARY_DIR}/LibCppNabla EXCLUDE_FROM_ALL)
 endif()
 
-
-add_executable(swangeo Swangeo.cc)
-target_include_directories(swangeo PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
-target_link_libraries(swangeo PUBLIC cppnabla cppnablastl pthread bathylib)
+add_library(bathylib BathyLib.cc)
+set_property(TARGET bathylib PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_include_directories(bathylib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
+target_link_libraries(bathylib PUBLIC cppnabla)
 
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Project.cmake)
 	include(${CMAKE_CURRENT_SOURCE_DIR}/Project.cmake)
