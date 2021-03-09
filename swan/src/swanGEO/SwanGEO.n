@@ -68,8 +68,7 @@ let ℝ DEG2M_DP = 111194.9266;
 let ℝ DEG2M = DEG2M_DP;
 
 ℝ t;
-ℝ[2] X{nodes}, Xc{cells};
-ℝ xc{cells}, yc{cells}; // Abscissa and ordinate of cells center of gravity so they can be plotted in vtk file
+ℝ[2] X{nodes}, Xc{innerCells};
 
 ℝ δx{cells};
 ℝ δy{cells};
@@ -81,8 +80,7 @@ let ℝ DEG2M = DEG2M_DP;
 ℝ Hini{cells}; //
 ℝ Rijini{cells}; // bottom motion 
 ℝ Rij{cells}; // bottom motion
-ℝ Fx{cells}; // forcing function of wind stress and barometric pressure in x direction  
-ℝ Fy{cells}; // forcing function of wind stress and barometric pressure in y direction
+ℝ[2] Fw{cells}; // forcing function of wind stress and barometric pressure  
 ℝ Dijini{cells}; // depth ( < 0)
 ℝ Dij{cells}; // depth ( < 0)
 
@@ -98,18 +96,12 @@ InitXc: ∀ic∈innerCells(),
 	 Xc{ic}[1] = nextLat();
 }
 
-InitXcAndYc: ∀c∈cells(), 
-{
-	xc{c} = Xc{c}[0]; 
-	yc{c} = Xc{c}[1];
-}
-
 // init δx and δy on each cell
 Initδxδy:
 {
 	∀ic∈innerCells(),
 	{
-		δx{ic} = δx_lon * DEG2M * cos(yc{ic} * DEG2RAD);
+		δx{ic} = δx_lon * DEG2M * cos(Xc{ic}[1] * DEG2RAD);
 		δy{ic} = δy_lat * DEG2M_DP;
 	}
 	∀oc∈outerCells(), 
@@ -119,11 +111,10 @@ Initδxδy:
 	}
 }
 
-// forcing functions initialization
-InitFxy: ∀c∈cells(),
+// forcing function initialization
+InitFw: ∀c∈cells(),
 {
-	Fx{c} = 0.0;
-	Fy{c} = 0.0;
+	Fw{c} = [0.0, 0.0];
 }
 
 // depth initialization
@@ -313,7 +304,7 @@ UpdateUinner:∀civf∈InnerVerticalFaces(),
 	∀fijv∈bottomRightFaceNeighbour(civf),
 	∀cij∈frontCell(civf),
 	∀cimoins1j∈backCell(civf),
-		U^{n+1}{civf} = (U^{n}{civf} - δt*(U^{n}{civf} * TU1 / δx{cij} + TV * TU2 / δy{cij}) - (g * δt * THU )/ δx{cij} + δt * ( - F * V^{n}{fijv} - Fx{cij} + SB)) * Bool{cij} * Bool{cimoins1j};
+		U^{n+1}{civf} = (U^{n}{civf} - δt*(U^{n}{civf} * TU1 / δx{cij} + TV * TU2 / δy{cij}) - (g * δt * THU )/ δx{cij} + δt * ( - F * V^{n}{fijv} - Fw{cij}[0] + SB)) * Bool{cij} * Bool{cimoins1j};
 }
 
 // update boundary condition for x velocity
@@ -374,7 +365,7 @@ UpdateVinner:∀cihf∈InnerHorizontalFaces(),
 	∀fijv∈topLeftFaceNeighbour(cihf),
 	∀cij∈frontCell(cihf),
 	∀cijmoins1∈backCell(cihf),
-		V^{n+1}{cihf} = (V^{n}{cihf} - δt*( TU * TV1 / δx{cij} + V^{n}{cihf} * TV2 / δy{cij}) - (g * δt  * THV )/ δy{cij} + δt * ( F * U^{n}{fijv} - Fy{cij} + SB) ) * Bool{cijmoins1} * Bool{cij};
+		V^{n+1}{cihf} = (V^{n}{cihf} - δt*( TU * TV1 / δx{cij} + V^{n}{cihf} * TV2 / δy{cij}) - (g * δt  * THV )/ δy{cij} + δt * ( F * U^{n}{fijv} - Fw{cij}[1] + SB) ) * Bool{cijmoins1} * Bool{cij};
 }
 
 // update boundary condition for y velocity

@@ -1,6 +1,6 @@
 /*** GENERATED FILE - DO NOT OVERWRITE ***/
 
-#include "swangeo/Swangeo.h"
+#include "Swangeo.h"
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/stringbuffer.h>
@@ -102,9 +102,7 @@ Swangeo::Swangeo(CartesianMesh2D* aMesh, Options& aOptions)
 , writer("SwanGEO", options.outputPath)
 , lastDump(numeric_limits<int>::min())
 , X(nbNodes)
-, Xc(nbCells)
-, xc(nbCells)
-, yc(nbCells)
+, Xc(nbInnerCells)
 , deltax(nbCells)
 , deltay(nbCells)
 , U_n(nbFaces)
@@ -123,8 +121,7 @@ Swangeo::Swangeo(CartesianMesh2D* aMesh, Options& aOptions)
 , Rij_n(nbCells)
 , Rij_nplus1(nbCells)
 , Rij_n0(nbCells)
-, Fx(nbCells)
-, Fy(nbCells)
+, Fw(nbCells)
 , Dijini(nbCells)
 , Dij(nbCells)
 , Bool(nbCells)
@@ -184,16 +181,15 @@ void Swangeo::initDijini() noexcept
 }
 
 /**
- * Job initFxy called @1.0 in simulate method.
+ * Job initFw called @1.0 in simulate method.
  * In variables: 
- * Out variables: Fx, Fy
+ * Out variables: Fw
  */
-void Swangeo::initFxy() noexcept
+void Swangeo::initFw() noexcept
 {
 	parallel_exec(nbCells, [&](const size_t& cCells)
 	{
-		Fx[cCells] = 0.0;
-		Fy[cCells] = 0.0;
+		Fw[cCells] = {0.0, 0.0};
 	});
 }
 
@@ -295,10 +291,8 @@ void Swangeo::initXc() noexcept
 		const size_t nbInnerCells(innerCells.size());
 		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
 		{
-			const Id icId(innerCells[icInnerCells]);
-			const size_t icCells(icId);
-			Xc[icCells][0] = options.bathyLib.nextLon();
-			Xc[icCells][1] = options.bathyLib.nextLat();
+			Xc[icInnerCells][0] = options.bathyLib.nextLon();
+			Xc[icInnerCells][1] = options.bathyLib.nextLat();
 		}
 	}
 }
@@ -456,7 +450,7 @@ void Swangeo::updateRij() noexcept
 
 /**
  * Job updateUinner called @1.0 in executeTimeLoopN method.
- * In variables: Bool, C, Dij, F, Fx, H_n, U_n, V_n, deltat, deltax, deltay, g
+ * In variables: Bool, C, Dij, F, Fw, H_n, U_n, V_n, deltat, deltax, deltay, g
  * Out variables: U_nplus1
  */
 void Swangeo::updateUinner() noexcept
@@ -530,7 +524,7 @@ void Swangeo::updateUinner() noexcept
 				const size_t cijCells(cijId);
 				const Id cimoins1jId(mesh->getBackCell(civfId));
 				const size_t cimoins1jCells(cimoins1jId);
-				U_nplus1[civfFaces] = (U_n[civfFaces] - options.deltat * (U_n[civfFaces] * TU1 / deltax[cijCells] + TV * TU2 / deltay[cijCells]) - (g * options.deltat * THU) / deltax[cijCells] + options.deltat * (-F * V_n[fijvFaces] - Fx[cijCells] + SB)) * Bool[cijCells] * Bool[cimoins1jCells];
+				U_nplus1[civfFaces] = (U_n[civfFaces] - options.deltat * (U_n[civfFaces] * TU1 / deltax[cijCells] + TV * TU2 / deltay[cijCells]) - (g * options.deltat * THU) / deltax[cijCells] + options.deltat * (-F * V_n[fijvFaces] - Fw[cijCells][0] + SB)) * Bool[cijCells] * Bool[cimoins1jCells];
 			}
 		});
 	}
@@ -601,7 +595,7 @@ void Swangeo::updateUouter() noexcept
 
 /**
  * Job updateVinner called @1.0 in executeTimeLoopN method.
- * In variables: Bool, C, Dij, F, Fy, H_n, U_n, V_n, deltat, deltax, deltay, g
+ * In variables: Bool, C, Dij, F, Fw, H_n, U_n, V_n, deltat, deltax, deltay, g
  * Out variables: V_nplus1
  */
 void Swangeo::updateVinner() noexcept
@@ -675,7 +669,7 @@ void Swangeo::updateVinner() noexcept
 				const size_t cijCells(cijId);
 				const Id cijmoins1Id(mesh->getBackCell(cihfId));
 				const size_t cijmoins1Cells(cijmoins1Id);
-				V_nplus1[cihfFaces] = (V_n[cihfFaces] - options.deltat * (TU * TV1 / deltax[cijCells] + V_n[cihfFaces] * TV2 / deltay[cijCells]) - (g * options.deltat * THV) / deltay[cijCells] + options.deltat * (F * U_n[fijvFaces] - Fy[cijCells] + SB)) * Bool[cijmoins1Cells] * Bool[cijCells];
+				V_nplus1[cihfFaces] = (V_n[cihfFaces] - options.deltat * (TU * TV1 / deltax[cijCells] + V_n[cihfFaces] * TV2 / deltay[cijCells]) - (g * options.deltat * THV) / deltay[cijCells] + options.deltat * (F * U_n[fijvFaces] - Fw[cijCells][1] + SB)) * Bool[cijmoins1Cells] * Bool[cijCells];
 			}
 		});
 	}
@@ -1072,17 +1066,34 @@ void Swangeo::initV() noexcept
 }
 
 /**
- * Job initXcAndYc called @2.0 in simulate method.
- * In variables: Xc
- * Out variables: xc, yc
+ * Job initdeltaxdeltay called @2.0 in simulate method.
+ * In variables: DEG2M, DEG2M_DP, DEG2RAD, Xc, deltax_lon, deltay_lat
+ * Out variables: deltax, deltay
  */
-void Swangeo::initXcAndYc() noexcept
+void Swangeo::initdeltaxdeltay() noexcept
 {
-	parallel_exec(nbCells, [&](const size_t& cCells)
 	{
-		xc[cCells] = Xc[cCells][0];
-		yc[cCells] = Xc[cCells][1];
-	});
+		const auto innerCells(mesh->getInnerCells());
+		const size_t nbInnerCells(innerCells.size());
+		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
+		{
+			const Id icId(innerCells[icInnerCells]);
+			const size_t icCells(icId);
+			deltax[icCells] = deltax_lon * DEG2M * std::cos(Xc[icInnerCells][1] * DEG2RAD);
+			deltay[icCells] = deltay_lat * DEG2M_DP;
+		});
+	}
+	{
+		const auto outerCells(mesh->getOuterCells());
+		const size_t nbOuterCells(outerCells.size());
+		parallel_exec(nbOuterCells, [&](const size_t& ocOuterCells)
+		{
+			const Id ocId(outerCells[ocOuterCells]);
+			const size_t ocCells(ocId);
+			deltax[ocCells] = 3000.0;
+			deltay[ocCells] = 3000.0;
+		});
+	}
 }
 
 /**
@@ -1099,37 +1110,6 @@ void Swangeo::initBool() noexcept
 		else
 			Bool[cCells] = 1.0;
 	});
-}
-
-/**
- * Job initdeltaxdeltay called @3.0 in simulate method.
- * In variables: DEG2M, DEG2M_DP, DEG2RAD, deltax_lon, deltay_lat, yc
- * Out variables: deltax, deltay
- */
-void Swangeo::initdeltaxdeltay() noexcept
-{
-	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
-		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
-		{
-			const Id icId(innerCells[icInnerCells]);
-			const size_t icCells(icId);
-			deltax[icCells] = deltax_lon * DEG2M * std::cos(yc[icCells] * DEG2RAD);
-			deltay[icCells] = deltay_lat * DEG2M_DP;
-		});
-	}
-	{
-		const auto outerCells(mesh->getOuterCells());
-		const size_t nbOuterCells(outerCells.size());
-		parallel_exec(nbOuterCells, [&](const size_t& ocOuterCells)
-		{
-			const Id ocId(outerCells[ocOuterCells]);
-			const size_t ocCells(ocId);
-			deltax[ocCells] = 3000.0;
-			deltay[ocCells] = 3000.0;
-		});
-	}
 }
 
 /**
@@ -1152,7 +1132,7 @@ void Swangeo::setUpTimeLoopN() noexcept
 
 /**
  * Job executeTimeLoopN called @4.0 in simulate method.
- * In variables: Bool, C, Dij, F, Fx, Fy, H_n, Rij_n, Rij_nplus1, U_n, V_n, deltat, deltax, deltay, g, t_n
+ * In variables: Bool, C, Dij, F, Fw, H_n, Rij_n, Rij_nplus1, U_n, V_n, deltat, deltax, deltay, g, t_n
  * Out variables: H_nplus1, U_nplus1, V_nplus1, t_nplus1
  */
 void Swangeo::executeTimeLoopN() noexcept
@@ -1268,7 +1248,7 @@ void Swangeo::simulate()
 		std::cout << "[" << __GREEN__ << "OUTPUT" << __RESET__ << "]    " << __BOLD__ << "Disabled" << __RESET__ << std::endl;
 
 	initDijini(); // @1.0
-	initFxy(); // @1.0
+	initFw(); // @1.0
 	initHini(); // @1.0
 	initRijini(); // @1.0
 	initTime(); // @1.0
@@ -1281,9 +1261,8 @@ void Swangeo::simulate()
 	initRij(); // @2.0
 	initU(); // @2.0
 	initV(); // @2.0
-	initXcAndYc(); // @2.0
+	initdeltaxdeltay(); // @2.0
 	initBool(); // @3.0
-	initdeltaxdeltay(); // @3.0
 	setUpTimeLoopN(); // @3.0
 	executeTimeLoopN(); // @4.0
 	

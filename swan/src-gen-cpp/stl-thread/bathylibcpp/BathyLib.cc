@@ -1,11 +1,9 @@
-#include "bathylib/BathyLib.h"
+#include "BathyLib.h"
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
-namespace bathylib
-{
 void BathyLib::jsonInit(const char* jsonContent)
 {
 	rapidjson::Document document;
@@ -83,4 +81,4 @@ void BathyLib::jsonInit(const char* jsonContent)
 		bottomVarName = valueof_fileName.GetString();
 	}
 }
-}
+

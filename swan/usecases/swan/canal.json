@@ -14,7 +14,7 @@
 		"stopTime":50.0,
 		"bathyLib":
 		{
-			"waveFilename":"/home/oudotmp/workspaces/swan/swan/data/swan/waveCanal.grd",
+			"waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swan/waveCanal.grd",
 			"waveVarName":"z"
 		}
 	},

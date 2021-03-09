@@ -1,12 +1,10 @@
-#ifndef __BATHYLIB__BATHYLIB
-#define __BATHYLIB__BATHYLIB
+#ifndef __BATHYLIB_H_
+#define __BATHYLIB_H_
 
-#include "bathylib/IBathyLib.h"
+#include "IBathyLib.h"
 #include "netcdf.h"
-#include "string.h"
+#include <string.h>
 
-namespace bathylib
-{
 class BathyLib : public IBathyLib
 {
 public:
@@ -31,6 +29,7 @@ public:
 			size_t* len;
 
 			//ouvre le fichier
+			replaceHomeVar(waveFilename);
 			if((retval = nc_open(waveFilename.c_str(), NC_NOWRITE, &ncid)))
 			{std::cout << retval <<"error nc open nextWaveHeight"<< std::endl; exit(retval);}
 
@@ -85,6 +84,7 @@ public:
 			size_t nbLon, nbLat;
 
 			//ouvre le fichier
+			replaceHomeVar(lonFilename);
 			if((retval = nc_open(lonFilename.c_str(), NC_NOWRITE, &ncid)))
 			{std::cout << retval <<"error nc open lon nextLon"<< std::endl; exit(retval);}
 
@@ -152,6 +152,7 @@ public:
 			size_t* len;
 
 			//ouvre le fichier
+			replaceHomeVar(depthFilename);
 			if((retval = nc_open(depthFilename.c_str(), NC_NOWRITE, &ncid)))
 			{std::cout << retval <<"error nc open nextDepth"<< std::endl; exit(retval);}
 
@@ -206,6 +207,7 @@ public:
 			size_t nbLon, nbLat;
 
 			//ouvre le fichier
+			replaceHomeVar(latFilename);
 			if((retval = nc_open(latFilename.c_str(), NC_NOWRITE, &ncid)))
 			{std::cout << retval <<"error nc open nextLat"<< std::endl; exit(retval);}
 
@@ -256,6 +258,15 @@ public:
 	}
 
 private:
+	void replaceHomeVar(string& s)
+	{
+		std::string homeVar("$ENV{HOME}");
+		std::string homeValue(getenv("HOME"));
+		size_t index = s.find(homeVar, 0);
+		if (index != std::string::npos)
+			s = s.replace(index, homeVar.size(), homeValue);
+	}
+
 	float* dataWave = NULL;
 	unsigned int countWave = 0;
 	unsigned int countWaveMax = 1;
@@ -291,6 +302,5 @@ private:
 	std::string latFilename = "";
 	std::string latVarName = "";
 };
-}
 
-#endif // __BATHYLIB__BATHYLIB
+#endif

@@ -1,7 +1,7 @@
 /*** GENERATED FILE - DO NOT OVERWRITE ***/
 
-#ifndef SWANGEO_H_
-#define SWANGEO_H_
+#ifndef __SWANGEO_H_
+#define __SWANGEO_H_
 
 #include <fstream>
 #include <iomanip>
@@ -16,7 +16,7 @@
 #include "nablalib/utils/Timer.h"
 #include "nablalib/types/Types.h"
 #include "nablalib/utils/stl/Parallel.h"
-#include "bathylib/BathyLib.h"
+#include "BathyLib.h"
 
 using namespace nablalib::mesh;
 using namespace nablalib::utils;
@@ -37,7 +37,7 @@ public:
 		double deltat;
 		int maxIter;
 		double stopTime;
-		bathylib::BathyLib bathyLib;
+		BathyLib bathyLib;
 
 		void jsonInit(const char* jsonContent);
 	};
@@ -48,7 +48,7 @@ public:
 	void simulate();
 	void computeTn() noexcept;
 	void initDijini() noexcept;
-	void initFxy() noexcept;
+	void initFw() noexcept;
 	void initHini() noexcept;
 	void initRijini() noexcept;
 	void initTime() noexcept;
@@ -67,9 +67,8 @@ public:
 	void initRij() noexcept;
 	void initU() noexcept;
 	void initV() noexcept;
-	void initXcAndYc() noexcept;
-	void initBool() noexcept;
 	void initdeltaxdeltay() noexcept;
+	void initBool() noexcept;
 	void setUpTimeLoopN() noexcept;
 	void executeTimeLoopN() noexcept;
 
@@ -107,8 +106,6 @@ public:
 	double t_n0;
 	std::vector<RealArray1D<2>> X;
 	std::vector<RealArray1D<2>> Xc;
-	std::vector<double> xc;
-	std::vector<double> yc;
 	std::vector<double> deltax;
 	std::vector<double> deltay;
 	std::vector<double> U_n;
@@ -127,8 +124,7 @@ public:
 	std::vector<double> Rij_n;
 	std::vector<double> Rij_nplus1;
 	std::vector<double> Rij_n0;
-	std::vector<double> Fx;
-	std::vector<double> Fy;
+	std::vector<RealArray1D<2>> Fw;
 	std::vector<double> Dijini;
 	std::vector<double> Dij;
 	std::vector<double> Bool;

@@ -23,7 +23,6 @@ connectivity leftCells: → {cell};
 connectivity rightCells: → {cell};
 
 // cell related collection
-connectivity nodesOfCell: cell → {node};
 connectivity rightFaceOfCell: cell → face;
 connectivity leftFaceOfCell : cell → face;
 connectivity topFaceOfCell : cell → face;
@@ -61,8 +60,7 @@ let ℝ g = -9.8; // -9.8
 let ℝ C = 40.0; // De Chezy coefficient, C ∈ [20, 80]
 
 ℝ t;
-ℝ[2] X{nodes},Xc{cells};
-ℝ xc{cells}, yc{cells}; // Abscissa and ordinate of cells center of gravity so they can be plotted in vtk file
+ℝ[2] X{nodes};
 
 ℝ U{faces}; // velocity in x direction
 ℝ Uini{faces}; 
@@ -72,8 +70,7 @@ let ℝ C = 40.0; // De Chezy coefficient, C ∈ [20, 80]
 ℝ Hini{cells}; //
 ℝ Rijini{cells}; // bottom motion 
 ℝ Rij{cells}; // bottom motion
-ℝ Fx{cells}; // forcing function of wind stress and barometric pressure in x direction  
-ℝ Fy{cells}; // forcing function of wind stress and barometric pressure in y direction
+ℝ[2] Fw{cells}; // forcing function of wind stress and barometric pressure  
 ℝ Dijini{cells}; // depth ( < 0)
 ℝ Dij{cells}; // depth ( < 0)
 
@@ -83,19 +80,10 @@ iterate n while (t^{n+1} < stopTime && n < maxIter);
 
 InitTime: t^{n=0} = 0.0;
 
-InitXc: ∀c∈cells(), Xc{c} = 0.25 * ∑{p∈nodesOfCell(c)}(X{p}); // Only valid on parallelograms
-
-InitXcAndYc: ∀c∈cells(),
+// forcing function initialization
+InitFw: ∀c∈cells(), 
 {
-	xc{c} = Xc{c}[0]; 
-	yc{c} = Xc{c}[1];
-}
-
-// forcing functions initialization
-InitFxy: ∀c∈cells(), 
-{
-	Fx{c} = 0.0;
-	Fy{c} = 0.0;
+	Fw{c} = [0.0, 0.0];
 }
 
 // depth initialization
@@ -284,7 +272,7 @@ UpdateUinner:∀civf∈InnerVerticalFaces(),
 	∀fijv∈bottomRightFaceNeighbour(civf),
 	∀cij∈frontCell(civf),
 	∀cimoins1j∈backCell(civf),
-		U^{n+1}{civf} = (U^{n}{civf} - δt*(U^{n}{civf} * TU1 / δx + TV * TU2 / δy) - (g * δt * THU )/ δx  + δt * ( - F * V^{n}{fijv} - Fx{cij} + SB)) * Bool{cij} * Bool{cimoins1j};
+		U^{n+1}{civf} = (U^{n}{civf} - δt*(U^{n}{civf} * TU1 / δx + TV * TU2 / δy) - (g * δt * THU )/ δx  + δt * ( - F * V^{n}{fijv} - Fw{cij}[0] + SB)) * Bool{cij} * Bool{cimoins1j};
 }
 
 // update boundary condition for x velocity
@@ -344,7 +332,7 @@ UpdateVinner:∀cihf∈InnerHorizontalFaces(),
 	∀fijv∈topLeftFaceNeighbour(cihf),
 	∀cij∈frontCell(cihf),
 	∀cijmoins1∈backCell(cihf),
-		V^{n+1}{cihf} = (V^{n}{cihf} - δt*( TU * TV1 / δx + V^{n}{cihf} * TV2 / δy) - (g * δt  * THV )/ δy + δt * ( F * U^{n}{fijv} - Fy{cij} + SB) ) * Bool{cijmoins1} * Bool{cij};
+		V^{n+1}{cihf} = (V^{n}{cihf} - δt*( TU * TV1 / δx + V^{n}{cihf} * TV2 / δy) - (g * δt  * THV )/ δy + δt * ( F * U^{n}{fijv} - Fw{cij}[1] + SB) ) * Bool{cijmoins1} * Bool{cij};
 }
 
 // update boundary condition for y velocity

@@ -19,13 +19,13 @@
 	},
 	"swanGEOFunctions":
 	{
-		"waveFilename":"/home/oudotmp/workspaces/swan/swan/data/swangeo/waveMediterrannee.grd",
+		"waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/waveMediterrannee.grd",
 		"waveVarName":"surf",
-		"depthFilename":"/home/oudotmp/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
+		"depthFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
 		"depthVarName":"z",
-		"lonFilename":"/home/oudotmp/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
+		"lonFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
 		"lonVarName":"x",
-		"latFilename":"/home/oudotmp/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
+		"latFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
 		"latVarName":"y"
 	}
 }

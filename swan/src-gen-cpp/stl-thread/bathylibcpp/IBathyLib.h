@@ -1,7 +1,7 @@
 /*** GENERATED FILE - DO NOT OVERWRITE ***/
 
-#ifndef __BATHYLIB__IBATHYLIB
-#define __BATHYLIB__IBATHYLIB
+#ifndef __IBATHYLIB_H_
+#define __IBATHYLIB_H_
 
 #include <fstream>
 #include <iomanip>
@@ -19,27 +19,24 @@ using namespace nablalib::mesh;
 using namespace nablalib::utils;
 using namespace nablalib::types;
 
-namespace bathylib
+class IBathyLib
 {
-	class IBathyLib
-	{
-	public:
-		virtual void jsonInit(const char* jsonContent) = 0;
+public:
+	virtual void jsonInit(const char* jsonContent) = 0;
 
-		/* 
-		 * Here are the other methods to implement in Sequential class.
-		 * Some of them can be templates. Therefore they can not be virtual.
-		 *
+	/* 
+	 * Here are the other methods to implement in Sequential class.
+	 * Some of them can be templates. Therefore they can not be virtual.
+	 *
 
-		double nextWaveHeight();
+	double nextWaveHeight();
 
-		double nextDepth();
+	double nextDepth();
 
-		double nextLat();
+	double nextLat();
 
-		double nextLon();
-		*/
-	};
-}
+	double nextLon();
+	*/
+};
 
-#endif // __BATHYLIB__IBATHYLIB
+#endif

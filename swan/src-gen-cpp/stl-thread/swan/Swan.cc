@@ -1,22 +1,11 @@
 /*** GENERATED FILE - DO NOT OVERWRITE ***/
 
-#include "swan/Swan.h"
+#include "Swan.h"
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
-
-/******************** Free functions definitions ********************/
-
-namespace SwanFuncs
-{
-template<size_t x>
-RealArray1D<x> sumR1(RealArray1D<x> a, RealArray1D<x> b)
-{
-	return a + b;
-}
-}
 
 /******************** Options definition ********************/
 
@@ -135,16 +124,12 @@ Swan::Swan(CartesianMesh2D* aMesh, Options& aOptions)
 , nbBottomCells(mesh->getNbBottomCells())
 , nbLeftCells(mesh->getNbLeftCells())
 , nbRightCells(mesh->getNbRightCells())
-, nbNodesOfCell(CartesianMesh2D::MaxNbNodesOfCell)
 , options(aOptions)
 , writer("Swan", options.outputPath)
 , lastDump(numeric_limits<int>::min())
 , deltax(options.X_EDGE_LENGTH)
 , deltay(options.Y_EDGE_LENGTH)
 , X(nbNodes)
-, Xc(nbCells)
-, xc(nbCells)
-, yc(nbCells)
 , U_n(nbFaces)
 , U_nplus1(nbFaces)
 , U_n0(nbFaces)
@@ -161,8 +146,7 @@ Swan::Swan(CartesianMesh2D* aMesh, Options& aOptions)
 , Rij_n(nbCells)
 , Rij_nplus1(nbCells)
 , Rij_n0(nbCells)
-, Fx(nbCells)
-, Fy(nbCells)
+, Fw(nbCells)
 , Dijini(nbCells)
 , Dij(nbCells)
 , Bool(nbCells)
@@ -222,16 +206,15 @@ void Swan::initDijini() noexcept
 }
 
 /**
- * Job initFxy called @1.0 in simulate method.
+ * Job initFw called @1.0 in simulate method.
  * In variables: 
- * Out variables: Fx, Fy
+ * Out variables: Fw
  */
-void Swan::initFxy() noexcept
+void Swan::initFw() noexcept
 {
 	parallel_exec(nbCells, [&](const size_t& cCells)
 	{
-		Fx[cCells] = 0.0;
-		Fy[cCells] = 0.0;
+		Fw[cCells] = {0.0, 0.0};
 	});
 }
 
@@ -300,31 +283,6 @@ void Swan::initVini() noexcept
 			Vini[fFaces] = 0.0;
 		});
 	}
-}
-
-/**
- * Job initXc called @1.0 in simulate method.
- * In variables: X
- * Out variables: Xc
- */
-void Swan::initXc() noexcept
-{
-	parallel_exec(nbCells, [&](const size_t& cCells)
-	{
-		const Id cId(cCells);
-		RealArray1D<2> reduction0({0.0, 0.0});
-		{
-			const auto nodesOfCellC(mesh->getNodesOfCell(cId));
-			const size_t nbNodesOfCellC(nodesOfCellC.size());
-			for (size_t pNodesOfCellC=0; pNodesOfCellC<nbNodesOfCellC; pNodesOfCellC++)
-			{
-				const Id pId(nodesOfCellC[pNodesOfCellC]);
-				const size_t pNodes(pId);
-				reduction0 = SwanFuncs::sumR1(reduction0, X[pNodes]);
-			}
-		}
-		Xc[cCells] = 0.25 * reduction0;
-	});
 }
 
 /**
@@ -480,7 +438,7 @@ void Swan::updateRij() noexcept
 
 /**
  * Job updateUinner called @1.0 in executeTimeLoopN method.
- * In variables: Bool, C, Dij, F, Fx, H_n, U_n, V_n, deltat, deltax, deltay, g
+ * In variables: Bool, C, Dij, F, Fw, H_n, U_n, V_n, deltat, deltax, deltay, g
  * Out variables: U_nplus1
  */
 void Swan::updateUinner() noexcept
@@ -553,7 +511,7 @@ void Swan::updateUinner() noexcept
 				const size_t cijCells(cijId);
 				const Id cimoins1jId(mesh->getBackCell(civfId));
 				const size_t cimoins1jCells(cimoins1jId);
-				U_nplus1[civfFaces] = (U_n[civfFaces] - options.deltat * (U_n[civfFaces] * TU1 / deltax + TV * TU2 / deltay) - (g * options.deltat * THU) / deltax + options.deltat * (-options.F * V_n[fijvFaces] - Fx[cijCells] + SB)) * Bool[cijCells] * Bool[cimoins1jCells];
+				U_nplus1[civfFaces] = (U_n[civfFaces] - options.deltat * (U_n[civfFaces] * TU1 / deltax + TV * TU2 / deltay) - (g * options.deltat * THU) / deltax + options.deltat * (-options.F * V_n[fijvFaces] - Fw[cijCells][0] + SB)) * Bool[cijCells] * Bool[cimoins1jCells];
 			}
 		});
 	}
@@ -624,7 +582,7 @@ void Swan::updateUouter() noexcept
 
 /**
  * Job updateVinner called @1.0 in executeTimeLoopN method.
- * In variables: Bool, C, Dij, F, Fy, H_n, U_n, V_n, deltat, deltax, deltay, g
+ * In variables: Bool, C, Dij, F, Fw, H_n, U_n, V_n, deltat, deltax, deltay, g
  * Out variables: V_nplus1
  */
 void Swan::updateVinner() noexcept
@@ -697,7 +655,7 @@ void Swan::updateVinner() noexcept
 				const size_t cijCells(cijId);
 				const Id cijmoins1Id(mesh->getBackCell(cihfId));
 				const size_t cijmoins1Cells(cijmoins1Id);
-				V_nplus1[cihfFaces] = (V_n[cihfFaces] - options.deltat * (TU * TV1 / deltax + V_n[cihfFaces] * TV2 / deltay) - (g * options.deltat * THV) / deltay + options.deltat * (options.F * U_n[fijvFaces] - Fy[cijCells] + SB)) * Bool[cijmoins1Cells] * Bool[cijCells];
+				V_nplus1[cihfFaces] = (V_n[cihfFaces] - options.deltat * (TU * TV1 / deltax + V_n[cihfFaces] * TV2 / deltay) - (g * options.deltat * THV) / deltay + options.deltat * (options.F * U_n[fijvFaces] - Fw[cijCells][1] + SB)) * Bool[cijmoins1Cells] * Bool[cijCells];
 			}
 		});
 	}
@@ -1027,20 +985,6 @@ void Swan::initV() noexcept
 }
 
 /**
- * Job initXcAndYc called @2.0 in simulate method.
- * In variables: Xc
- * Out variables: xc, yc
- */
-void Swan::initXcAndYc() noexcept
-{
-	parallel_exec(nbCells, [&](const size_t& cCells)
-	{
-		xc[cCells] = Xc[cCells][0];
-		yc[cCells] = Xc[cCells][1];
-	});
-}
-
-/**
  * Job initBool called @3.0 in simulate method.
  * In variables: Dij
  * Out variables: Bool
@@ -1162,7 +1106,7 @@ void Swan::setUpTimeLoopN() noexcept
 
 /**
  * Job executeTimeLoopN called @7.0 in simulate method.
- * In variables: Bool, C, Dij, F, Fx, Fy, H_n, Rij_n, Rij_nplus1, U_n, V_n, deltat, deltax, deltay, g, t_n
+ * In variables: Bool, C, Dij, F, Fw, H_n, Rij_n, Rij_nplus1, U_n, V_n, deltat, deltax, deltay, g, t_n
  * Out variables: H_nplus1, U_nplus1, V_nplus1, t_nplus1
  */
 void Swan::executeTimeLoopN() noexcept
@@ -1274,18 +1218,16 @@ void Swan::simulate()
 		std::cout << "[" << __GREEN__ << "OUTPUT" << __RESET__ << "]    " << __BOLD__ << "Disabled" << __RESET__ << std::endl;
 
 	initDijini(); // @1.0
-	initFxy(); // @1.0
+	initFw(); // @1.0
 	initRijini(); // @1.0
 	initTime(); // @1.0
 	initUini(); // @1.0
 	initVini(); // @1.0
-	initXc(); // @1.0
 	updateRij(); // @1.0
 	initDij(); // @2.0
 	initRij(); // @2.0
 	initU(); // @2.0
 	initV(); // @2.0
-	initXcAndYc(); // @2.0
 	initBool(); // @3.0
 	initHini(); // @4.0
 	initH(); // @5.0

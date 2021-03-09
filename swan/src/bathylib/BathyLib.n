@@ -14,4 +14,3 @@ def nextDepth: → ℝ;
 //def nextBottomMotion: → ℝ;
 def nextLat: → ℝ;
 def nextLon: → ℝ;
-

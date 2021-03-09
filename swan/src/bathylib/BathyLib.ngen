@@ -13,8 +13,6 @@ Provider BathyLibCpp : BathyLib
 {
 	target = CppSequential;
 	compatibleTargets = StlThread;
-	outputDir = "/swan/src-gen-cpp/stl-thread";
-	namespace = "bathylib";
-	libName = "bathylib";
+	outputPath = "/swan/src-gen-cpp/stl-thread";
 }
 
