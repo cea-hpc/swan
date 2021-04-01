@@ -3,11 +3,9 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
-project(SwanProject CXX)
-
 # SET VARIABLES
-set(N_CXX_COMPILER /usr/bin/g++)
-set(N_WS_PATH $ENV{HOME}/workspaces/swan)
+set(CMAKE_CXX_COMPILER /ccc/products1/gcc-9.1.0/RedHat-7-x86_64/bin/g++ CACHE STRING "")
+set(N_WS_PATH /cea/dsku/u-pong/temp1/b4/lemairen/NabLab/workspace/swan)
 set(BATHYLIBCPP_PATH ${N_WS_PATH}/swan/src-gen-cpp/stl-thread/bathylibcpp)
 
 # CHECK VARIABLES
@@ -15,11 +13,13 @@ if (NOT DEFINED N_WS_PATH)
 	message(FATAL_ERROR "N_WS_PATH variable must be set")
 endif()
 
-# CHECK CXX VERSION
-set(CMAKE_CXX_COMPILER ${N_CXX_COMPILER} CACHE STRING "")
+# PROJECT
+project(SwanProject CXX)
+
+# CHECK CXX VERSION: must be done after the project() (CMAKE_CXX_COMPILER_ID not defined before)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.4.0")
-		message(FATAL_ERROR "GCC minimum required version is 7.4.0. Please upgrade.")
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.1.0")
+		message(FATAL_ERROR "GCC minimum required version is 9.1.0. Please upgrade.")
 	endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.0.0")

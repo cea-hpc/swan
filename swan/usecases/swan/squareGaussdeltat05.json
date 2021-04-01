@@ -14,9 +14,9 @@
 		"stopTime":2500.0,
 		"bathyLib":
 		{
-			"waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swan/waveSquareGauss.grd",
+			"waveFilename":"/cea/temp/b4/lemairen/NabLab/workspace/swan/swan/data/swan/waveSquareGauss.grd",
 			"waveVarName":"z",
-			"depthFilename":"/home/oudotmp/workspaces/swan/swan/data/swan/depthSquare.grd",
+			"depthFilename":"/cea/temp/b4/lemairen/NabLab/workspace/swan/swan/data/swan/depthSquare.grd",
 			"depthVarName":"z"
 		}
 	},
