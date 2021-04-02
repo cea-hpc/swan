@@ -1,0 +1,24 @@
+Application Swan;
+
+MainModule Swan swan
+{
+	meshClassName = "CartesianMesh2D";
+	nodeCoord = X;
+	time = t;
+	timeStep = δt;
+	iterationMax = maxIter;
+	timeMax = stopTime;
+}
+
+VtkOutput
+{
+	periodReferenceVariable = swan.n;
+	outputVariables = swan.H as "hauteur", 
+		swan.Dij as "profondeur";
+}
+
+StlThread
+{
+	outputPath = "/swan1D/src-gen-cpp/stl-thread";
+	N_CXX_COMPILER = "/ccc/products1/gcc-9.1.0/RedHat-7-x86_64/bin/g++";
+}
