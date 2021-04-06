@@ -10,9 +10,11 @@
 		"DConst":true,
 		"Dini":-1000.0,
 		"deltat":0.008,
+		"F":0.0,
 		"maxIter":5000000,
 		"stopTime":20.0,
-		"bathyLib":{}
+		"X0":50.0,
+		"Amp":0.1
 	},
 	"mesh":
 	{

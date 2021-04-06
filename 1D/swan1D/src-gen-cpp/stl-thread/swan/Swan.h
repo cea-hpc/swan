@@ -16,12 +16,21 @@
 #include "nablalib/utils/Timer.h"
 #include "nablalib/types/Types.h"
 #include "nablalib/utils/stl/Parallel.h"
-#include "BathyLib.h"
 
 using namespace nablalib::mesh;
 using namespace nablalib::utils;
 using namespace nablalib::types;
 using namespace nablalib::utils::stl;
+
+/******************** Free functions declarations ********************/
+
+namespace swanfreefuncs
+{
+template<size_t x>
+double dot(RealArray1D<x> a, RealArray1D<x> b);
+template<size_t x>
+RealArray1D<x> sumR1(RealArray1D<x> a, RealArray1D<x> b);
+}
 
 /******************** Module declaration ********************/
 
@@ -37,9 +46,11 @@ public:
 		bool DConst;
 		double Dini;
 		double deltat;
+		double F;
 		int maxIter;
 		double stopTime;
-		BathyLib bathyLib;
+		double X0;
+		double Amp;
 
 		void jsonInit(const char* jsonContent);
 	};
@@ -49,8 +60,8 @@ public:
 
 	void simulate();
 	void computeTn() noexcept;
+	void iniCenter() noexcept;
 	void initDijini() noexcept;
-	void initHini() noexcept;
 	void initTime() noexcept;
 	void initUini() noexcept;
 	void updateHinner() noexcept;
@@ -58,8 +69,9 @@ public:
 	void updateUinner() noexcept;
 	void updateUouter() noexcept;
 	void initDij() noexcept;
-	void initH() noexcept;
+	void initHini() noexcept;
 	void initU() noexcept;
+	void initH() noexcept;
 	void setUpTimeLoopN() noexcept;
 	void executeTimeLoopN() noexcept;
 
@@ -68,7 +80,7 @@ private:
 
 	// Mesh and mesh variables
 	CartesianMesh2D* mesh;
-	size_t nbNodes, nbFaces, nbInnerFaces, nbInnerVerticalFaces, nbInnerHorizontalFaces, nbCells, nbInnerCells, nbTopCells, nbBottomCells, nbLeftCells, nbRightCells;
+	size_t nbNodes, nbNodesOfCell, nbFaces, nbInnerFaces, nbInnerVerticalFaces, nbInnerHorizontalFaces, nbCells, nbInnerCells, nbTopCells, nbBottomCells, nbLeftCells, nbRightCells;
 
 	// User options
 	Options& options;
@@ -86,6 +98,9 @@ public:
 	const double deltax;
 	const double deltay;
 	static constexpr double g = -9.8;
+	static constexpr double C = 40.0;
+	static constexpr double Sigma = 5000.0;
+	std::vector<double> center;
 	double t_n;
 	double t_nplus1;
 	double t_n0;

@@ -13,8 +13,7 @@ MainModule Swan swan
 VtkOutput
 {
 	periodReferenceVariable = swan.n;
-	outputVariables = swan.H as "hauteur", 
-		swan.Dij as "profondeur";
+	outputVariables = swan.H as "hauteur";
 }
 
 StlThread

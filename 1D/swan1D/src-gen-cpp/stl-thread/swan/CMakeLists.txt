@@ -5,8 +5,7 @@ set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
 # SET VARIABLES
 set(CMAKE_CXX_COMPILER /ccc/products1/gcc-9.1.0/RedHat-7-x86_64/bin/g++ CACHE STRING "")
-set(N_WS_PATH /cea/dsku/u-pong/temp1/b4/lemairen/NabLab/workspace/1D)
-set(BATHYLIBCPP_PATH ${N_WS_PATH}/swan1D/src-gen-cpp/stl-thread/bathylibcpp)
+set(N_WS_PATH /cea/dsku/u-pong/temp1/b4/lemairen/NabLab/workspace/swan/1D)
 
 # CHECK VARIABLES
 if (NOT DEFINED N_WS_PATH)
@@ -31,13 +30,10 @@ endif()
 if(NOT TARGET nablalib)
 	add_subdirectory(${N_WS_PATH}/.nablab/nablalib ${CMAKE_BINARY_DIR}/nablalib)
 endif()
-if(NOT TARGET bathylibcpp)
-	add_subdirectory(${BATHYLIBCPP_PATH} ${CMAKE_BINARY_DIR}/bathylibcpp)
-endif()
 
 # EXECUTABLE swan
 add_executable(swan Swan.cc)
-target_link_libraries(swan PUBLIC nablalib pthread bathylibcpp)
+target_link_libraries(swan PUBLIC nablalib pthread)
 
 # OPTIONAL USER OPTIONS IN Project.cmake
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Project.cmake)

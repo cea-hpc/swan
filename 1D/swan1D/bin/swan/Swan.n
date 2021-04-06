@@ -7,6 +7,7 @@ itemtypes { node, cell , face}
 
 // nodes collection
 connectivity nodes: → {node};
+connectivity nodesOfCell: cell → {node};
 
 // faces collection
 connectivity faces: → {face};
@@ -50,15 +51,20 @@ option ℝ Y_EDGE_LENGTH = 20.0;
 option ℾ DConst = true;
 option ℝ Dini = -1000.0;
 option ℝ δt = 0.008;
-
+option ℝ F = 0.0; // Coriolis parameter
 option ℕ maxIter = 5000000;
 option ℝ stopTime = 20.0;
+
+option ℝ X0 = 50.0;
+option ℝ Amp = 0.1;
 
 let ℝ δx = X_EDGE_LENGTH;
 let ℝ δy = Y_EDGE_LENGTH;
 let ℝ g = -9.8; // -9.8
+let ℝ C = 40.0; // De Chezy coefficient, C ∈ [20, 80]
+let ℝ Sigma=5000.0;
 
-
+ℝ center{cells};
 ℝ t;
 ℝ[2] X{nodes};
 
@@ -81,11 +87,8 @@ InitTime: t^{n=0} = 0.0;
 
 
 // depth initialization
-InitDijini:
-if(DConst)
-	∀ic∈innerCells(), Dijini{ic} = Dini;
-else
-	∀ic∈innerCells(), Dijini{ic} = nextDepth();
+InitDijini: ∀ic∈innerCells(), Dijini{ic} = Dini;
+
 
 InitDij:
 {
@@ -100,11 +103,14 @@ InitDij:
 
 
 
+IniCenter: ∀j∈innerCells(), center{j} = dot ((0.25 * ∑{r∈nodesOfCell(j)}(X{r})),[1.0,0.0]);
+
+
 
 // wave initialization 
 InitHini: ∀ic∈innerCells(),
 {
-	Hini{ic} = nextWaveHeight() ;
+	Hini{ic} =Amp * exp(-0.5* (center{ic}-X0)*(center{ic}-X0)/(Sigma*Sigma)) ;
 }
 
 // trick to initialize Boundary Condition on H
@@ -162,7 +168,7 @@ UpdateHinner:∀ic∈innerCells(),
 
 	// computeH^{n+1}
 	∀rf∈rightFaceOfCell(ic), ∀lf∈leftFaceOfCell(ic), 
-		H^{n+1}{ic} = H^{n}{ic} - δt*(U^{n}{rf} * TD1 / δx - U^{n}{lf} * TD2 / δx);
+		H^{n+1}{ic} = H^{n}{ic} - δt/(δx)*(U^{n}{rf} * TD1  - U^{n}{lf} * TD2);
 }
 
 // update boundary condition for wave height
@@ -179,31 +185,24 @@ UpdateHouter:
 }
 
 // compute new x velocity using the numerical schema
-UpdateUinner:∀ivf∈InnerVerticalFaces(),
+UpdateUinner:∀ic∈innerCells(),∀rfc∈rightFaceOfCell(ic),
 {
-
+	
 	let ℝ TU1 = 0.0;
-	let ℝ TU2 = 0.0;
-
 	
 
-	// computeTU1;
-	if (U^{n}{ivf} < 0)
-		∀cij∈frontCell(ivf),∀ivfp∈rightFaceOfCell(cij),
-				TU1 = U^{n}{ivfp};
-		else
-			TU1 = U^{n}{ivf};
+	// compute TU1
+	if(U^{n}{rfc} < 0)
+		∀icp∈rightCell(ic), ∀rfcp∈rightFaceOfCell(icp),
+			TU1  = U^{n}{rfcp} -U^{n}{rfc};
+	else
+		∀icm∈leftCell(ic), ∀lfcm∈leftFaceOfCell(icm),
+			TU1 = U^{n}{rfc} - U^{n}{lfcm};
 
-	// computeTU2;
-	if (U^{n}{ivf} > 0)
-		∀cimj∈backCell(ivf),∀ivfm∈leftFaceOfCell(cimj),
-				TU1 = U^{n}{ivfm};
-		else
-			TU1 = U^{n}{ivf};
 
 	// compute U^{n+1}
-		∀cij∈frontCell(ivf),∀cimj∈backCell(ivf),
-		U^{n+1}{ivf} = U^{n}{ivf} - (δt/δx) * (g*(H^{n}{cij}-H^{n}{cimj})/2 - U^{n}{ivf}*U^{n}{ivf});
+	∀icp∈rightCell(ic),
+		U^{n+1}{rfc} = U^{n}{rfc} - δt/ δx * (U^{n}{rfc} * TU1  + g * (H^{n}{icp} - H^{n}{ic}) ) ;
 }
 
 // update boundary condition for x velocity
