@@ -1,7 +1,5 @@
-<img src="./README_images/logo.png" alt="Swan logo" title="Swan logo" width="30%" height="30%"/>
-
 <center>
-<img src="./README_images/logo.png" alt="Swan logo" title="Swan logo" width="30%" height="30%"/>
+<img src="./README_images/logo.png" alt="Swan logo" title="Swan logo" width="20%" height="20%"/>
 &nbsp;&nbsp;&nbsp;
 <img src="https://github.com/cea-hpc/NabLab/blob/master/README_images/logo_full.png" alt="NabLab logo" title="NabLab logo" width="30%" height="30%"/>
 </center>
