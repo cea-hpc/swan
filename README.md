@@ -1,7 +1,7 @@
 <center>
-<img src="./README_images/logo.png" alt="Swan logo" title="Swan logo" style="width: 50px;"/>
-&nbsp;&nbsp;&nbsp;
-<img src="https://github.com/cea-hpc/NabLab/blob/master/README_images/logo_full.png" alt="NabLab logo" title="NabLab logo" style="width: 50px;"/>
+<img src="./README_images/logo.png" alt="Swan logo" title="Swan logo" width="20%" height="20%"/>
+&nbsp;&nbsp;
+<img src="https://raw.githubusercontent.com/cea-hpc/NabLab/master/README_images/logo_full.png" alt="NabLab logo" title="NabLab logo" width="20%" height="20%"/>
 </center>
 
 Le code *swan* est le résultat d'un stage de M1 réalisé au [CEA](https://www.cea.fr/).
