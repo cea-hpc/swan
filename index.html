@@ -1,0 +1,669 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Site WEB de le documentation du code Swan">
+      
+      
+      
+      
+      <link rel="icon" href="img/logo.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.1">
+    
+    
+      
+        <title>Swan documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.9299cb39.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.ef6f36e2.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#4051b5">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="orange">
+  
+    
+    <script>function __prefix(e){return new URL(".",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#le-code-swan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="Swan documentation" class="md-header__button md-logo" aria-label="Swan documentation" data-md-component="logo">
+      
+  <img src="img/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Swan documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Le code Swan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="Swan documentation" class="md-nav__button md-logo" aria-label="Swan documentation" data-md-component="logo">
+      
+  <img src="img/logo.png" alt="logo">
+
+    </a>
+    Swan documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Le code Swan
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        Le code Swan
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#presentation" class="md-nav__link">
+    Présentation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#le-probleme-physique" class="md-nav__link">
+    Le problème physique
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#le-schema-numerique" class="md-nav__link">
+    Le schéma numérique
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#le-graphe-du-programme" class="md-nav__link">
+    Le graphe du programme
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#la-bibliotheque-bathylib" class="md-nav__link">
+    La bibliothèque BathyLib
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#les-singletons" class="md-nav__link">
+    Les singletons
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linitialisation-des-variables" class="md-nav__link">
+    L'initialisation des variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilisation-du-programme" class="md-nav__link">
+    Utilisation du programme
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#les-problemes-daffichage" class="md-nav__link">
+    Les problèmes d'affichage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#la-generation-de-code" class="md-nav__link">
+    La génération de code
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="filetree/" class="md-nav__link">
+        Arborescence des fichiers
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="results/" class="md-nav__link">
+        Performances et résultats
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#presentation" class="md-nav__link">
+    Présentation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#le-probleme-physique" class="md-nav__link">
+    Le problème physique
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#le-schema-numerique" class="md-nav__link">
+    Le schéma numérique
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#le-graphe-du-programme" class="md-nav__link">
+    Le graphe du programme
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#la-bibliotheque-bathylib" class="md-nav__link">
+    La bibliothèque BathyLib
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#les-singletons" class="md-nav__link">
+    Les singletons
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linitialisation-des-variables" class="md-nav__link">
+    L'initialisation des variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilisation-du-programme" class="md-nav__link">
+    Utilisation du programme
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#les-problemes-daffichage" class="md-nav__link">
+    Les problèmes d'affichage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#la-generation-de-code" class="md-nav__link">
+    La génération de code
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="le-code-swan">Le code SWAN</h1>
+<h2 id="presentation">Présentation</h2>
+<p>Cette documentation a pour objectif de permettre une bonne compréhension du code <em>swan</em> développé en langage <a href="https://github.com/cea-hpc/NabLab">NabLab</a>. 
+Elle doit permettre également de faciliter l'utilisation et la modification de celui-ci.</p>
+<p>Le code <em>swan</em> est le résultat d'un stage de M1 réalisé au <a href="https://www.cea.fr/">CEA</a>.</p>
+<h2 id="le-probleme-physique">Le problème physique</h2>
+<p>Le code de simulation de propagation d'ondes <em>swan</em> est basé sur des équations <a href="https://en.wikipedia.org/wiki/Shallow_water_equations">SHALLOW WATER</a>.</p>
+<p>Le modèle utilisé est tiré du chapitre 2 du livre intitulé <a href="https://books.google.fr/books?id=1UGcWQFn0lsC&amp;printsec=frontcover&amp;hl=fr#v=onepage&amp;q&amp;f=false">NUMERICAL MODELING OF WATER WAVES</a> de Charles L. Mader.</p>
+<p>Le lecteur intéressé peut lire ce chapitre afin de comprendre le raisonnement menant au système d'équations aux dérivées partielles suivant :</p>
+<div class="arithmatex">\[
+\begin{align}
+\frac{\partial U_x}{\partial t} + U_x \frac{\partial U_x}{\partial x} + U_y \frac{\partial U_x}{\partial y} + g \frac{\partial H}{\partial x} = FU_y + F^{(x)} - g \frac{U_x(U^2_x + U^2_y)^{1/2}}{C^2(D+H-R)} 
+\end{align}
+\]</div>
+<div class="arithmatex">\[
+\begin{align}
+\frac{\partial U_y}{\partial t} + U_x \frac{\partial U_y}{\partial x} + U_y \frac{\partial U_y}{\partial y} + g \frac{\partial H}{\partial y} = -FU_x + F^{(y)} - g \frac{U_y(U^2_x + U^2_y)^{1/2}}{C^2(D+H-R)} 
+\end{align}
+\]</div>
+<div class="arithmatex">\[
+\begin{align}
+\frac{\partial H}{\partial t} + \frac{\partial (D+H-R)U_x}{\partial x} + \frac{\partial (D+H-R)U_y}{\partial y} - \frac{\partial R}{\partial t} = 0
+\end{align}
+\]</div>
+<p><span class="arithmatex">\(U_x\)</span> : vitesse dans la direction x (indice i), <span class="arithmatex">\(U_x\)</span> devient <span class="arithmatex">\(U\)</span> dans les équations discrétisées<br>
+<span class="arithmatex">\(U_y\)</span> : vitesse dans la direction y (indice j), <span class="arithmatex">\(U_y\)</span> devient <span class="arithmatex">\(V\)</span> dans les équations discrétisées<br>
+<span class="arithmatex">\(g\)</span>   : accélération de la gravité (<span class="arithmatex">\(-9.8\)</span> <span class="arithmatex">\(m.s^{-2}\)</span>)<br>
+<span class="arithmatex">\(t\)</span>   : temps<br>
+<span class="arithmatex">\(H\)</span>   : hauteur d'eau au dessus de la surface au repos<br>
+<span class="arithmatex">\(R\)</span>   : mouvement du sol<br>
+<span class="arithmatex">\(F\)</span>   : paramètre de Coriolis<br>
+<span class="arithmatex">\(C\)</span>   : coefficient de De Chezy<br>
+<span class="arithmatex">\(F^{(x)}, F^{(y)}\)</span>   : Fonctions de forçage<br>
+<span class="arithmatex">\(D\)</span>   : profondeur<br>
+</p></p>
+<h2 id="le-schema-numerique">Le schéma numérique</h2>
+<p>Vous trouverez ci-dessous le schéma numérique implémenté, ainsi qu'une illustration d'une maille. 
+Cette dernière montre comment sont organisées les données sur le maillage.</p>
+<p><img src="./img/maille.png" alt="maille" title="maille"/></p>
+<div class="arithmatex">\[
+\begin{align}
+H^{n+1}_{i,j} = H^n_{i,j} - \Delta t \Biggl[ \frac{U^n_{i+1,j}}{\Delta x}(TD1) - \frac{U^n_{i,j}}{\Delta x}(TD2) +  \frac{V^n_{i,j+1}}{\Delta y}(TV1) -  \frac{V^n_{i,j}}{\Delta y}(TV2)\Biggr] + R^{n+1}_{i,j} - R^{n}_{i,j}
+\end{align}
+\]</div>
+<div class="arithmatex">\[
+\begin{align}
+TD1 &amp;amp = D_{i+1,j} + H^n_{i+1,j} - R^n_{i+1,j} &amp;amp (U^n_{i+1,j} \lt 0) \\
+TD1 &amp;amp = D_{i,j}   + H^n_{i,j}   - R^n_{i,j} &amp;amp (U^n_{i+1,j} \gt 0) \\
+TD2 &amp;amp = D_{i,j}   + H^n_{i,j}   - R^n_{i,j} &amp;amp (U^n_{i,j} \lt 0) \\
+TD2 &amp;amp = D_{i-1,j}   + H^n_{i-1,j}   - R^n_{i-1,j} &amp;amp (U^n_{i,j} \gt 0) \\
+TV1 &amp;amp = D_{i,j+1}   + H^n_{i,j+1}   - R^n_{i,j+1} &amp;amp (V^n_{i,j+1} \lt 0) \\
+TV1 &amp;amp = D_{i,j}   + H^n_{i,j}   - R^n_{i,j} &amp;amp (V^n_{i,j+1} \gt 0) \\
+TV2 &amp;amp = D_{i,j}   + H^n_{i,j}   - R^n_{i,j} &amp;amp (V^n_{i,j} \lt 0) \\
+TV2 &amp;amp = D_{i,j-1}   + H^n_{i,j-1}   - R^n_{i,j-1} &amp;amp (V^n_{i,j} \gt 0) \\
+\end{align}
+\]</div>
+<div class="arithmatex">\[
+\begin{align}
+U^{n+1}_{i,j} = U^n_{i,j} - \Delta t \Biggl[\frac{U^n_{i,j}}{\Delta x}(TU1) + \frac{TV}{\Delta y}(TU2)\Biggr] - g \frac{\Delta t}{\Delta x}\Bigl[THU\Bigr] + \Delta t \Bigl[-FV^n_{i,j} - F^{(x)}_{i,j} + S^B_{i,j}\Bigr]
+\end{align}
+\]</div>
+<div class="arithmatex">\[
+\begin{align}
+TV  &amp;amp = 0.25 * (V^n_{i,j} + V^n_{i,j+1} + V^n_{i-1,j+1} + V^n_{i-1,j} )  \\
+TU1 &amp;amp = U^n_{i+1,j} - U^n_{i,j} &amp;amp (U^n_{i,j} \lt 0)\\
+TU1 &amp;amp = U^n_{i,j}   - U^n_{i-1,j} &amp;amp (U^n_{i,j} \gt 0)\\
+TU2 &amp;amp = U^n_{i,j+1} - U^n_{i,j} &amp;amp (TV \lt 0)\\
+TU2 &amp;amp = U^n_{i,j}   - U^n_{i,j-1} &amp;amp (TV \gt 0)\\
+THU &amp;amp = H^n_{i,j}   - H^n_{i,j-1} &amp;amp \\
+S^B_{i,j} &amp;amp = gU^n_{i,j}\frac{\Biggl[(U^n_{i,j})^2 + (V^n_{i,j})^2\Biggr]^{1/2}}{C^2(D_{i,j})+H^n_{i,j}}\\
+\end{align}
+\]</div>
+<div class="arithmatex">\[
+\begin{align}
+V^{n+1}_{i,j} = V^n_{i,j} - \Delta t \Biggl[\frac{TU}{\Delta x}(TV1) + \frac{V^n_{i,j}}{\Delta y}(TV2)\Biggr] - g \frac{\Delta t}{\Delta y}\Bigl[THV\Bigr] + \Delta t \Bigl[-FU^n_{i,j} - F^{(y)}_{i,j} + S^B_{i,j}\Bigr]
+\end{align}
+\]</div>
+<div class="arithmatex">\[
+\begin{align}
+TU  &amp;amp = 0.25 * (U^n_{i,j} + U^n_{i,j+1} + U^n_{i-1,j+1} + U^n_{i-1,j} )  \\
+TV1 &amp;amp = V^n_{i+1,j} - V^n_{i,j} &amp;amp (U^n_{i,j} \lt 0)\\
+TV1 &amp;amp = V^n_{i,j}   - V^n_{i-1,j} &amp;amp (U^n_{i,j} \gt 0)\\
+TV2 &amp;amp = V^n_{i,j+1} - V^n_{i,j} &amp;amp (TV \lt 0)\\
+TV2 &amp;amp = V^n_{i,j}   - V^n_{i,j-1} &amp;amp (TV \gt 0)\\
+THV &amp;amp = H^n_{i,j}   - H^n_{i,j-1} &amp;amp \\
+S^B_{i,j} &amp;amp = gU^n_{i,j}\frac{\Biggl[(U^n_{i,j})^2 + (V^n_{i,j})^2\Biggr]^{1/2}}{C^2(D_{i,j})+H^n_{i,j}}\\
+\end{align}
+\]</div>
+<h2 id="le-graphe-du-programme">Le graphe du programme</h2>
+<p><img src="./img/grapheSwangeo.png" alt="Graphe du programme Swangeo" title="Graphe du programme Swangeo"/ ></p>
+<h2 id="la-bibliotheque-bathylib">La bibliothèque BathyLib</h2>
+<p>Comme dans beaucoup de programme, l'initialisation des variables nécessaires à la simulation requiert la lecture de données depuis des fichiers.
+Dans notre cas, nous sommes amenés à lire des fichiers avec extension <em>.nc</em> ou <em>.grd</em>, qui sont des fichiers au format <a href="https://www.unidata.ucar.edu/software/netcdf/docs/index.html">NetCDF</a>.
+Il est possible d'inspecter manuellement le contenu d'un fichier en utilisant le programme <em>ncdump</em> ou d'utiliser une librairie afin d'extraire les données.
+C'est cette dernière possibilité qu'utilise notre code.</p>
+<p>Ci-dessous une image montrant l'organisation des données au sein d'un fichier .grd.</p>
+<p><img src="./img/ncdump.png" alt="Données au sein du fichier grd" title="alt="Données au sein du fichier grd"/></p>
+<p>Les fonctions de lecture de fichiers <em>.grd</em> se trouvent dans l'extension NabLab nommée <em>BathyLib</em>.
+Pour comprendre comment fonctionne cette extension, consultez la documentation <a href="https://cea-hpc.github.io/NabLab/firstextension">NabLab</a>.
+La seule différence est que dans le tutoriel NabLab, l'extension est un projet externe alors que dans le code <em>swan</em> c'est simplement un sous-répertoire de <em>src</em>.</p>
+<p>Les fonctions de BathyLib s'exécutent obligatoirement de manière séquentielle (toutes les fonctions externes de NabLab). 
+Dans le cas du code SWAN, les fonctions sont toutes des fonctions de lecture de fichier.</p>
+<p>Les fichiers <em>.grd</em> sont utilisés pour initialiser les variables vivant sur les mailles (H, D, R, latitude, longitude).
+Lorsque l'utilisateur écrit quelque chose comme <span class="arithmatex">\(\forall ic \in innerCells()\)</span> dans un fichier source NabLab (fichier <em>.n</em>), 
+cela sera traduit en une boucle sur toutes les <em>innerCells</em>. L'ordre de parcours des mailles se fait ligne par ligne, du bas vers le haut. 
+Les valeurs des grandeurs d'intérêt stockées dans les fichiers sont ordonnées de la même façon. 
+Les fonctions de lecture ne font donc que récupérer les données dans un tableau, puis renvoient les valeurs une par une.
+À chaque appel, un compteur, qui est l'indice de la prochaine valeur à renvoyer, est incrémenté.
+Dans le cas des longitudes et latitudes, leur fonction externe respective doit procéder à une étape supplémentaire entre la lecture et la création du tableau de données.
+Cette dernière information n'intéressera que les personnes voulant comprendre le code des fonctions externes ou voulant modifier ces dernières.</p>
+<p>Un utilisateur doit seulement retenir que les variables stockées sur chaque maille se remplissent ligne par ligne, du bas vers le haut.</p>
+<p>Il doit également se souvenir que le maillage utilisé contient un "bord artificiel" servant à imposer des conditions au bord.
+Les fichiers <em>.grd</em> contiennent uniquement les valeurs des <em>innerCells</em>. 
+Nous verrons par la suite que la taille du maillage est donnée au programme par un fichier de données utilisateur.
+Cette taille prend en compte le bord artificiel.</p>
+<p>Ci-dessous une illustration expliquant comment la librairie NetCDF est utilisée dans le code des fonctions externes.</p>
+<p><img src="./img/lecturegrd.png" alt="Lecture de fichier .nc .grd" title="Lecture de fichier .nc .grd"/></p>
+<h2 id="les-singletons">Les singletons</h2>
+<p>Vous remarquez que le code comporte beaucoup de <span class="arithmatex">\(\forall qqchose \in unensemble\)</span>. 
+Ces expressions sont généralement transcrites comme des boucles sur chacun des éléments de <code>unensemble</code>.
+Dans notre cas, il faut voir ça uniquement comme un point de syntaxe à connaitre.
+En effet, dans le code SWAN, les ensembles sont souvent des singletons.
+Nous pouvons donc voir ces expressions comme des définitions.
+Par exemple <span class="arithmatex">\(\forall rc \in rightCell(c)\)</span> peut être vu comme: "soit rc la cellule à droite de c" car <code>rightCell(c)</code> est un singleton. </p>
+<h2 id="linitialisation-des-variables">L'initialisation des variables</h2>
+<p>Lors de la lecture du code, vous remarquerez que l'initialisation se fait à l'aide d'une "astuce". 
+En effet, souvenons nous que nous avons autour du vrai maillage, un "bord artificiel". 
+Celui-ci est constitué de mailles et de faces que l'on doit mettre à jour à chaque pas de temps.
+Chaque maille et face du bord du maillage, va être initialisée en allant chercher les valeurs de son plus proche voisin contenu dans le "vrai" maillage.</p>
+<p>Il n'est pas possible d'imposer d'ordonnancement avec le langage NabLab: par exemple initialiser d'abord l'intérieur, puis les bords au temps t=0. 
+Nous devons donc utiliser deux variables, H et Hini afin d'initialiser, au temps <span class="arithmatex">\(t_0\)</span>, la variable H.
+Nous remplissons d'abord l'intérieur du maillage à l'aide de Hini, puis nous clonons les valeurs sur le bord, avant de recopier dans H, les valeurs de Hini.
+Si nous ne faisons pas cela, NabLab va détecter un cycle, et refusera de générer du code.</p>
+<p><img src="./img/maillage.png" alt="Maillage"/ title="Maillage"/></p>
+<h2 id="utilisation-du-programme">Utilisation du programme</h2>
+<p>L'utilisation des programmes Swan et Swangeo est grandement simplifiés grâce aux capacités de NabLab.
+Après compilation des sources, le programme s'exécute comme suit : <code>./swan path/to/options.json</code></p>
+<p>L'intégralité des informations à fournir au programme doit être écrite dans ce fichier d'options utilisateur au format <a href="https://www.json.org/json-en.html">Json</a>.
+Nous allons détailler son contenu et expliquer brièvement le rôle de chacun des champs du fichier.</p>
+<p><img src="./img/json.png" alt="Exemple de fichier de données Json" title="Exemple de fichier de données Json"/></p>
+<h2 id="les-problemes-daffichage">Les problèmes d'affichage</h2>
+<p>Pour l'affichage des résultats nous utilison le logiciel <a href="https://www.paraview.org/">Paraview</a>.
+Des problèmes d'affichage peuvent survenir. Généralement, cela signifie que les valeurs contenues dans les fichiers de résultats sont égales à Inf, nan, -nan, etc.
+Lorsque cela se produit, Paraview peut soit afficher du jaune, soit ne plus rien afficher du tout, soit indiquer un message d'erreur comme "can't read value at ...". 
+Cela se produit notamment si le pas de temps et le pas d'espace ne vérifient pas la condition CFL. 
+Il vous faudra alors soit réduire le pas de temps de la simulation, soit augmenter les pas d'espace.</p>
+<p>Nous tenons à faire remarquer que dans le cas du code SWAN, la condition CFL nous indique que le pas de temps doit vérifier : </p>
+<div class="arithmatex">\[
+\delta t \lt \frac{0.3}{200} \delta x
+\]</div>
+<p>Pour un pas <span class="arithmatex">\(\delta x = 3000\)</span> mètres, <span class="arithmatex">\(\delta t = 5s\)</span> devrait être suffisant.
+Nous avons remarqué que la simulation ne fonctionne plus si <span class="arithmatex">\(\delta t \gt 0.1 s\)</span>. 
+Ce comportement reste à ce jour inexpliqué.</p>
+<h2 id="la-generation-de-code">La génération de code</h2>
+<p>L'environnement de développement NabLab, outre le fait de permettre l'édition d'un code source, permet de générer un code en langage généraliste, compilable ou interprétable.
+Nous avons choisi comme cible de génération du code C++ multi-threads, parallélisme en mémoire partagée (cible <code>StlThread</code>). 
+Ce choix s'effectue dans le fichier <em>.ngen</em>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>D'autres choix de génération sont possibles. Voir la <a href="https://cea-hpc.github.io/NabLab/ngenlanguage/#configuring-generation">documentation NabLab</a> pour plus d'informations.</p>
+</div>
+<p>Dans ce projet, nous avons choisi d'utiliser cette cible de génération pour des raisons de portabilité. 
+En effet, c'est le seul backend ne nécessitant pas d'installer de librairie externe.
+Nous verrons dans la partie suivante, que nous avons tout de même utilisé du C++ Multithread Kokkos pour faire des tests de scalabilités.</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+      
+        <a href="filetree/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Arborescence des fichiers
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2021 CEA
+          </div>
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+  <div class="md-footer-social">
+    
+      
+      
+        
+        
+      
+      <a href="https://github.com/cea-hpc/swan" target="_blank" rel="noopener" title="github.com" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+      </a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.instant"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "assets/javascripts/workers/search.fe42c31b.min.js", "version": "0.4.0"}</script>
+    
+    
+      <script src="assets/javascripts/bundle.7353b375.min.js"></script>
+      
+        <script src="javascripts/config.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
