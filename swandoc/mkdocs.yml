@@ -1,0 +1,41 @@
+site_name: Swan documentation
+site_description: Site WEB de le documentation du code Swan
+copyright: Copyright &copy; 2021 CEA
+
+nav:
+  - Le code Swan: index.md
+  - Arborescence des fichiers: filetree.md
+  - Performances et résultats: results.md
+
+theme:
+  name: 'material'
+  language: 'en'
+  palette:
+    scheme: default
+    primary: indigo
+    accent: orange
+  features:
+    - navigation.instant
+  favicon: img/logo.png
+  logo: img/logo.png
+
+# for LaTeX
+extra_javascript:
+  - javascripts/config.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+
+extra:
+  version: 0.4.0
+  social:
+    - icon: fontawesome/brands/github
+      link: 'https://github.com/cea-hpc/swan'
+

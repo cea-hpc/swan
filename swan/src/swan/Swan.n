@@ -88,10 +88,10 @@ InitFw: ∀c∈cells(),
 
 // depth initialization
 InitDijini:
-if(DConst)
-	∀ic∈innerCells(), Dijini{ic} = Dini;
-else
-	∀ic∈innerCells(), Dijini{ic} = nextDepth();
+	if(DConst)
+		∀ic∈innerCells(), Dijini{ic} = Dini;
+	else
+		∀ic∈innerCells(), Dijini{ic} = nextDepth();
 
 InitDij:
 {
