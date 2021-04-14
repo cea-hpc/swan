@@ -1,0 +1,22 @@
+{
+	"schema1":
+	{
+		"_outputPath_comment":"empty outputPath to disable output",
+		"outputPath":"output",
+		"outputPeriod":5,
+		"deltat":1.0,	
+		"maxIter":2500000,
+		"maxTime":6000.0,
+		"X0":250000.0,
+		"Amp":0.2,
+		"Sigma":8000.0
+	},
+	"mesh":
+	{
+		"nbXQuads":500,
+		"nbYQuads":5,
+		"xSize":1000.0,
+		"ySize":100000.0
+	}
+}
+

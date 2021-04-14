@@ -1,0 +1,45 @@
+module Schema1;
+
+
+with Math.*;
+
+
+itemtypes { node, cell }
+
+connectivity nodes: → { node };
+connectivity cells: → {cell};
+connectivity nodesOfCell: cell → {node};
+connectivity rightCell: cell → cell;
+connectivity leftCell: cell → cell;
+
+option ℕ maxIter = 200;
+option ℝ maxTime = 6000.0;
+option ℝ X0=25000.0;
+option ℝ Sigma=5000.0;
+option ℝ Amp=0.2;
+option ℝ δt = 1.0;
+
+
+ℝ t;
+ℝ[2] X{nodes};
+ℝ H{cells};
+ℝ U{cells};
+ℝ center{cells};
+
+let ℝ g=9.81;
+let ℝ δx = 1000.0;
+let ℝ D = 1000.0;
+
+iterate n while (n+1 < maxIter && t^{n+1} < maxTime);
+
+
+IniCenter: ∀j∈cells(), center{j} = 0.25 * ∑{r∈nodesOfCell(j)}(X{r}[0]);
+
+InitH: ∀ic∈cells(),	H^{n=0}{ic} =Amp * exp(-0.5* (center{ic}-X0)*(center{ic}-X0)/(Sigma*Sigma)) ;
+InitU: ∀ic∈cells(),	U^{n=0}{ic} = 0.0;
+
+ComputeHn: ∀ic∈cells(),	∀rc∈rightCell(ic), ∀lc∈leftCell(ic), H^{n+1}{ic} = H^{n}{ic} - (δt/δx)*( (U^{n}{rc}*(H^{n}{rc}+D)) - (U^{n}{lc}*(H^{n}{lc}+D)) );
+ComputeUn: ∀ic∈cells(),	∀rc∈rightCell(ic), ∀lc∈leftCell(ic), U^{n+1}{ic} = U^{n}{ic} - (δt/δx) * g * (H^{n}{rc}-H^{n}{lc});
+
+
+ComputeTn: t^{n+1} = t^{n} + δt;
