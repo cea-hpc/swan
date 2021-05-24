@@ -1,2 +1,0 @@
-/usr/bin/ar qc libbathylibcpp.a  CMakeFiles/bathylibcpp.dir/BathyLib.cc.o
-/usr/bin/ranlib libbathylibcpp.a
