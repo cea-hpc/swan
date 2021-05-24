@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;swan/src-gen-cpp/stl-thread/schema2/Schema2Default.json&apos; to &apos;Schema2.json&apos;" description="Rename resource &apos;Schema2Default.json&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src-gen-cpp/stl-thread/schema2/Schema2Default.json" name="Schema2.json" stamp="1621000067717" updateReferences="true"/>
+</session>

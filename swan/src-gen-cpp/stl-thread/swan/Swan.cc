@@ -7,6 +7,17 @@
 #include <rapidjson/writer.h>
 
 
+/******************** Free functions definitions ********************/
+
+namespace swanfreefuncs
+{
+template<size_t x>
+RealArray1D<x> sumR1(RealArray1D<x> a, RealArray1D<x> b)
+{
+	return a + b;
+}
+}
+
 /******************** Options definition ********************/
 
 void
@@ -45,15 +56,15 @@ Swan::Options::jsonInit(const char* jsonContent)
 	}
 	else
 		Y_EDGE_LENGTH = 20.0;
-	// DConst
-	if (o.HasMember("DConst"))
+	// Dload
+	if (o.HasMember("Dload"))
 	{
-		const rapidjson::Value& valueof_DConst = o["DConst"];
-		assert(valueof_DConst.IsBool());
-		DConst = valueof_DConst.GetBool();
+		const rapidjson::Value& valueof_Dload = o["Dload"];
+		assert(valueof_Dload.IsBool());
+		Dload = valueof_Dload.GetBool();
 	}
 	else
-		DConst = true;
+		Dload = true;
 	// Dini
 	if (o.HasMember("Dini"))
 	{
@@ -63,6 +74,15 @@ Swan::Options::jsonInit(const char* jsonContent)
 	}
 	else
 		Dini = -1000.0;
+	// Dup
+	if (o.HasMember("Dup"))
+	{
+		const rapidjson::Value& valueof_Dup = o["Dup"];
+		assert(valueof_Dup.IsDouble());
+		Dup = valueof_Dup.GetDouble();
+	}
+	else
+		Dup = -1000.0;
 	// deltat
 	if (o.HasMember("deltat"))
 	{
@@ -71,16 +91,7 @@ Swan::Options::jsonInit(const char* jsonContent)
 		deltat = valueof_deltat.GetDouble();
 	}
 	else
-		deltat = 0.008;
-	// F
-	if (o.HasMember("F"))
-	{
-		const rapidjson::Value& valueof_F = o["F"];
-		assert(valueof_F.IsDouble());
-		F = valueof_F.GetDouble();
-	}
-	else
-		F = 0.0;
+		deltat = 0.5;
 	// maxIter
 	if (o.HasMember("maxIter"))
 	{
@@ -99,6 +110,69 @@ Swan::Options::jsonInit(const char* jsonContent)
 	}
 	else
 		stopTime = 20.0;
+	// Loadwave
+	if (o.HasMember("Loadwave"))
+	{
+		const rapidjson::Value& valueof_Loadwave = o["Loadwave"];
+		assert(valueof_Loadwave.IsBool());
+		Loadwave = valueof_Loadwave.GetBool();
+	}
+	else
+		Loadwave = true;
+	// Wavemode
+	if (o.HasMember("Wavemode"))
+	{
+		const rapidjson::Value& valueof_Wavemode = o["Wavemode"];
+		assert(valueof_Wavemode.IsInt());
+		Wavemode = valueof_Wavemode.GetInt();
+	}
+	else
+		Wavemode = 3;
+	// LX
+	if (o.HasMember("LX"))
+	{
+		const rapidjson::Value& valueof_LX = o["LX"];
+		assert(valueof_LX.IsDouble());
+		LX = valueof_LX.GetDouble();
+	}
+	else
+		LX = 200.0;
+	// X0
+	if (o.HasMember("X0"))
+	{
+		const rapidjson::Value& valueof_X0 = o["X0"];
+		assert(valueof_X0.IsDouble());
+		X0 = valueof_X0.GetDouble();
+	}
+	else
+		X0 = 50.0;
+	// Y0
+	if (o.HasMember("Y0"))
+	{
+		const rapidjson::Value& valueof_Y0 = o["Y0"];
+		assert(valueof_Y0.IsDouble());
+		Y0 = valueof_Y0.GetDouble();
+	}
+	else
+		Y0 = 50.0;
+	// Amp
+	if (o.HasMember("Amp"))
+	{
+		const rapidjson::Value& valueof_Amp = o["Amp"];
+		assert(valueof_Amp.IsDouble());
+		Amp = valueof_Amp.GetDouble();
+	}
+	else
+		Amp = 0.1;
+	// Sigma
+	if (o.HasMember("Sigma"))
+	{
+		const rapidjson::Value& valueof_Sigma = o["Sigma"];
+		assert(valueof_Sigma.IsDouble());
+		Sigma = valueof_Sigma.GetDouble();
+	}
+	else
+		Sigma = 5000.0;
 	// bathyLib
 	if (o.HasMember("bathyLib"))
 	{
@@ -114,10 +188,9 @@ Swan::Options::jsonInit(const char* jsonContent)
 Swan::Swan(CartesianMesh2D* aMesh, Options& aOptions)
 : mesh(aMesh)
 , nbNodes(mesh->getNbNodes())
+, nbNodesOfCell(CartesianMesh2D::MaxNbNodesOfCell)
 , nbFaces(mesh->getNbFaces())
 , nbInnerFaces(mesh->getNbInnerFaces())
-, nbInnerVerticalFaces(mesh->getNbInnerVerticalFaces())
-, nbInnerHorizontalFaces(mesh->getNbInnerHorizontalFaces())
 , nbCells(mesh->getNbCells())
 , nbInnerCells(mesh->getNbInnerCells())
 , nbTopCells(mesh->getNbTopCells())
@@ -129,27 +202,29 @@ Swan::Swan(CartesianMesh2D* aMesh, Options& aOptions)
 , lastDump(numeric_limits<int>::min())
 , deltax(options.X_EDGE_LENGTH)
 , deltay(options.Y_EDGE_LENGTH)
+, center(nbCells)
 , X(nbNodes)
 , U_n(nbFaces)
 , U_nplus1(nbFaces)
 , U_n0(nbFaces)
 , Uini(nbFaces)
-, V_n(nbFaces)
-, V_nplus1(nbFaces)
-, V_n0(nbFaces)
-, Vini(nbFaces)
+, Ucalc_n(nbFaces)
+, Ucalc_nplus1(nbFaces)
+, Ucalc_n0(nbFaces)
 , H_n(nbCells)
 , H_nplus1(nbCells)
 , H_n0(nbCells)
 , Hini(nbCells)
-, Rijini(nbCells)
-, Rij_n(nbCells)
-, Rij_nplus1(nbCells)
-, Rij_n0(nbCells)
-, Fw(nbCells)
+, Hcalc_n(nbCells)
+, Hcalc_nplus1(nbCells)
+, Hcalc_n0(nbCells)
 , Dijini(nbCells)
-, Dij(nbCells)
-, Bool(nbCells)
+, Dij_n(nbCells)
+, Dij_nplus1(nbCells)
+, Dij_n0(nbCells)
+, Dt_n(nbCells)
+, Dt_nplus1(nbCells)
+, Dt_n0(nbCells)
 {
 	// Copy node coordinates
 	const auto& gNodes = mesh->getGeometry()->getNodes();
@@ -175,64 +250,31 @@ void Swan::computeTn() noexcept
 }
 
 /**
- * Job initDijini called @1.0 in simulate method.
- * In variables: DConst, Dini
- * Out variables: Dijini
+ * Job iniCenter called @1.0 in simulate method.
+ * In variables: X
+ * Out variables: center
  */
-void Swan::initDijini() noexcept
-{
-	if (options.DConst) 
-	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
-		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
-		{
-			const Id icId(innerCells[icInnerCells]);
-			const size_t icCells(icId);
-			Dijini[icCells] = options.Dini;
-		});
-	}
-	else
-	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
-		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
-		{
-			const Id icId(innerCells[icInnerCells]);
-			const size_t icCells(icId);
-			Dijini[icCells] = options.bathyLib.nextDepth();
-		}
-	}
-}
-
-/**
- * Job initFw called @1.0 in simulate method.
- * In variables: 
- * Out variables: Fw
- */
-void Swan::initFw() noexcept
-{
-	parallel_exec(nbCells, [&](const size_t& cCells)
-	{
-		Fw[cCells] = {0.0, 0.0};
-	});
-}
-
-/**
- * Job initRijini called @1.0 in simulate method.
- * In variables: 
- * Out variables: Rijini
- */
-void Swan::initRijini() noexcept
+void Swan::iniCenter() noexcept
 {
 	{
 		const auto innerCells(mesh->getInnerCells());
 		const size_t nbInnerCells(innerCells.size());
-		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
+		parallel_exec(nbInnerCells, [&](const size_t& jInnerCells)
 		{
-			const Id icId(innerCells[icInnerCells]);
-			const size_t icCells(icId);
-			Rijini[icCells] = 0.0;
+			const Id jId(innerCells[jInnerCells]);
+			const size_t jCells(jId);
+			RealArray1D<2> reduction0({0.0, 0.0});
+			{
+				const auto nodesOfCellJ(mesh->getNodesOfCell(jId));
+				const size_t nbNodesOfCellJ(nodesOfCellJ.size());
+				for (size_t rNodesOfCellJ=0; rNodesOfCellJ<nbNodesOfCellJ; rNodesOfCellJ++)
+				{
+					const Id rId(nodesOfCellJ[rNodesOfCellJ]);
+					const size_t rNodes(rId);
+					reduction0 = swanfreefuncs::sumR1(reduction0, X[rNodes]);
+				}
+			}
+			center[jCells] = (0.25 * reduction0);
 		});
 	}
 }
@@ -267,30 +309,24 @@ void Swan::initUini() noexcept
 }
 
 /**
- * Job initVini called @1.0 in simulate method.
- * In variables: 
- * Out variables: Vini
+ * Job updateDij called @1.0 in executeTimeLoopN method.
+ * In variables: Dij_n
+ * Out variables: Dij_nplus1
  */
-void Swan::initVini() noexcept
+void Swan::updateDij() noexcept
 {
+	parallel_exec(nbCells, [&](const size_t& jCells)
 	{
-		const auto innerFaces(mesh->getInnerFaces());
-		const size_t nbInnerFaces(innerFaces.size());
-		parallel_exec(nbInnerFaces, [&](const size_t& fInnerFaces)
-		{
-			const Id fId(innerFaces[fInnerFaces]);
-			const size_t fFaces(fId);
-			Vini[fFaces] = 0.0;
-		});
-	}
+		Dij_nplus1[jCells] = Dij_n[jCells];
+	});
 }
 
 /**
- * Job updateHinner called @1.0 in executeTimeLoopN method.
- * In variables: Bool, Dij, H_n, Rij_n, Rij_nplus1, U_n, V_n, deltat, deltax, deltay
- * Out variables: H_nplus1
+ * Job updateHcalc called @1.0 in executeTimeLoopN method.
+ * In variables: Dt_n, H_n, U_n, deltat, deltax, deltay
+ * Out variables: Hcalc_nplus1
  */
-void Swan::updateHinner() noexcept
+void Swan::updateHcalc() noexcept
 {
 	{
 		const auto innerCells(mesh->getInnerCells());
@@ -301,55 +337,47 @@ void Swan::updateHinner() noexcept
 			const size_t icCells(icId);
 			double TD1(0.0);
 			double TD2(0.0);
-			double TV1(0.0);
-			double TV2(0.0);
 			{
 				const Id rfId(mesh->getRightFaceOfCell(icId));
 				const size_t rfFaces(rfId);
-				if (U_n[rfFaces] < 0) 
-				{
-					const Id rcId(mesh->getRightCell(icId));
-					const size_t rcCells(rcId);
-					TD1 = Dij[rcCells] + H_n[rcCells] - Rij_n[rcCells];
-				}
+				const Id rcId(mesh->getRightCell(icId));
+				const size_t rcCells(rcId);
+				if (U_n[rfFaces] <= 0) 
+					TD1 = Dt_n[rcCells];
 				else
-					TD1 = Dij[icCells] + H_n[icCells] - Rij_n[icCells];
+					TD1 = Dt_n[icCells];
 			}
 			{
 				const Id lfId(mesh->getLeftFaceOfCell(icId));
 				const size_t lfFaces(lfId);
-				if (U_n[lfFaces] < 0) 
-					TD2 = Dij[icCells] + H_n[icCells] - Rij_n[icCells];
+				const Id lcId(mesh->getLeftCell(icId));
+				const size_t lcCells(lcId);
+				if (U_n[lfFaces] <= 0) 
+					TD2 = Dt_n[icCells];
 				else
-				{
-					const Id lcId(mesh->getLeftCell(icId));
-					const size_t lcCells(lcId);
-					TD2 = Dij[lcCells] + H_n[lcCells] - Rij_n[lcCells];
-				}
+					TD2 = Dt_n[lcCells];
 			}
+			double TV1(0.0);
+			double TV2(0.0);
 			{
 				const Id tfId(mesh->getTopFaceOfCell(icId));
 				const size_t tfFaces(tfId);
-				if (V_n[tfFaces] < 0) 
-				{
-					const Id tcId(mesh->getTopCell(icId));
-					const size_t tcCells(tcId);
-					TV1 = Dij[tcCells] + H_n[tcCells] - Rij_n[tcCells];
-				}
+				const Id tcId(mesh->getTopCell(icId));
+				const size_t tcCells(tcId);
+				if (U_n[tfFaces] <= 0) 
+					TV1 = Dt_n[tcCells];
 				else
-					TV1 = Dij[icCells] + H_n[icCells] - Rij_n[icCells];
+					TV1 = Dt_n[icCells];
 			}
 			{
 				const Id bfId(mesh->getBottomFaceOfCell(icId));
 				const size_t bfFaces(bfId);
-				if (V_n[bfFaces] < 0) 
-					TV2 = Dij[icCells] + H_n[icCells] - Rij_n[icCells];
+				const Id bcId(mesh->getBottomCell(icId));
+				const size_t bcCells(bcId);
+				if (U_n[bfFaces] <= 0) 
+					TV2 = Dt_n[icCells];
 				else
-				{
-					const Id bcId(mesh->getBottomCell(icId));
-					const size_t bcCells(bcId);
-					TV2 = Dij[bcCells] + H_n[bcCells] - Rij_n[bcCells];
-				}
+					TV2 = Dt_n[bcCells];
 			}
 			{
 				const Id rfId(mesh->getRightFaceOfCell(icId));
@@ -360,501 +388,63 @@ void Swan::updateHinner() noexcept
 				const size_t tfFaces(tfId);
 				const Id bfId(mesh->getBottomFaceOfCell(icId));
 				const size_t bfFaces(bfId);
-				H_nplus1[icCells] = (H_n[icCells] - options.deltat * (U_n[rfFaces] * TD1 / deltax - U_n[lfFaces] * TD2 / deltax + V_n[tfFaces] * TV1 / deltay - V_n[bfFaces] * TV2 / deltay) + Rij_nplus1[icCells] - Rij_n[icCells]) * Bool[icCells];
+				Hcalc_nplus1[icCells] = H_n[icCells] - options.deltat / (deltax) * (U_n[rfFaces] * TD1 - U_n[lfFaces] * TD2) - options.deltat / deltay * (U_n[tfFaces] * TV1 - U_n[bfFaces] * TV2);
 			}
 		});
 	}
 }
 
 /**
- * Job updateHouter called @1.0 in executeTimeLoopN method.
- * In variables: H_n
- * Out variables: H_nplus1
+ * Job initDijini called @2.0 in simulate method.
+ * In variables: Dini, Dload, Dup, LX, center
+ * Out variables: Dijini
  */
-void Swan::updateHouter() noexcept
+void Swan::initDijini() noexcept
 {
-	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
-		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
-		{
-			const Id tcId(topCells[tcTopCells]);
-			const size_t tcCells(tcId);
-			const Id bcId(mesh->getBottomCell(tcId));
-			const size_t bcCells(bcId);
-			H_nplus1[tcCells] = H_n[bcCells];
-		});
-	}
-	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
-		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
-		{
-			const Id bcId(bottomCells[bcBottomCells]);
-			const size_t bcCells(bcId);
-			const Id tcId(mesh->getTopCell(bcId));
-			const size_t tcCells(tcId);
-			H_nplus1[bcCells] = H_n[tcCells];
-		});
-	}
-	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
-		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
-		{
-			const Id lcId(leftCells[lcLeftCells]);
-			const size_t lcCells(lcId);
-			const Id rcId(mesh->getRightCell(lcId));
-			const size_t rcCells(rcId);
-			H_nplus1[lcCells] = H_n[rcCells];
-		});
-	}
-	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
-		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
-		{
-			const Id rcId(rightCells[rcRightCells]);
-			const size_t rcCells(rcId);
-			const Id lcId(mesh->getLeftCell(rcId));
-			const size_t lcCells(lcId);
-			H_nplus1[rcCells] = H_n[lcCells];
-		});
-	}
-}
-
-/**
- * Job updateRij called @1.0 in simulate method.
- * In variables: 
- * Out variables: Rij_nplus1
- */
-void Swan::updateRij() noexcept
-{
-	parallel_exec(nbCells, [&](const size_t& cCells)
-	{
-		Rij_nplus1[cCells] = 0.0;
-	});
-}
-
-/**
- * Job updateUinner called @1.0 in executeTimeLoopN method.
- * In variables: Bool, C, Dij, F, Fw, H_n, U_n, V_n, deltat, deltax, deltay, g
- * Out variables: U_nplus1
- */
-void Swan::updateUinner() noexcept
-{
-	{
-		const auto InnerVerticalFaces(mesh->getInnerVerticalFaces());
-		const size_t nbInnerVerticalFaces(InnerVerticalFaces.size());
-		parallel_exec(nbInnerVerticalFaces, [&](const size_t& civfInnerVerticalFaces)
-		{
-			const Id civfId(InnerVerticalFaces[civfInnerVerticalFaces]);
-			const size_t civfFaces(civfId);
-			double TV(0.0);
-			double TU1(0.0);
-			double TU2(0.0);
-			double THU(0.0);
-			double SB(0.0);
-			{
-				const Id fijId(mesh->getBottomRightFaceNeighbour(civfId));
-				const size_t fijFaces(fijId);
-				const Id fijplus1Id(mesh->getTopRightFaceNeighbour(civfId));
-				const size_t fijplus1Faces(fijplus1Id);
-				const Id fimoins1jplus1Id(mesh->getTopLeftFaceNeighbour(civfId));
-				const size_t fimoins1jplus1Faces(fimoins1jplus1Id);
-				const Id fimoins1jId(mesh->getBottomLeftFaceNeighbour(civfId));
-				const size_t fimoins1jFaces(fimoins1jId);
-				TV = 0.25 * (V_n[fijFaces] + V_n[fijplus1Faces] + V_n[fimoins1jplus1Faces] + V_n[fimoins1jFaces]);
-			}
-			if (U_n[civfFaces] < 0) 
-			{
-				const Id fiplus1jId(mesh->getRightFaceNeighbour(civfId));
-				const size_t fiplus1jFaces(fiplus1jId);
-				TU1 = U_n[fiplus1jFaces] - U_n[civfFaces];
-			}
-			else
-			{
-				const Id fimoins1jId(mesh->getLeftFaceNeighbour(civfId));
-				const size_t fimoins1jFaces(fimoins1jId);
-				TU1 = U_n[civfFaces] - U_n[fimoins1jFaces];
-			}
-			if (TV < 0) 
-			{
-				const Id fijplus1Id(mesh->getTopFaceNeighbour(civfId));
-				const size_t fijplus1Faces(fijplus1Id);
-				TU2 = U_n[fijplus1Faces] - U_n[civfFaces];
-			}
-			else
-			{
-				const Id fijmoins1Id(mesh->getBottomFaceNeighbour(civfId));
-				const size_t fijmoins1Faces(fijmoins1Id);
-				TU2 = U_n[civfFaces] - U_n[fijmoins1Faces];
-			}
-			{
-				const Id cijId(mesh->getFrontCell(civfId));
-				const size_t cijCells(cijId);
-				const Id cimoins1jId(mesh->getLeftCell(cijId));
-				const size_t cimoins1jCells(cimoins1jId);
-				THU = H_n[cijCells] - H_n[cimoins1jCells];
-			}
-			{
-				const Id cijId(mesh->getFrontCell(civfId));
-				const size_t cijCells(cijId);
-				const Id fijvId(mesh->getBottomRightFaceNeighbour(civfId));
-				const size_t fijvFaces(fijvId);
-				SB = g * U_n[civfFaces] * (std::sqrt(U_n[civfFaces] * U_n[civfFaces] + V_n[fijvFaces] * V_n[fijvFaces])) / (C * C * (Dij[cijCells] + H_n[cijCells]));
-			}
-			{
-				const Id fijvId(mesh->getBottomRightFaceNeighbour(civfId));
-				const size_t fijvFaces(fijvId);
-				const Id cijId(mesh->getFrontCell(civfId));
-				const size_t cijCells(cijId);
-				const Id cimoins1jId(mesh->getBackCell(civfId));
-				const size_t cimoins1jCells(cimoins1jId);
-				U_nplus1[civfFaces] = (U_n[civfFaces] - options.deltat * (U_n[civfFaces] * TU1 / deltax + TV * TU2 / deltay) - (g * options.deltat * THU) / deltax + options.deltat * (-options.F * V_n[fijvFaces] - Fw[cijCells][0] + SB)) * Bool[cijCells] * Bool[cimoins1jCells];
-			}
-		});
-	}
-}
-
-/**
- * Job updateUouter called @1.0 in executeTimeLoopN method.
- * In variables: U_n
- * Out variables: U_nplus1
- */
-void Swan::updateUouter() noexcept
-{
-	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
-		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
-		{
-			const Id tcId(topCells[tcTopCells]);
-			const Id rfId(mesh->getRightFaceOfCell(tcId));
-			const size_t rfFaces(rfId);
-			const Id bcId(mesh->getBottomCell(tcId));
-			const Id brfId(mesh->getRightFaceOfCell(bcId));
-			const size_t brfFaces(brfId);
-			U_nplus1[rfFaces] = U_n[brfFaces];
-		});
-	}
-	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
-		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
-		{
-			const Id bcId(bottomCells[bcBottomCells]);
-			const Id rfId(mesh->getRightFaceOfCell(bcId));
-			const size_t rfFaces(rfId);
-			const Id bcfId(mesh->getTopCell(bcId));
-			const Id trfId(mesh->getRightFaceOfCell(bcfId));
-			const size_t trfFaces(trfId);
-			U_nplus1[rfFaces] = U_n[trfFaces];
-		});
-	}
-	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
-		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
-		{
-			const Id lcId(leftCells[lcLeftCells]);
-			const Id lfId(mesh->getLeftFaceOfCell(lcId));
-			const size_t lfFaces(lfId);
-			const Id rfId(mesh->getRightFaceOfCell(lcId));
-			const size_t rfFaces(rfId);
-			U_nplus1[lfFaces] = U_n[rfFaces];
-		});
-	}
-	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
-		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
-		{
-			const Id rcId(rightCells[rcRightCells]);
-			const Id rfId(mesh->getRightFaceOfCell(rcId));
-			const size_t rfFaces(rfId);
-			const Id lfId(mesh->getLeftFaceOfCell(rcId));
-			const size_t lfFaces(lfId);
-			U_nplus1[rfFaces] = U_n[lfFaces];
-		});
-	}
-}
-
-/**
- * Job updateVinner called @1.0 in executeTimeLoopN method.
- * In variables: Bool, C, Dij, F, Fw, H_n, U_n, V_n, deltat, deltax, deltay, g
- * Out variables: V_nplus1
- */
-void Swan::updateVinner() noexcept
-{
-	{
-		const auto InnerHorizontalFaces(mesh->getInnerHorizontalFaces());
-		const size_t nbInnerHorizontalFaces(InnerHorizontalFaces.size());
-		parallel_exec(nbInnerHorizontalFaces, [&](const size_t& cihfInnerHorizontalFaces)
-		{
-			const Id cihfId(InnerHorizontalFaces[cihfInnerHorizontalFaces]);
-			const size_t cihfFaces(cihfId);
-			double TU(0.0);
-			double TV1(0.0);
-			double TV2(0.0);
-			double THV(0.0);
-			double SB(0.0);
-			{
-				const Id fijId(mesh->getTopLeftFaceNeighbour(cihfId));
-				const size_t fijFaces(fijId);
-				const Id fiplus1jId(mesh->getTopRightFaceNeighbour(cihfId));
-				const size_t fiplus1jFaces(fiplus1jId);
-				const Id fijmoins1Id(mesh->getBottomLeftFaceNeighbour(cihfId));
-				const size_t fijmoins1Faces(fijmoins1Id);
-				const Id fiplus1jmoins1Id(mesh->getBottomRightFaceNeighbour(cihfId));
-				const size_t fiplus1jmoins1Faces(fiplus1jmoins1Id);
-				TU = 0.25 * (U_n[fijFaces] + U_n[fiplus1jFaces] + U_n[fijmoins1Faces] + U_n[fiplus1jmoins1Faces]);
-			}
-			if (TU < 0) 
-			{
-				const Id fiplus1jId(mesh->getRightFaceNeighbour(cihfId));
-				const size_t fiplus1jFaces(fiplus1jId);
-				TV1 = V_n[fiplus1jFaces] - V_n[cihfFaces];
-			}
-			else
-			{
-				const Id fimoins1jId(mesh->getLeftFaceNeighbour(cihfId));
-				const size_t fimoins1jFaces(fimoins1jId);
-				TV1 = V_n[cihfFaces] - V_n[fimoins1jFaces];
-			}
-			if (V_n[cihfFaces] < 0) 
-			{
-				const Id fijplus1Id(mesh->getTopFaceNeighbour(cihfId));
-				const size_t fijplus1Faces(fijplus1Id);
-				TV2 = V_n[fijplus1Faces] - V_n[cihfFaces];
-			}
-			else
-			{
-				const Id fijmoins1Id(mesh->getBottomFaceNeighbour(cihfId));
-				const size_t fijmoins1Faces(fijmoins1Id);
-				TV2 = V_n[cihfFaces] - V_n[fijmoins1Faces];
-			}
-			{
-				const Id cijId(mesh->getFrontCell(cihfId));
-				const size_t cijCells(cijId);
-				const Id cijmoins1Id(mesh->getBackCell(cihfId));
-				const size_t cijmoins1Cells(cijmoins1Id);
-				THV = H_n[cijCells] - H_n[cijmoins1Cells];
-			}
-			{
-				const Id cijId(mesh->getFrontCell(cihfId));
-				const size_t cijCells(cijId);
-				const Id fijvId(mesh->getTopLeftFaceNeighbour(cihfId));
-				const size_t fijvFaces(fijvId);
-				SB = g * U_n[fijvFaces] * (std::sqrt(U_n[fijvFaces] * U_n[fijvFaces] + V_n[cihfFaces] * V_n[cihfFaces])) / (C * C * (Dij[cijCells] + H_n[cijCells]));
-			}
-			{
-				const Id fijvId(mesh->getTopLeftFaceNeighbour(cihfId));
-				const size_t fijvFaces(fijvId);
-				const Id cijId(mesh->getFrontCell(cihfId));
-				const size_t cijCells(cijId);
-				const Id cijmoins1Id(mesh->getBackCell(cihfId));
-				const size_t cijmoins1Cells(cijmoins1Id);
-				V_nplus1[cihfFaces] = (V_n[cihfFaces] - options.deltat * (TU * TV1 / deltax + V_n[cihfFaces] * TV2 / deltay) - (g * options.deltat * THV) / deltay + options.deltat * (options.F * U_n[fijvFaces] - Fw[cijCells][1] + SB)) * Bool[cijmoins1Cells] * Bool[cijCells];
-			}
-		});
-	}
-}
-
-/**
- * Job updateVouter called @1.0 in executeTimeLoopN method.
- * In variables: V_n
- * Out variables: V_nplus1
- */
-void Swan::updateVouter() noexcept
-{
-	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
-		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
-		{
-			const Id tcId(topCells[tcTopCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(tcId));
-			const size_t bfFaces(bfId);
-			const Id tfId(mesh->getTopFaceOfCell(tcId));
-			const size_t tfFaces(tfId);
-			V_nplus1[tfFaces] = V_n[bfFaces];
-		});
-	}
-	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
-		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
-		{
-			const Id bcId(bottomCells[bcBottomCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(bcId));
-			const size_t bfFaces(bfId);
-			const Id tfId(mesh->getTopFaceOfCell(bcId));
-			const size_t tfFaces(tfId);
-			V_nplus1[bfFaces] = V_n[tfFaces];
-		});
-	}
-	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
-		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
-		{
-			const Id lcId(leftCells[lcLeftCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(lcId));
-			const size_t bfFaces(bfId);
-			const Id rcId(mesh->getRightCell(lcId));
-			const Id bfrcId(mesh->getBottomFaceOfCell(rcId));
-			const size_t bfrcFaces(bfrcId);
-			V_nplus1[bfFaces] = V_n[bfrcFaces];
-		});
-	}
-	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
-		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
-		{
-			const Id rcId(rightCells[rcRightCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(rcId));
-			const size_t bfFaces(bfId);
-			const Id lcId(mesh->getLeftCell(rcId));
-			const Id bflcId(mesh->getBottomFaceOfCell(lcId));
-			const size_t bflcFaces(bflcId);
-			V_nplus1[bfFaces] = V_n[bflcFaces];
-		});
-	}
-}
-
-/**
- * Job initDij called @2.0 in simulate method.
- * In variables: Dijini
- * Out variables: Dij
- */
-void Swan::initDij() noexcept
-{
-	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
-		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
-		{
-			const Id tcId(topCells[tcTopCells]);
-			const size_t tcCells(tcId);
-			const Id bcId(mesh->getBottomCell(tcId));
-			const size_t bcCells(bcId);
-			Dij[tcCells] = Dijini[bcCells];
-		});
-	}
-	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
-		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
-		{
-			const Id bcId(bottomCells[bcBottomCells]);
-			const size_t bcCells(bcId);
-			const Id tcId(mesh->getTopCell(bcId));
-			const size_t tcCells(tcId);
-			Dij[bcCells] = Dijini[tcCells];
-		});
-	}
-	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
-		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
-		{
-			const Id lcId(leftCells[lcLeftCells]);
-			const size_t lcCells(lcId);
-			const Id rcId(mesh->getRightCell(lcId));
-			const size_t rcCells(rcId);
-			Dij[lcCells] = Dijini[rcCells];
-		});
-	}
-	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
-		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
-		{
-			const Id rcId(rightCells[rcRightCells]);
-			const size_t rcCells(rcId);
-			const Id lcId(mesh->getLeftCell(rcId));
-			const size_t lcCells(lcId);
-			Dij[rcCells] = Dijini[lcCells];
-		});
-	}
 	{
 		const auto innerCells(mesh->getInnerCells());
 		const size_t nbInnerCells(innerCells.size());
-		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
+		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
 		{
 			const Id icId(innerCells[icInnerCells]);
 			const size_t icCells(icId);
-			Dij[icCells] = Dijini[icCells];
-		});
+			if (options.Dload) 
+				Dijini[icCells] = options.bathyLib.nextDepth();
+			else
+				Dijini[icCells] = options.Dini + center[icCells][0] * (options.Dup - options.Dini) / (options.LX);
+		}
 	}
 }
 
 /**
- * Job initRij called @2.0 in simulate method.
- * In variables: Rijini
- * Out variables: Rij_n0
+ * Job initHini called @2.0 in simulate method.
+ * In variables: Amp, Loadwave, Sigma, Wavemode, X0, Y0, center
+ * Out variables: Hini
  */
-void Swan::initRij() noexcept
+void Swan::initHini() noexcept
 {
-	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
-		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
-		{
-			const Id tcId(topCells[tcTopCells]);
-			const size_t tcCells(tcId);
-			const Id bcId(mesh->getBottomCell(tcId));
-			const size_t bcCells(bcId);
-			Rij_n0[tcCells] = Rijini[bcCells];
-		});
-	}
-	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
-		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
-		{
-			const Id bcId(bottomCells[bcBottomCells]);
-			const size_t bcCells(bcId);
-			const Id tcId(mesh->getTopCell(bcId));
-			const size_t tcCells(tcId);
-			Rij_n0[bcCells] = Rijini[tcCells];
-		});
-	}
-	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
-		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
-		{
-			const Id lcId(leftCells[lcLeftCells]);
-			const size_t lcCells(lcId);
-			const Id rcId(mesh->getRightCell(lcId));
-			const size_t rcCells(rcId);
-			Rij_n0[lcCells] = Rijini[rcCells];
-		});
-	}
-	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
-		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
-		{
-			const Id rcId(rightCells[rcRightCells]);
-			const size_t rcCells(rcId);
-			const Id lcId(mesh->getLeftCell(rcId));
-			const size_t lcCells(lcId);
-			Rij_n0[rcCells] = Rijini[lcCells];
-		});
-	}
 	{
 		const auto innerCells(mesh->getInnerCells());
 		const size_t nbInnerCells(innerCells.size());
-		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
+		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
 		{
 			const Id icId(innerCells[icInnerCells]);
 			const size_t icCells(icId);
-			Rij_n0[icCells] = Rijini[icCells];
-		});
+			if (options.Loadwave) 
+				Hini[icCells] = options.bathyLib.nextWaveHeight();
+			else
+				if (options.Wavemode == 1) 
+				if (center[icCells][0] < options.X0) 
+				Hini[icCells] = options.Amp;
+			else
+				Hini[icCells] = 0.0;
+			else
+				if (options.Wavemode == 2) 
+				Hini[icCells] = options.Amp * std::exp(-0.5 * (center[icCells][0] - options.X0) * (center[icCells][0] - options.X0) / (options.Sigma * options.Sigma)) * std::exp(-0.5 * (center[icCells][1] - options.Y0) * (center[icCells][1] - options.Y0) / (options.Sigma * options.Sigma));
+			else
+				if (options.Wavemode == 3) 
+				Hini[icCells] = options.Amp * std::exp(-0.5 * (center[icCells][0] - options.X0) * (center[icCells][0] - options.X0) / (options.Sigma * options.Sigma));
+		}
 	}
 }
 
@@ -922,11 +512,43 @@ void Swan::initU() noexcept
 }
 
 /**
- * Job initV called @2.0 in simulate method.
- * In variables: Vini
- * Out variables: V_n0
+ * Job updateDtot called @2.0 in executeTimeLoopN method.
+ * In variables: Dij_nplus1, Hcalc_nplus1
+ * Out variables: Dt_nplus1
  */
-void Swan::initV() noexcept
+void Swan::updateDtot() noexcept
+{
+	parallel_exec(nbCells, [&](const size_t& jCells)
+	{
+		Dt_nplus1[jCells] = -Dij_nplus1[jCells] + Hcalc_nplus1[jCells];
+	});
+}
+
+/**
+ * Job updateHinner called @2.0 in executeTimeLoopN method.
+ * In variables: Hcalc_nplus1
+ * Out variables: H_nplus1
+ */
+void Swan::updateHinner() noexcept
+{
+	{
+		const auto innerCells(mesh->getInnerCells());
+		const size_t nbInnerCells(innerCells.size());
+		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
+		{
+			const Id icId(innerCells[icInnerCells]);
+			const size_t icCells(icId);
+			H_nplus1[icCells] = Hcalc_nplus1[icCells];
+		});
+	}
+}
+
+/**
+ * Job updateHouter called @2.0 in executeTimeLoopN method.
+ * In variables: Hcalc_nplus1
+ * Out variables: H_nplus1
+ */
+void Swan::updateHouter() noexcept
 {
 	{
 		const auto topCells(mesh->getTopCells());
@@ -934,11 +556,10 @@ void Swan::initV() noexcept
 		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
 		{
 			const Id tcId(topCells[tcTopCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(tcId));
-			const size_t bfFaces(bfId);
-			const Id tfId(mesh->getTopFaceOfCell(tcId));
-			const size_t tfFaces(tfId);
-			V_n0[tfFaces] = Vini[bfFaces];
+			const size_t tcCells(tcId);
+			const Id bcId(mesh->getBottomCell(tcId));
+			const size_t bcCells(bcId);
+			H_nplus1[tcCells] = Hcalc_nplus1[bcCells];
 		});
 	}
 	{
@@ -947,11 +568,10 @@ void Swan::initV() noexcept
 		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
 		{
 			const Id bcId(bottomCells[bcBottomCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(bcId));
-			const size_t bfFaces(bfId);
-			const Id tfId(mesh->getTopFaceOfCell(bcId));
-			const size_t tfFaces(tfId);
-			V_n0[bfFaces] = Vini[tfFaces];
+			const size_t bcCells(bcId);
+			const Id tcId(mesh->getTopCell(bcId));
+			const size_t tcCells(tcId);
+			H_nplus1[bcCells] = Hcalc_nplus1[tcCells];
 		});
 	}
 	{
@@ -960,12 +580,10 @@ void Swan::initV() noexcept
 		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
 		{
 			const Id lcId(leftCells[lcLeftCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(lcId));
-			const size_t bfFaces(bfId);
+			const size_t lcCells(lcId);
 			const Id rcId(mesh->getRightCell(lcId));
-			const Id bfrcId(mesh->getBottomFaceOfCell(rcId));
-			const size_t bfrcFaces(bfrcId);
-			V_n0[bfFaces] = Vini[bfrcFaces];
+			const size_t rcCells(rcId);
+			H_nplus1[lcCells] = Hcalc_nplus1[rcCells];
 		});
 	}
 	{
@@ -974,53 +592,83 @@ void Swan::initV() noexcept
 		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
 		{
 			const Id rcId(rightCells[rcRightCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(rcId));
-			const size_t bfFaces(bfId);
+			const size_t rcCells(rcId);
 			const Id lcId(mesh->getLeftCell(rcId));
-			const Id bflcId(mesh->getBottomFaceOfCell(lcId));
-			const size_t bflcFaces(bflcId);
-			V_n0[bfFaces] = Vini[bflcFaces];
+			const size_t lcCells(lcId);
+			H_nplus1[rcCells] = Hcalc_nplus1[lcCells];
 		});
 	}
 }
 
 /**
- * Job initBool called @3.0 in simulate method.
- * In variables: Dij
- * Out variables: Bool
+ * Job initDij called @3.0 in simulate method.
+ * In variables: Dijini
+ * Out variables: Dij_n0
  */
-void Swan::initBool() noexcept
+void Swan::initDij() noexcept
 {
-	parallel_exec(nbCells, [&](const size_t& cCells)
 	{
-		if (Dij[cCells] >= 0.0) 
-			Bool[cCells] = 0.0;
-		else
-			Bool[cCells] = 1.0;
-	});
-}
-
-/**
- * Job initHini called @4.0 in simulate method.
- * In variables: Bool
- * Out variables: Hini
- */
-void Swan::initHini() noexcept
-{
+		const auto topCells(mesh->getTopCells());
+		const size_t nbTopCells(topCells.size());
+		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
+		{
+			const Id tcId(topCells[tcTopCells]);
+			const size_t tcCells(tcId);
+			const Id bcId(mesh->getBottomCell(tcId));
+			const size_t bcCells(bcId);
+			Dij_n0[tcCells] = Dijini[bcCells];
+		});
+	}
+	{
+		const auto bottomCells(mesh->getBottomCells());
+		const size_t nbBottomCells(bottomCells.size());
+		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
+		{
+			const Id bcId(bottomCells[bcBottomCells]);
+			const size_t bcCells(bcId);
+			const Id tcId(mesh->getTopCell(bcId));
+			const size_t tcCells(tcId);
+			Dij_n0[bcCells] = Dijini[tcCells];
+		});
+	}
+	{
+		const auto leftCells(mesh->getLeftCells());
+		const size_t nbLeftCells(leftCells.size());
+		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
+		{
+			const Id lcId(leftCells[lcLeftCells]);
+			const size_t lcCells(lcId);
+			const Id rcId(mesh->getRightCell(lcId));
+			const size_t rcCells(rcId);
+			Dij_n0[lcCells] = Dijini[rcCells];
+		});
+	}
+	{
+		const auto rightCells(mesh->getRightCells());
+		const size_t nbRightCells(rightCells.size());
+		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
+		{
+			const Id rcId(rightCells[rcRightCells]);
+			const size_t rcCells(rcId);
+			const Id lcId(mesh->getLeftCell(rcId));
+			const size_t lcCells(lcId);
+			Dij_n0[rcCells] = Dijini[lcCells];
+		});
+	}
 	{
 		const auto innerCells(mesh->getInnerCells());
 		const size_t nbInnerCells(innerCells.size());
-		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
+		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
 		{
 			const Id icId(innerCells[icInnerCells]);
 			const size_t icCells(icId);
-			Hini[icCells] = options.bathyLib.nextWaveHeight() * Bool[icCells];
-		}
+			Dij_n0[icCells] = Dijini[icCells];
+		});
 	}
 }
 
 /**
- * Job initH called @5.0 in simulate method.
+ * Job initH called @3.0 in simulate method.
  * In variables: Hini
  * Out variables: H_n0
  */
@@ -1087,27 +735,274 @@ void Swan::initH() noexcept
 }
 
 /**
- * Job setUpTimeLoopN called @6.0 in simulate method.
- * In variables: H_n0, Rij_n0, U_n0, V_n0, t_n0
- * Out variables: H_n, Rij_n, U_n, V_n, t_n
+ * Job initUcalc called @3.0 in simulate method.
+ * In variables: U_n0
+ * Out variables: Ucalc_n0
+ */
+void Swan::initUcalc() noexcept
+{
+	parallel_exec(nbFaces, [&](const size_t& jFaces)
+	{
+		Ucalc_n0[jFaces] = U_n0[jFaces];
+	});
+}
+
+/**
+ * Job updateUcalc called @3.0 in executeTimeLoopN method.
+ * In variables: H_nplus1, U_n, deltat, deltax, deltay, g
+ * Out variables: Ucalc_nplus1
+ */
+void Swan::updateUcalc() noexcept
+{
+	{
+		const auto innerCells(mesh->getInnerCells());
+		const size_t nbInnerCells(innerCells.size());
+		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
+		{
+			const Id icId(innerCells[icInnerCells]);
+			const size_t icCells(icId);
+			const Id rfcId(mesh->getRightFaceOfCell(icId));
+			const size_t rfcFaces(rfcId);
+			const Id tfcId(mesh->getTopFaceOfCell(icId));
+			const size_t tfcFaces(tfcId);
+			double TU1(0.0);
+			double TV1(0.0);
+			double V1(0.0);
+			{
+				const Id bfcId(mesh->getBottomFaceOfCell(icId));
+				const size_t bfcFaces(bfcId);
+				const Id icpId(mesh->getRightCell(icId));
+				const Id tfcpId(mesh->getTopFaceOfCell(icpId));
+				const size_t tfcpFaces(tfcpId);
+				const Id bfcpId(mesh->getBottomFaceOfCell(icpId));
+				const size_t bfcpFaces(bfcpId);
+				V1 = (U_n[tfcFaces] + U_n[bfcFaces] + U_n[tfcpFaces] + U_n[bfcpFaces]) / 4;
+			}
+			if (V1 <= 0) 
+			{
+				const Id ictId(mesh->getTopCell(icId));
+				const Id rfctId(mesh->getRightFaceOfCell(ictId));
+				const size_t rfctFaces(rfctId);
+				TV1 = U_n[rfctFaces] - U_n[rfcFaces];
+			}
+			else
+			{
+				const Id icbId(mesh->getBottomCell(icId));
+				const Id rfcbId(mesh->getRightFaceOfCell(icbId));
+				const size_t rfcbFaces(rfcbId);
+				TV1 = U_n[rfcFaces] - U_n[rfcbFaces];
+			}
+			if (U_n[rfcFaces] <= 0) 
+			{
+				const Id icpId(mesh->getRightCell(icId));
+				const Id rfcpId(mesh->getRightFaceOfCell(icpId));
+				const size_t rfcpFaces(rfcpId);
+				const Id lfcpId(mesh->getLeftFaceOfCell(icpId));
+				const size_t lfcpFaces(lfcpId);
+				TU1 = U_n[rfcpFaces] - U_n[lfcpFaces];
+			}
+			else
+			{
+				const Id lfcId(mesh->getLeftFaceOfCell(icId));
+				const size_t lfcFaces(lfcId);
+				TU1 = U_n[rfcFaces] - U_n[lfcFaces];
+			}
+			{
+				const Id icpId(mesh->getRightCell(icId));
+				const size_t icpCells(icpId);
+				Ucalc_nplus1[rfcFaces] = U_n[rfcFaces] - (options.deltat / deltax) * (U_n[rfcFaces] * TU1 - g * (H_nplus1[icpCells] - H_nplus1[icCells])) - (options.deltat / deltay) * (V1 * TV1);
+			}
+			double TV2(0.0);
+			double TU2(0.0);
+			double U1(0.0);
+			{
+				const Id lfcId(mesh->getLeftFaceOfCell(icId));
+				const size_t lfcFaces(lfcId);
+				const Id ictId(mesh->getTopCell(icId));
+				const Id rfctId(mesh->getRightFaceOfCell(ictId));
+				const size_t rfctFaces(rfctId);
+				const Id lfctId(mesh->getLeftFaceOfCell(ictId));
+				const size_t lfctFaces(lfctId);
+				U1 = (U_n[rfcFaces] + U_n[lfcFaces] + U_n[rfctFaces] + U_n[lfctFaces]) / 4;
+			}
+			if (U1 <= 0) 
+			{
+				const Id icpId(mesh->getRightCell(icId));
+				const Id tfcpId(mesh->getTopFaceOfCell(icpId));
+				const size_t tfcpFaces(tfcpId);
+				TU2 = U_n[tfcpFaces] - U_n[tfcFaces];
+			}
+			else
+			{
+				const Id icmId(mesh->getLeftCell(icId));
+				const Id tfcmId(mesh->getTopFaceOfCell(icmId));
+				const size_t tfcmFaces(tfcmId);
+				TU2 = U_n[tfcFaces] - U_n[tfcmFaces];
+			}
+			if (U_n[tfcFaces] <= 0) 
+			{
+				const Id icpId(mesh->getTopCell(icId));
+				const Id tfcpId(mesh->getTopFaceOfCell(icpId));
+				const size_t tfcpFaces(tfcpId);
+				const Id bfcpId(mesh->getBottomFaceOfCell(icpId));
+				const size_t bfcpFaces(bfcpId);
+				TV2 = U_n[tfcpFaces] - U_n[bfcpFaces];
+			}
+			else
+			{
+				const Id bfcId(mesh->getBottomFaceOfCell(icId));
+				const size_t bfcFaces(bfcId);
+				TV2 = U_n[tfcFaces] - U_n[bfcFaces];
+			}
+			{
+				const Id icpId(mesh->getTopCell(icId));
+				const size_t icpCells(icpId);
+				Ucalc_nplus1[tfcFaces] = U_n[tfcFaces] - (options.deltat / deltay) * (U_n[tfcFaces] * TV2 - g * (H_nplus1[icpCells] - H_nplus1[icCells])) - (options.deltat / deltax) * (U1 * TU2);
+			}
+		});
+	}
+}
+
+/**
+ * Job iniDt called @4.0 in simulate method.
+ * In variables: Dij_n0, H_n0
+ * Out variables: Dt_n0
+ */
+void Swan::iniDt() noexcept
+{
+	parallel_exec(nbCells, [&](const size_t& jCells)
+	{
+		Dt_n0[jCells] = std::max(H_n0[jCells], H_n0[jCells] - Dij_n0[jCells]);
+	});
+}
+
+/**
+ * Job initHcalc called @4.0 in simulate method.
+ * In variables: H_n0
+ * Out variables: Hcalc_n0
+ */
+void Swan::initHcalc() noexcept
+{
+	parallel_exec(nbCells, [&](const size_t& jCells)
+	{
+		Hcalc_n0[jCells] = H_n0[jCells];
+	});
+}
+
+/**
+ * Job updateUinner called @4.0 in executeTimeLoopN method.
+ * In variables: Ucalc_nplus1
+ * Out variables: U_nplus1
+ */
+void Swan::updateUinner() noexcept
+{
+	parallel_exec(nbFaces, [&](const size_t& icFaces)
+	{
+		U_nplus1[icFaces] = Ucalc_nplus1[icFaces];
+	});
+}
+
+/**
+ * Job updateUouter called @4.0 in executeTimeLoopN method.
+ * In variables: Ucalc_nplus1
+ * Out variables: U_nplus1
+ */
+void Swan::updateUouter() noexcept
+{
+	{
+		const auto topCells(mesh->getTopCells());
+		const size_t nbTopCells(topCells.size());
+		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
+		{
+			const Id tcId(topCells[tcTopCells]);
+			const Id rfId(mesh->getRightFaceOfCell(tcId));
+			const size_t rfFaces(rfId);
+			const Id bcId(mesh->getBottomCell(tcId));
+			const Id brfId(mesh->getRightFaceOfCell(bcId));
+			const size_t brfFaces(brfId);
+			U_nplus1[rfFaces] = Ucalc_nplus1[brfFaces];
+		});
+	}
+	{
+		const auto bottomCells(mesh->getBottomCells());
+		const size_t nbBottomCells(bottomCells.size());
+		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
+		{
+			const Id bcId(bottomCells[bcBottomCells]);
+			const Id rfId(mesh->getRightFaceOfCell(bcId));
+			const size_t rfFaces(rfId);
+			const Id bcfId(mesh->getTopCell(bcId));
+			const Id trfId(mesh->getRightFaceOfCell(bcfId));
+			const size_t trfFaces(trfId);
+			U_nplus1[rfFaces] = Ucalc_nplus1[trfFaces];
+		});
+	}
+	{
+		const auto leftCells(mesh->getLeftCells());
+		const size_t nbLeftCells(leftCells.size());
+		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
+		{
+			const Id lcId(leftCells[lcLeftCells]);
+			const Id lfId(mesh->getLeftFaceOfCell(lcId));
+			const size_t lfFaces(lfId);
+			const Id rfId(mesh->getRightFaceOfCell(lcId));
+			const size_t rfFaces(rfId);
+			U_nplus1[lfFaces] = Ucalc_nplus1[rfFaces];
+		});
+	}
+	{
+		const auto rightCells(mesh->getRightCells());
+		const size_t nbRightCells(rightCells.size());
+		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
+		{
+			const Id rcId(rightCells[rcRightCells]);
+			const Id rfId(mesh->getRightFaceOfCell(rcId));
+			const size_t rfFaces(rfId);
+			const Id lfId(mesh->getLeftFaceOfCell(rcId));
+			const size_t lfFaces(lfId);
+			U_nplus1[rfFaces] = Ucalc_nplus1[lfFaces];
+		});
+	}
+}
+
+/**
+ * Job setUpTimeLoopN called @5.0 in simulate method.
+ * In variables: Dij_n0, Dt_n0, H_n0, Hcalc_n0, U_n0, Ucalc_n0, t_n0
+ * Out variables: Dij_n, Dt_n, H_n, Hcalc_n, U_n, Ucalc_n, t_n
  */
 void Swan::setUpTimeLoopN() noexcept
 {
 	t_n = t_n0;
-	for (size_t i1(0) ; i1<U_n.size() ; i1++)
-		U_n[i1] = U_n0[i1];
-	for (size_t i1(0) ; i1<V_n.size() ; i1++)
-		V_n[i1] = V_n0[i1];
-	for (size_t i1(0) ; i1<H_n.size() ; i1++)
-		H_n[i1] = H_n0[i1];
-	for (size_t i1(0) ; i1<Rij_n.size() ; i1++)
-		Rij_n[i1] = Rij_n0[i1];
+	parallel_exec(nbFaces, [&](const size_t& i1Faces)
+	{
+		U_n[i1Faces] = U_n0[i1Faces];
+	});
+	parallel_exec(nbFaces, [&](const size_t& i1Faces)
+	{
+		Ucalc_n[i1Faces] = Ucalc_n0[i1Faces];
+	});
+	parallel_exec(nbCells, [&](const size_t& i1Cells)
+	{
+		H_n[i1Cells] = H_n0[i1Cells];
+	});
+	parallel_exec(nbCells, [&](const size_t& i1Cells)
+	{
+		Hcalc_n[i1Cells] = Hcalc_n0[i1Cells];
+	});
+	parallel_exec(nbCells, [&](const size_t& i1Cells)
+	{
+		Dij_n[i1Cells] = Dij_n0[i1Cells];
+	});
+	parallel_exec(nbCells, [&](const size_t& i1Cells)
+	{
+		Dt_n[i1Cells] = Dt_n0[i1Cells];
+	});
 }
 
 /**
- * Job executeTimeLoopN called @7.0 in simulate method.
- * In variables: Bool, C, Dij, F, Fw, H_n, Rij_n, Rij_nplus1, U_n, V_n, deltat, deltax, deltay, g, t_n
- * Out variables: H_nplus1, U_nplus1, V_nplus1, t_nplus1
+ * Job executeTimeLoopN called @6.0 in simulate method.
+ * In variables: Dij_n, Dij_nplus1, Dt_n, H_n, H_nplus1, Hcalc_nplus1, U_n, Ucalc_nplus1, deltat, deltax, deltay, g, t_n
+ * Out variables: Dij_nplus1, Dt_nplus1, H_nplus1, Hcalc_nplus1, U_nplus1, Ucalc_nplus1, t_nplus1
  */
 void Swan::executeTimeLoopN() noexcept
 {
@@ -1125,12 +1020,14 @@ void Swan::executeTimeLoopN() noexcept
 				<< setiosflags(std::ios::scientific) << setprecision(8) << setw(16) << t_n << __RESET__;
 	
 		computeTn(); // @1.0
-		updateHinner(); // @1.0
-		updateHouter(); // @1.0
-		updateUinner(); // @1.0
-		updateUouter(); // @1.0
-		updateVinner(); // @1.0
-		updateVouter(); // @1.0
+		updateDij(); // @1.0
+		updateHcalc(); // @1.0
+		updateDtot(); // @2.0
+		updateHinner(); // @2.0
+		updateHouter(); // @2.0
+		updateUcalc(); // @3.0
+		updateUinner(); // @4.0
+		updateUouter(); // @4.0
 		
 	
 		// Evaluate loop condition with variables at time n
@@ -1138,12 +1035,31 @@ void Swan::executeTimeLoopN() noexcept
 	
 		if (continueLoop)
 		{
-			// Switch variables to prepare next iteration
-			std::swap(t_nplus1, t_n);
-			std::swap(U_nplus1, U_n);
-			std::swap(V_nplus1, V_n);
-			std::swap(H_nplus1, H_n);
-			std::swap(Rij_nplus1, Rij_n);
+			t_n = t_nplus1;
+			parallel_exec(nbFaces, [&](const size_t& i1Faces)
+			{
+				U_n[i1Faces] = U_nplus1[i1Faces];
+			});
+			parallel_exec(nbFaces, [&](const size_t& i1Faces)
+			{
+				Ucalc_n[i1Faces] = Ucalc_nplus1[i1Faces];
+			});
+			parallel_exec(nbCells, [&](const size_t& i1Cells)
+			{
+				H_n[i1Cells] = H_nplus1[i1Cells];
+			});
+			parallel_exec(nbCells, [&](const size_t& i1Cells)
+			{
+				Hcalc_n[i1Cells] = Hcalc_nplus1[i1Cells];
+			});
+			parallel_exec(nbCells, [&](const size_t& i1Cells)
+			{
+				Dij_n[i1Cells] = Dij_nplus1[i1Cells];
+			});
+			parallel_exec(nbCells, [&](const size_t& i1Cells)
+			{
+				Dt_n[i1Cells] = Dt_nplus1[i1Cells];
+			});
 		}
 	
 		cpuTimer.stop();
@@ -1189,11 +1105,7 @@ void Swan::dumpVariables(int iteration, bool useTimer)
 		writer.closeCellArray();
 		writer.openCellArray("profondeur", 0);
 		for (size_t i=0 ; i<nbCells ; ++i)
-			writer.write(Dij[i]);
-		writer.closeCellArray();
-		writer.openCellArray("bottommotion", 0);
-		for (size_t i=0 ; i<nbCells ; ++i)
-			writer.write(Rij_n[i]);
+			writer.write(Dij_n[i]);
 		writer.closeCellArray();
 		writer.closeCellData();
 		writer.closeVtpFile();
@@ -1217,22 +1129,19 @@ void Swan::simulate()
 	else
 		std::cout << "[" << __GREEN__ << "OUTPUT" << __RESET__ << "]    " << __BOLD__ << "Disabled" << __RESET__ << std::endl;
 
-	initDijini(); // @1.0
-	initFw(); // @1.0
-	initRijini(); // @1.0
+	iniCenter(); // @1.0
 	initTime(); // @1.0
 	initUini(); // @1.0
-	initVini(); // @1.0
-	updateRij(); // @1.0
-	initDij(); // @2.0
-	initRij(); // @2.0
+	initDijini(); // @2.0
+	initHini(); // @2.0
 	initU(); // @2.0
-	initV(); // @2.0
-	initBool(); // @3.0
-	initHini(); // @4.0
-	initH(); // @5.0
-	setUpTimeLoopN(); // @6.0
-	executeTimeLoopN(); // @7.0
+	initDij(); // @3.0
+	initH(); // @3.0
+	initUcalc(); // @3.0
+	iniDt(); // @4.0
+	initHcalc(); // @4.0
+	setUpTimeLoopN(); // @5.0
+	executeTimeLoopN(); // @6.0
 	
 	std::cout << __YELLOW__ << "\n\tDone ! Took " << __MAGENTA__ << __BOLD__ << globalTimer.print() << __RESET__ << std::endl;
 }

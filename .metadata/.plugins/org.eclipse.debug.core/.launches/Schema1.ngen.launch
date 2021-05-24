@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="fr.cea.nabla.ui.launchconfig.NablagenLaunchConfigurationType">
+    <stringAttribute key="Json file location" value="src/schema1/Schema1.json"/>
+    <stringAttribute key="Nablagen File location" value="src/schema1/Schema1.ngen"/>
+    <stringAttribute key="Project name" value="swan"/>
+</launchConfiguration>

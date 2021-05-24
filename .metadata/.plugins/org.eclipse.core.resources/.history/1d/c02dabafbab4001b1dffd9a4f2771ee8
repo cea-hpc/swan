@@ -1,0 +1,32 @@
+Application Schema2;
+
+MainModule Schema2 schema2
+{
+	meshClassName = "CartesianMesh2D";
+	nodeCoord = X;
+	time = t;
+	timeStep = δt;
+	iterationMax = maxIter;
+	timeMax = stopTime;
+}
+
+VtkOutput
+{
+	periodReferenceVariable = schema2.n;
+	outputVariables = schema2.H as "hauteur",
+					  schema2.Dt as "Dt";
+}
+
+Interpreter
+{
+	outputPath = "/swan/src-gen-interpreter";
+}
+
+
+StlThread
+{
+	outputPath = "/swan/src-gen-cpp/stl-thread";
+	N_CXX_COMPILER = "/ccc/products1/gcc-9.1.0/RedHat-7-x86_64/bin/g++";
+}
+	//N_CXX_COMPILER ="/usr/bin/g++";
+

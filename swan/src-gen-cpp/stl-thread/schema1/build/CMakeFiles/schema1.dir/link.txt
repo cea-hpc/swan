@@ -1,0 +1,1 @@
+/usr/bin/g++     CMakeFiles/schema1.dir/Schema1.cc.o  -o schema1 nablalib/libnablalib.a -lpthread bathylibcpp/libbathylibcpp.a nablalib/libnablalib.a -lpthread -lnetcdf 

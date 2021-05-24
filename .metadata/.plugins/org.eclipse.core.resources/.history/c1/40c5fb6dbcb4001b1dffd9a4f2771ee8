@@ -1,0 +1,39 @@
+{
+	"_comment": "GENERATED FILE - DO NOT OVERWRITE",
+	"schema2":
+	{
+		"_outputPath_comment":"empty outputPath to disable output",
+		"outputPath":"output",
+		"outputPeriod":10,
+		"X_EDGE_LENGTH":1000.0,
+		"Y_EDGE_LENGTH":1000.0,
+		"Dload":false,
+		"Dim2":true,
+		"Dini":-10.0,
+		"Dup":-10.0,
+		"deltat":50.0,
+		"maxIter":5000000,
+		"stopTime":20000.0,
+		"Loadwave":false,
+		"Wavemode":3,
+		"LX":200000.0,
+		"X0":100000.0,
+		"Y0":100000.0,
+		"Amp":0.2,
+		"Sigma":5000.0,
+		"bathyLib":
+		{
+			"waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swan/waveSquareGauss.grd",
+			"waveVarName":"z",
+			"depthFilename":"$ENV{HOME}/workspaces/swan/swan/data/swan/depthSquare.grd",
+			"depthVarName":"z"
+		}
+	},
+	"mesh":
+	{
+		"nbXQuads":200,
+		"nbYQuads":50,
+		"xSize":1000.0,
+		"ySize":1000.0
+	}
+}

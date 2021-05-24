@@ -1,0 +1,32 @@
+Application Swan;
+
+MainModule Swan swan
+{
+	meshClassName = "CartesianMesh2D";
+	nodeCoord = X;
+	time = t;
+	timeStep = δt;
+	iterationMax = maxIter;
+	timeMax = stopTime;
+}
+
+VtkOutput
+{
+	periodReferenceVariable = swan.n;
+	outputVariables = swan.H as "hauteur", 
+		swan.Dij as "profondeur", 
+		swan.Rij as "bottommotion";
+}
+
+//Interpreter
+//{
+//	outputPath = "/swan/src-gen-interpreter";
+//	extension BathyLib providedBy BathyLibCpp;
+//}
+
+StlThread
+{
+	outputPath = "/swan/src-gen-cpp/stl-thread";
+	extension BathyLib providedBy BathyLibCpp;
+	N_CXX_COMPILER = "/usr/bin/g++";
+}

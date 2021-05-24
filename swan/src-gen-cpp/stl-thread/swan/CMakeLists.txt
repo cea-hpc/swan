@@ -5,7 +5,7 @@ set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
 # SET VARIABLES
 set(CMAKE_CXX_COMPILER /usr/bin/g++ CACHE STRING "")
-set(N_WS_PATH $ENV{HOME}/workspaces/nablab-user/swan)
+set(N_WS_PATH $ENV{HOME}/Nablab/workspace/swan)
 set(BATHYLIBCPP_PATH ${N_WS_PATH}/swan/src-gen-cpp/stl-thread/bathylibcpp)
 
 # CHECK VARIABLES
