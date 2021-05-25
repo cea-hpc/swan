@@ -17,19 +17,19 @@ Le lecteur intéressé peut lire ce chapitre afin de comprendre le raisonnement 
 
 $$
 \begin{align}
-\frac{\partial U_x}{\partial t} + U_x \frac{\partial U_x}{\partial x} + U_y \frac{\partial U_x}{\partial y} + g \frac{\partial H}{\partial x} = FU_y + F^{(x)} - g \frac{U_x(U^2_x + U^2_y)^{1/2}}{C^2(D+H-R)} 
+\frac{\partial U_x}{\partial t} + U_x \frac{\partial U_x}{\partial x} + U_y \frac{\partial U_x}{\partial y} + g \frac{\partial H}{\partial x} = 0
 \end{align}
 $$
 
 $$
 \begin{align}
-\frac{\partial U_y}{\partial t} + U_x \frac{\partial U_y}{\partial x} + U_y \frac{\partial U_y}{\partial y} + g \frac{\partial H}{\partial y} = -FU_x + F^{(y)} - g \frac{U_y(U^2_x + U^2_y)^{1/2}}{C^2(D+H-R)} 
+\frac{\partial U_y}{\partial t} + U_x \frac{\partial U_y}{\partial x} + U_y \frac{\partial U_y}{\partial y} + g \frac{\partial H}{\partial y} = 0
 \end{align}
 $$
 
 $$
 \begin{align}
-\frac{\partial H}{\partial t} + \frac{\partial (D+H-R)U_x}{\partial x} + \frac{\partial (D+H-R)U_y}{\partial y} - \frac{\partial R}{\partial t} = 0
+\frac{\partial H}{\partial t} + \frac{\partial (D+H)U_x}{\partial x} + \frac{\partial (D+H)U_y}{\partial y}  = 0
 \end{align}
 $$
 
@@ -38,10 +38,6 @@ $U_y$ : vitesse dans la direction y (indice j), $U_y$ devient $V$ dans les équa
 $g$   : accélération de la gravité ($-9.8$ $m.s^{-2}$)<br>
 $t$   : temps<br>
 $H$   : hauteur d'eau au dessus de la surface au repos<br>
-$R$   : mouvement du sol<br>
-$F$   : paramètre de Coriolis<br>
-$C$   : coefficient de De Chezy<br>
-$F^{(x)}, F^{(y)}$   : Fonctions de forçage<br>
 $D$   : profondeur<br>
 </p>
 
@@ -56,26 +52,26 @@ Cette dernière montre comment sont organisées les données sur le maillage.
 
 $$
 \begin{align}
-H^{n+1}_{i,j} = H^n_{i,j} - \Delta t \Biggl[ \frac{U^n_{i+1,j}}{\Delta x}(TD1) - \frac{U^n_{i,j}}{\Delta x}(TD2) +  \frac{V^n_{i,j+1}}{\Delta y}(TV1) -  \frac{V^n_{i,j}}{\Delta y}(TV2)\Biggr] + R^{n+1}_{i,j} - R^{n}_{i,j}
+H^{n+1}_{i,j} = H^n_{i,j} - \Delta t \Biggl[ \frac{U^n_{i+1,j}}{\Delta x}(TD1) - \frac{U^n_{i,j}}{\Delta x}(TD2) +  \frac{V^n_{i,j+1}}{\Delta y}(TV1) -  \frac{V^n_{i,j}}{\Delta y}(TV2)\Biggr] 
 \end{align}
 $$
 
 $$
 \begin{align}
-TD1 &amp = D_{i+1,j} + H^n_{i+1,j} - R^n_{i+1,j} &amp (U^n_{i+1,j} \lt 0) \\
-TD1 &amp = D_{i,j}   + H^n_{i,j}   - R^n_{i,j} &amp (U^n_{i+1,j} \gt 0) \\
-TD2 &amp = D_{i,j}   + H^n_{i,j}   - R^n_{i,j} &amp (U^n_{i,j} \lt 0) \\
-TD2 &amp = D_{i-1,j}   + H^n_{i-1,j}   - R^n_{i-1,j} &amp (U^n_{i,j} \gt 0) \\
-TV1 &amp = D_{i,j+1}   + H^n_{i,j+1}   - R^n_{i,j+1} &amp (V^n_{i,j+1} \lt 0) \\
-TV1 &amp = D_{i,j}   + H^n_{i,j}   - R^n_{i,j} &amp (V^n_{i,j+1} \gt 0) \\
-TV2 &amp = D_{i,j}   + H^n_{i,j}   - R^n_{i,j} &amp (V^n_{i,j} \lt 0) \\
-TV2 &amp = D_{i,j-1}   + H^n_{i,j-1}   - R^n_{i,j-1} &amp (V^n_{i,j} \gt 0) \\
+TD1 &amp = D_{i+1,j} + H^n_{i+1,j}  &amp (U^n_{i+1,j} \lt 0) \\
+TD1 &amp = D_{i,j}   + H^n_{i,j}    &amp (U^n_{i+1,j} \gt 0) \\
+TD2 &amp = D_{i,j}   + H^n_{i,j}    &amp (U^n_{i,j} \lt 0) \\
+TD2 &amp = D_{i-1,j}   + H^n_{i-1,j}    &amp (U^n_{i,j} \gt 0) \\
+TV1 &amp = D_{i,j+1}   + H^n_{i,j+1}    &amp (V^n_{i,j+1} \lt 0) \\
+TV1 &amp = D_{i,j}   + H^n_{i,j}    &amp (V^n_{i,j+1} \gt 0) \\
+TV2 &amp = D_{i,j}   + H^n_{i,j}  } &amp (V^n_{i,j} \lt 0) \\
+TV2 &amp = D_{i,j-1}   + H^n_{i,j-1}    &amp (V^n_{i,j} \gt 0) \\
 \end{align}
 $$
 
 $$
 \begin{align}
-U^{n+1}_{i,j} = U^n_{i,j} - \Delta t \Biggl[\frac{U^n_{i,j}}{\Delta x}(TU1) + \frac{TV}{\Delta y}(TU2)\Biggr] - g \frac{\Delta t}{\Delta x}\Bigl[THU\Bigr] + \Delta t \Bigl[-FV^n_{i,j} - F^{(x)}_{i,j} + S^B_{i,j}\Bigr]
+U^{n+1}_{i,j} = U^n_{i,j} - \Delta t \Biggl[\frac{U^n_{i,j}}{\Delta x}(TU1) + \frac{TV}{\Delta y}(TU2)\Biggr] - g \frac{\Delta t}{\Delta x}\Bigl[THU\Bigr]
 \end{align}
 $$
 
@@ -87,13 +83,12 @@ TU1 &amp = U^n_{i,j}   - U^n_{i-1,j} &amp (U^n_{i,j} \gt 0)\\
 TU2 &amp = U^n_{i,j+1} - U^n_{i,j} &amp (TV \lt 0)\\
 TU2 &amp = U^n_{i,j}   - U^n_{i,j-1} &amp (TV \gt 0)\\
 THU &amp = H^n_{i,j}   - H^n_{i,j-1} &amp \\
-S^B_{i,j} &amp = gU^n_{i,j}\frac{\Biggl[(U^n_{i,j})^2 + (V^n_{i,j})^2\Biggr]^{1/2}}{C^2(D_{i,j})+H^n_{i,j}}\\
 \end{align}
 $$
 
 $$
 \begin{align}
-V^{n+1}_{i,j} = V^n_{i,j} - \Delta t \Biggl[\frac{TU}{\Delta x}(TV1) + \frac{V^n_{i,j}}{\Delta y}(TV2)\Biggr] - g \frac{\Delta t}{\Delta y}\Bigl[THV\Bigr] + \Delta t \Bigl[-FU^n_{i,j} - F^{(y)}_{i,j} + S^B_{i,j}\Bigr]
+V^{n+1}_{i,j} = V^n_{i,j} - \Delta t \Biggl[\frac{TU}{\Delta x}(TV1) + \frac{V^n_{i,j}}{\Delta y}(TV2)\Biggr] - g \frac{\Delta t}{\Delta y}\Bigl[THV\Bigr]
 \end{align}
 $$
 
@@ -105,7 +100,6 @@ TV1 &amp = V^n_{i,j}   - V^n_{i-1,j} &amp (U^n_{i,j} \gt 0)\\
 TV2 &amp = V^n_{i,j+1} - V^n_{i,j} &amp (TV \lt 0)\\
 TV2 &amp = V^n_{i,j}   - V^n_{i,j-1} &amp (TV \gt 0)\\
 THV &amp = H^n_{i,j}   - H^n_{i,j-1} &amp \\
-S^B_{i,j} &amp = gU^n_{i,j}\frac{\Biggl[(U^n_{i,j})^2 + (V^n_{i,j})^2\Biggr]^{1/2}}{C^2(D_{i,j})+H^n_{i,j}}\\
 \end{align}
 $$
 
@@ -200,12 +194,11 @@ Il vous faudra alors soit réduire le pas de temps de la simulation, soit augmen
 Nous tenons à faire remarquer que dans le cas du code SWAN, la condition CFL nous indique que le pas de temps doit vérifier : 
 
 $$
-\delta t \lt \frac{0.3}{200} \delta x
+C \frac{\delta t}{\delta x}<0.5
 $$
 
-Pour un pas $\delta x = 3000$ mètres, $\delta t = 5s$ devrait être suffisant.
-Nous avons remarqué que la simulation ne fonctionne plus si $\delta t \gt 0.1 s$. 
-Ce comportement reste à ce jour inexpliqué.
+Où C est la vitesse de l'onde ($C=\sqrt{g*d}$). Pour un pas $\delta x = 2000$ mètres, une profondeur de 1000m, $\delta t = 10s$ devrait être suffisant.
+
 
 
 ## La génération de code
