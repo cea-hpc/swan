@@ -1,0 +1,28 @@
+{
+	"schema2":
+	{
+		"_outputPath_comment":"empty outputPath to disable output",
+		"outputPath":"output",
+		"outputPeriod":100,
+		"deltat":0.5,
+		"maxIter":5000000,
+		"stopTime":6000.0,
+		"bathyLib":{
+			"waveFilename":"/cea/temp/b4/lemairen/Workspace/swan/swan/data/swangeo/waveMediterrannee.grd",
+			"waveVarName":"surf",
+			"depthFilename":"/cea/temp/b4/lemairen/Workspace/swan/swan/data/swangeo/depthMediterrannee.grd",
+			"depthVarName":"z",
+			"lonFilename":"/cea/temp/b4/lemairen/Workspace/swan/swan/data/swangeo/depthMediterrannee.grd",
+			"lonVarName":"x",
+			"latFilename":"/cea/temp/b4/lemairen/Workspace/swan/swan/data/swangeo/depthMediterrannee.grd",
+			"latVarName":"y"
+		}
+	},
+	"mesh":
+	{
+		"nbXQuads":693,
+		"nbYQuads":333,
+		"xSize":200.0,
+		"ySize":200.0
+	}
+}

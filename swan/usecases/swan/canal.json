@@ -6,23 +6,23 @@
 		"outputPeriod":10,
 		"X_EDGE_LENGTH":200.0,
 		"Y_EDGE_LENGTH":200.0,
-		"DConst":true,
-		"Dini":-1000.0,
-		"deltat":0.1,
-		"F":0.0,
-		"maxIter":2500000,
-		"stopTime":50.0,
+		"Dload":false,
+		"Dini":-10.0,
+		"Dup":-10.0,
+		"deltat":0.5,
+		"maxIter":5000000,
+		"stopTime":20.0,
+		"Loadwave":false,
+		"Wavemode":3,
+		"LX":200.0,
+		"X0":50.0,
+		"Y0":50.0,
+		"Amp":0.1,
+		"Sigma":5000.0,
 		"bathyLib":
 		{
 			"waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swan/waveCanal.grd",
 			"waveVarName":"z"
 		}
-	},
-	"mesh":
-	{
-		"nbXQuads":1103,
-		"nbYQuads":44,
-		"xSize":200.0,
-		"ySize":200.0
 	}
 }

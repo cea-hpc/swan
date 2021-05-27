@@ -1,0 +1,25 @@
+package fr.cea.nabla.monilog.Iterative
+
+import org.gemoc.monilog.stl.*
+import fr.cea.nabla.monilog.nablalib.*
+import Swan.*
+import "/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan/swan/src/swan/Utiles.py" as pythonUtils
+
+
+
+call BeforeComputeTn {
+    before ComputeTn
+}
+
+
+layout FormatSimple2 {
+    StringLayout.call("t={0} h[0]={1,number,0.00}", $t_nplus1, $H_nplus1[0])
+}
+
+
+monilogger logT [INFO] {
+    event BeforeComputeTn
+    actions {
+        NabLabConsoleAppender.call(FormatSimple2.call);
+    }
+}
