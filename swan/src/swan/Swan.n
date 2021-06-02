@@ -35,15 +35,15 @@ connectivity bottomCell: cell → cell;
 // options
 option ℝ X_EDGE_LENGTH = 20.0;
 option ℝ Y_EDGE_LENGTH = 20.0;
-option ℾ Dload = true;
+option ℾ loadBathy = true;
 option ℝ Dini = -1000.0;
 option ℝ Dup = -1000.0;
 option ℝ δt = 0.5;
 option ℕ maxIter = 5000000;
 option ℝ stopTime = 20.0;
 
-option ℾ Loadwave = true;
-option ℕ Wavemode = 3;
+option ℾ loadWave = true;
+option ℕ waveMode = 3;
 option ℝ LX=200.0;
 
 option ℝ X0 = 50.0;
@@ -77,7 +77,7 @@ InitTime: t^{n=0} = 0.0;
 
 // depth initialization
 InitDijini: ∀ic∈innerCells(), 
-	if(Dload) 
+	if(loadBathy) 
 		Dijini{ic} = nextDepth();
 	else
 		Dijini{ic} = Dini + center{ic}[0]*(Dup-Dini)/(LX);
@@ -98,16 +98,16 @@ IniDt: ∀j∈cells(), Dt^{n=0}{j} = max(H^{n=0}{j},H^{n=0}{j}-Dij^{n=0}{j});
 // wave initialization 
 
 InitHini:{ ∀ic∈innerCells(),
-	if (Loadwave)
+	if (loadWave)
 		Hini{ic} = nextWaveHeight();
-	else if(Wavemode==1)
+	else if(waveMode==1)
 		if(center{ic}[0]<X0) 
 			Hini{ic} = Amp;
 		else
 			Hini{ic} = 0.0;	
-	else if(Wavemode==2)
+	else if(waveMode==2)
 		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma)) * exp(-0.5* (center{ic}[1]-Y0)*(center{ic}[1]-Y0)/(Sigma*Sigma));		
-	else if(Wavemode==3)		
+	else if(waveMode==3)		
 		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma));
 
 }
