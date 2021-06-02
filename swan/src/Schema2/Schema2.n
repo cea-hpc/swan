@@ -201,7 +201,7 @@ UpdateHouter:
 		H^{n+1}{rc} = Hcalc^{n+1}{lc};
 }
 
-UpdateHinner:∀ic∈innerCells(),  H^{n+1}{ic} = Hcalc^{n+1}{ic};
+UpdateHinner:∀ic∈innerCells(), H^{n+1}{ic} = Hcalc^{n+1}{ic};
 
 // compute new x velocity using the numerical schema
 UpdateUcalc:∀ic∈innerCells(),∀rfc∈rightFaceOfCell(ic),∀tfc∈topFaceOfCell(ic), 
