@@ -64,7 +64,7 @@ TD2 &amp = D_{i,j}   + H^n_{i,j}    &amp (U^n_{i,j} \lt 0) \\
 TD2 &amp = D_{i-1,j}   + H^n_{i-1,j}    &amp (U^n_{i,j} \gt 0) \\
 TV1 &amp = D_{i,j+1}   + H^n_{i,j+1}    &amp (V^n_{i,j+1} \lt 0) \\
 TV1 &amp = D_{i,j}   + H^n_{i,j}    &amp (V^n_{i,j+1} \gt 0) \\
-TV2 &amp = D_{i,j}   + H^n_{i,j}  } &amp (V^n_{i,j} \lt 0) \\
+TV2 &amp = D_{i,j}   + H^n_{i,j}   &amp (V^n_{i,j} \lt 0) \\
 TV2 &amp = D_{i,j-1}   + H^n_{i,j-1}    &amp (V^n_{i,j} \gt 0) \\
 \end{align}
 $$
@@ -105,8 +105,9 @@ $$
 
 ## Le graphe du programme
 
-<img src="./img/grapheSwangeo.png" alt="Graphe du programme Swangeo" title="Graphe du programme Swangeo"/ >
+<img src="./img/Graph_Swan.png" alt="Graphe du programme Swan" title="Graphe du programme Swan"/ >
 
+<img src="./img/Graph_Swan2.png" alt="Graphe de "ExecuteTimeLoopN" du programme Swan" title="Graphe de "ExecuteTimeLoopN" du programme Swan"/ >
 
 ## La bibliothèque BathyLib
 
