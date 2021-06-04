@@ -14,9 +14,8 @@ VtkOutput
 {
 	periodReferenceVariable = swangeo.n;
 	outputVariables = swangeo.H as "hauteur", 
-		swangeo.Dij as "profondeur", 
-		swangeo.Rij as "bottommotion", 
-		swangeo.Bool as "bool";
+		swangeo.Dij as "profondeur";
+
 }
 
 StlThread
