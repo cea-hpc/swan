@@ -21,7 +21,7 @@ Interpreter
 {
 	outputPath = "/swan/src-gen-interpreter";
 	extension BathyLib providedBy BathyLibCpp;
-	JAVA_HOME = "/cea/temp/b4/lemairen/NabLab/graalvm-ce-java11-21.0.0";
+	JAVA_HOME = "$ENV{HOME}/NabLab/graalvm-ce-java11-21.0.0";
 }
 
 StlThread

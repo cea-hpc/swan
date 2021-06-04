@@ -4,8 +4,6 @@
 		"_outputPath_comment":"empty outputPath to disable output",
 		"outputPath":"output",
 		"outputPeriod":100,
-		"DConst":false,
-		"Dini":-1000.0,
 		"deltat":0.1,
 		"maxIter":1000000,
 		"stopTime":1800.0,
