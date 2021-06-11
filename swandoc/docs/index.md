@@ -105,9 +105,12 @@ $$
 
 ## Le graphe du programme
 
-<img src="./img/Graph_Swan.png" alt="Graphe du programme Swan" title="Graphe du programme Swan"/ >
 
-<img src="./img/Graph_Swan2.png" alt="Graphe de "ExecuteTimeLoopN" du programme Swan" title="Graphe de "ExecuteTimeLoopN" du programme Swan"/ >
+<img src="./img/Graph_Swan.jpg" alt="Graphe du programme Swan" title="Graphe du programme Swan"/ >
+
+ExecuteTimeLoopN correspond au graphe suivant
+
+<img src="./img/Graph_Swan2.jpg" alt="Graphe de ExecuteTimeLoopN du programme Swan" title="Graphe de ExecuteTimeLoopN du programme Swan"/ >
 
 ## La bibliothèque BathyLib
 
