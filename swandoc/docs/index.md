@@ -106,11 +106,11 @@ $$
 ## Le graphe du programme
 
 
-<img src="./img/Graph_Swan.jpg" alt="Graphe du programme Swan" title="Graphe du programme Swan"/ >
+<img src="./img/graph_Swan.jpg" alt="Graphe du programme Swan" title="Graphe du programme Swan"/ >
 
 ExecuteTimeLoopN correspond au graphe suivant
 
-<img src="./img/Graph_Swan2.jpg" alt="Graphe de ExecuteTimeLoopN du programme Swan" title="Graphe de ExecuteTimeLoopN du programme Swan"/ >
+<img src="./img/graph_Swan2.jpg" alt="Graphe de ExecuteTimeLoopN du programme Swan" title="Graphe de ExecuteTimeLoopN du programme Swan"/ >
 
 ## La bibliothèque BathyLib
 
@@ -184,7 +184,7 @@ Après compilation des sources, le programme s'exécute comme suit : `./swan pat
 L'intégralité des informations à fournir au programme doit être écrite dans ce fichier d'options utilisateur au format [Json](https://www.json.org/json-en.html).
 Nous allons détailler son contenu et expliquer brièvement le rôle de chacun des champs du fichier.
 
-<img src="./img/json.png" alt="Exemple de fichier de données Json" title="Exemple de fichier de données Json"/>
+<img src="./img/Json.png" alt="Exemple de fichier de données Json" title="Exemple de fichier de données Json"/>
 
 
 ## Les problèmes d'affichage
