@@ -8,7 +8,7 @@
 		"maxIter":1000000,
 		"stopTime":7200.0,
 	    "bathyLib":{
-		    "waveFilename":"/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan/swan/data/swangeo/waveMediterrannee.grd",
+		    "waveFilename":"/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan/swan/data/swangeo/2021waveMediterrannee.grd",
 		    "waveVarName":"z",
 		    "depthFilename":"/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan/swan/data/swangeo/depthMediterrannee.grd",
 		    "depthVarName":"z",
