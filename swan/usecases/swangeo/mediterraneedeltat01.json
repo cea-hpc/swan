@@ -8,13 +8,13 @@
 		"maxIter":1000000,
 		"stopTime":1800.0,
 	    "bathyLib":{
-		    "waveFilename":"/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan/swan/data/swangeo/waveMediterrannee2021.grd",
+		    "waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/waveMediterrannee.grd",
 		    "waveVarName":"surf",
-		    "depthFilename":"/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan/swan/data/swangeo/depthMediterrannee.grd",
+		    "depthFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
 		    "depthVarName":"z",
-		    "lonFilename":"/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan/swan/data/swangeo/depthMediterrannee.grd",
+		    "lonFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
 		    "lonVarName":"x",
-		    "latFilename":"/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan/swan/data/swangeo/depthMediterrannee.grd",
+		    "latFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
 		    "latVarName":"y"
 		    }
 	},
