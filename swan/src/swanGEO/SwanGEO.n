@@ -49,7 +49,6 @@ let ℝ DEG2M = DEG2M_DP;
 ℝ δy{cells};
 let ℝ g = -9.8;
 
-ℝ[2] center{cells};
 ℝ t;
 ℝ[2] X{nodes}, Xc{innerCells};
 
@@ -103,17 +102,15 @@ InitDij:
 	∀ic∈innerCells(),  Dij^{n=0}{ic} = Dijini{ic}; 
 }
 
-IniCenter: ∀j∈innerCells(), center{j} =(0.25 * ∑{r∈nodesOfCell(j)}(X{r}));
-
 IniDt: ∀j∈cells(), Dt^{n=0}{j} = max(H^{n=0}{j},H^{n=0}{j}-Dij^{n=0}{j});
 
 // wave initialization 
 
 InitHini:{∀ic∈innerCells(),
 if (Dij^{n=0}{ic}>0) 
-	Hini{ic} = nextWaveHeight() *0.0;
+	Hini{ic} = nextWaveHeight() * 0.0;
 else
-	 Hini{ic} = nextWaveHeight();
+	Hini{ic} = nextWaveHeight();
 }
 
 // trick to initialize Boundary Condition on H
@@ -183,8 +180,11 @@ UpdateHcalc:∀ic∈innerCells(),
 			TV2 = Dt^{n}{bc} ;
 
 	// computeH^{n+1}
+	if (Dij^{n+1}{ic}<0)
 	∀rf∈rightFaceOfCell(ic), ∀lf∈leftFaceOfCell(ic), ∀ tf ∈ topFaceOfCell(ic), ∀ bf ∈ bottomFaceOfCell(ic),
 		Hcalc^{n+1}{ic} = H^{n}{ic} - δt/(δx{ic})*(U^{n}{rf} * TD1  - U^{n}{lf} * TD2) - δt/δy{ic} * (U^{n}{tf} * TV1  - U^{n}{bf} * TV2);
+	else
+		Hcalc^{n+1}{ic} = 0.0;
 
 }
 

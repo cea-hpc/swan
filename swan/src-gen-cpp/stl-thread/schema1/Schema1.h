@@ -42,14 +42,14 @@ public:
 		int outputPeriod;
 		double X_EDGE_LENGTH;
 		double Y_EDGE_LENGTH;
-		bool Dload;
+		bool loadBathy;
 		double Dini;
 		double Dup;
 		double deltat;
 		int maxIter;
 		double stopTime;
-		bool Loadwave;
-		int Wavemode;
+		bool loadWave;
+		int waveMode;
 		double LX;
 		double X0;
 		double Y0;

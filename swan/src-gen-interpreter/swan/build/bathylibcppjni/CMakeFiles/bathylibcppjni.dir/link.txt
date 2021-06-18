@@ -1,0 +1,1 @@
+/ccc/products/gcc-9.1.0/bin/g++ -fPIC   -shared -Wl,-soname,libbathylibcppjni.so -o libbathylibcppjni.so CMakeFiles/bathylibcppjni.dir/bathylibcppjni_BathyLib.cc.o ../bathylibcpp/libbathylibcpp.a ../nablalib/libnablalib.a -lpthread -lnetcdf 

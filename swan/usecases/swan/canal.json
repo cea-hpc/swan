@@ -4,14 +4,14 @@
 		"_outputPath_comment":"empty outputPath to disable output",
 		"outputPath":"output",
 		"outputPeriod":10,
-		"X_EDGE_LENGTH":4000.0,
-		"Y_EDGE_LENGTH":4000.0,
-		"loadBathy":true,
+		"X_EDGE_LENGTH":200.0,
+		"Y_EDGE_LENGTH":200.0,
+		"loadBathy":false,
 		"Dini":-10.0,
 		"Dup":-10.0,
-		"deltat":0.5,
+		"deltat":10.0,
 		"maxIter":5000000,
-		"stopTime":20.0,
+		"stopTime":600.0,
 		"loadWave":true,
 		"waveMode":3,
 		"LX":200.0,
@@ -27,9 +27,9 @@
 	},
 	"mesh":
 	{
-		"nbXQuads":103,
-		"nbYQuads":103,
-		"xSize":4000.0,
-		"ySize":4000.0
+		"nbXQuads":1103,
+		"nbYQuads":44,
+		"xSize":200.0,
+		"ySize":200.0
 	}
 }

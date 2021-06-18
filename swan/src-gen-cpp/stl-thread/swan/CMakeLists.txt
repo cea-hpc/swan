@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
 # SET VARIABLES
-set(CMAKE_CXX_COMPILER /usr/bin/g++ CACHE STRING "")
-set(N_WS_PATH $ENV{HOME}/Nablab/workspace/swan)
+set(CMAKE_CXX_COMPILER /ccc/products1/gcc-9.1.0/RedHat-7-x86_64/bin/g++ CACHE STRING "")
+set(N_WS_PATH /cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan)
 set(BATHYLIBCPP_PATH ${N_WS_PATH}/swan/src-gen-cpp/stl-thread/bathylibcpp)
 
 # CHECK VARIABLES

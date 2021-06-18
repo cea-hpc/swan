@@ -24,7 +24,7 @@ $\texttt{Init\delta x\delta y} : \{ ... \}$
 
 
 \section{InitDijini}
-$\texttt{InitDijini} : \forall{ic\in innerCells()}, \ if~\left(Dload\right)~Dijini_{ic} = nextDepth\left(\right)~else~Dijini_{ic} = Dini + \frac{center_{ic}\left[0\right] \cdot (Dup - Dini)}{(LX)}$
+$\texttt{InitDijini} : \forall{ic\in innerCells()}, \ Dijini_{ic} = nextDepth\left(\right)$
 
 
 \section{InitDij}
@@ -72,11 +72,7 @@ $\texttt{UpdateHouter} : \{ ... \}$
 
 
 \section{UpdateHinner}
-$\texttt{UpdateHinner} : \forall{ic\in innerCells()}, \ H^{n+1}_{ic} = Hru^{n+1}_{ic}$
-
-
-\section{UpdateHru}
-$\texttt{UpdateHru} : \forall{ic\in innerCells()}, \ Hru^{n+1}_{ic} = Hcalc^{n+1}_{ic}$
+$\texttt{UpdateHinner} : \forall{ic\in innerCells()}, \ H^{n+1}_{ic} = Hcalc^{n+1}_{ic}$
 
 
 \section{UpdateUcalc}
@@ -87,16 +83,12 @@ $\texttt{UpdateUcalc} : \forall{ic\in innerCells()}, \ \forall{rfc\in rightFaceO
 $\texttt{UpdateUouter} : \{ ... \}$
 
 
-\section{UpdateUinner}
-$\texttt{UpdateUinner} : \forall{ic\in faces()}, \ U^{n+1}_{ic} = Urn^{n+1}_{ic}$
-
-
-\section{UpdateUrunup}
-$\texttt{UpdateUrunup} : \{ ... \}$
-
-
 \section{UpdateHplot}
 $\texttt{UpdateHplot} : \{ ... \}$
+
+
+\section{UpdateUinner}
+$\texttt{UpdateUinner} : \forall{ic\in faces()}, \ U^{n+1}_{ic} = Ucalc^{n+1}_{ic}$
 
 
 \section{UpdateDtot}

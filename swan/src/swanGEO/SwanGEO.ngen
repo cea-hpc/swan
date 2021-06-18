@@ -14,7 +14,7 @@ VtkOutput
 {
 	periodReferenceVariable = swangeo.n;
 	outputVariables = swangeo.H as "hauteur", 
-		swangeo.Dij as "profondeur";
+		swangeo.Hplot as "plot";
 
 }
 

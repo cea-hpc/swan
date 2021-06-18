@@ -40,19 +40,9 @@ public:
 	{
 		std::string outputPath;
 		int outputPeriod;
-		bool Dload;
-		double Dini;
-		double Dup;
 		double deltat;
 		int maxIter;
 		double stopTime;
-		bool Loadwave;
-		int Wavemode;
-		double LX;
-		double X0;
-		double Y0;
-		double Amp;
-		double Sigma;
 		BathyLib bathyLib;
 
 		void jsonInit(const char* jsonContent);
@@ -64,31 +54,29 @@ public:
 	void simulate();
 	void computeTn() noexcept;
 	void iniCenter() noexcept;
+	void initDijini() noexcept;
 	void initTime() noexcept;
 	void initUini() noexcept;
 	void initXc() noexcept;
 	void updateDij() noexcept;
 	void updateHcalc() noexcept;
-	void initDijini() noexcept;
-	void initHini() noexcept;
+	void initDij() noexcept;
 	void initU() noexcept;
 	void initdeltaxdeltay() noexcept;
 	void updateDtot() noexcept;
-	void updateHru() noexcept;
-	void initDij() noexcept;
-	void initH() noexcept;
-	void initUcalc() noexcept;
 	void updateHinner() noexcept;
 	void updateHouter() noexcept;
 	void updateHplot() noexcept;
-	void iniDt() noexcept;
-	void initHcalc() noexcept;
+	void initHini() noexcept;
+	void initUcalc() noexcept;
 	void updateUcalc() noexcept;
-	void setUpTimeLoopN() noexcept;
-	void updateUrunup() noexcept;
-	void executeTimeLoopN() noexcept;
+	void initH() noexcept;
 	void updateUinner() noexcept;
 	void updateUouter() noexcept;
+	void iniDt() noexcept;
+	void initHcalc() noexcept;
+	void setUpTimeLoopN() noexcept;
+	void executeTimeLoopN() noexcept;
 
 private:
 	void dumpVariables(int iteration, bool useTimer=true);
@@ -119,8 +107,6 @@ public:
 	std::vector<double> deltax;
 	std::vector<double> deltay;
 	static constexpr double g = -9.8;
-	static constexpr double epsh = 1.0E-6;
-	static constexpr double epsu = 1.0E-5;
 	std::vector<RealArray1D<2>> center;
 	double t_n;
 	double t_nplus1;
@@ -134,8 +120,6 @@ public:
 	std::vector<double> Ucalc_n;
 	std::vector<double> Ucalc_nplus1;
 	std::vector<double> Ucalc_n0;
-	std::vector<double> Urn_n;
-	std::vector<double> Urn_nplus1;
 	std::vector<double> H_n;
 	std::vector<double> H_nplus1;
 	std::vector<double> H_n0;
@@ -143,8 +127,6 @@ public:
 	std::vector<double> Hcalc_n;
 	std::vector<double> Hcalc_nplus1;
 	std::vector<double> Hcalc_n0;
-	std::vector<double> Hru_n;
-	std::vector<double> Hru_nplus1;
 	std::vector<double> Hplot_n;
 	std::vector<double> Hplot_nplus1;
 	std::vector<double> Dijini;

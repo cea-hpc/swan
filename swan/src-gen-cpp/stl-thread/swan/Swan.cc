@@ -56,15 +56,15 @@ Swan::Options::jsonInit(const char* jsonContent)
 	}
 	else
 		Y_EDGE_LENGTH = 20.0;
-	// Dload
-	if (o.HasMember("Dload"))
+	// loadBathy
+	if (o.HasMember("loadBathy"))
 	{
-		const rapidjson::Value& valueof_Dload = o["Dload"];
-		assert(valueof_Dload.IsBool());
-		Dload = valueof_Dload.GetBool();
+		const rapidjson::Value& valueof_loadBathy = o["loadBathy"];
+		assert(valueof_loadBathy.IsBool());
+		loadBathy = valueof_loadBathy.GetBool();
 	}
 	else
-		Dload = true;
+		loadBathy = true;
 	// Dini
 	if (o.HasMember("Dini"))
 	{
@@ -110,24 +110,24 @@ Swan::Options::jsonInit(const char* jsonContent)
 	}
 	else
 		stopTime = 20.0;
-	// Loadwave
-	if (o.HasMember("Loadwave"))
+	// loadWave
+	if (o.HasMember("loadWave"))
 	{
-		const rapidjson::Value& valueof_Loadwave = o["Loadwave"];
-		assert(valueof_Loadwave.IsBool());
-		Loadwave = valueof_Loadwave.GetBool();
+		const rapidjson::Value& valueof_loadWave = o["loadWave"];
+		assert(valueof_loadWave.IsBool());
+		loadWave = valueof_loadWave.GetBool();
 	}
 	else
-		Loadwave = true;
-	// Wavemode
-	if (o.HasMember("Wavemode"))
+		loadWave = true;
+	// waveMode
+	if (o.HasMember("waveMode"))
 	{
-		const rapidjson::Value& valueof_Wavemode = o["Wavemode"];
-		assert(valueof_Wavemode.IsInt());
-		Wavemode = valueof_Wavemode.GetInt();
+		const rapidjson::Value& valueof_waveMode = o["waveMode"];
+		assert(valueof_waveMode.IsInt());
+		waveMode = valueof_waveMode.GetInt();
 	}
 	else
-		Wavemode = 3;
+		waveMode = 3;
 	// LX
 	if (o.HasMember("LX"))
 	{
@@ -396,7 +396,7 @@ void Swan::updateHcalc() noexcept
 
 /**
  * Job initDijini called @2.0 in simulate method.
- * In variables: Dini, Dload, Dup, LX, center
+ * In variables: Dini, Dup, LX, center, loadBathy
  * Out variables: Dijini
  */
 void Swan::initDijini() noexcept
@@ -408,7 +408,7 @@ void Swan::initDijini() noexcept
 		{
 			const Id icId(innerCells[icInnerCells]);
 			const size_t icCells(icId);
-			if (options.Dload) 
+			if (options.loadBathy) 
 				Dijini[icCells] = options.bathyLib.nextDepth();
 			else
 				Dijini[icCells] = options.Dini + center[icCells][0] * (options.Dup - options.Dini) / (options.LX);
@@ -418,7 +418,7 @@ void Swan::initDijini() noexcept
 
 /**
  * Job initHini called @2.0 in simulate method.
- * In variables: Amp, Loadwave, Sigma, Wavemode, X0, Y0, center
+ * In variables: Amp, Sigma, X0, Y0, center, loadWave, waveMode
  * Out variables: Hini
  */
 void Swan::initHini() noexcept
@@ -430,19 +430,19 @@ void Swan::initHini() noexcept
 		{
 			const Id icId(innerCells[icInnerCells]);
 			const size_t icCells(icId);
-			if (options.Loadwave) 
+			if (options.loadWave) 
 				Hini[icCells] = options.bathyLib.nextWaveHeight();
 			else
-				if (options.Wavemode == 1) 
+				if (options.waveMode == 1) 
 				if (center[icCells][0] < options.X0) 
 				Hini[icCells] = options.Amp;
 			else
 				Hini[icCells] = 0.0;
 			else
-				if (options.Wavemode == 2) 
+				if (options.waveMode == 2) 
 				Hini[icCells] = options.Amp * std::exp(-0.5 * (center[icCells][0] - options.X0) * (center[icCells][0] - options.X0) / (options.Sigma * options.Sigma)) * std::exp(-0.5 * (center[icCells][1] - options.Y0) * (center[icCells][1] - options.Y0) / (options.Sigma * options.Sigma));
 			else
-				if (options.Wavemode == 3) 
+				if (options.waveMode == 3) 
 				Hini[icCells] = options.Amp * std::exp(-0.5 * (center[icCells][0] - options.X0) * (center[icCells][0] - options.X0) / (options.Sigma * options.Sigma));
 		}
 	}
@@ -1001,7 +1001,7 @@ void Swan::setUpTimeLoopN() noexcept
 
 /**
  * Job executeTimeLoopN called @6.0 in simulate method.
- * In variables: Dij_n, Dij_nplus1, Dt_n, H_n, H_nplus1, Hcalc_nplus1, U_n, Ucalc_nplus1, deltat, deltax, deltay, g, t_n
+ * In variables: Dij_n, Dt_n, H_n, Hcalc_n, U_n, Ucalc_n, t_n
  * Out variables: Dij_nplus1, Dt_nplus1, H_nplus1, Hcalc_nplus1, U_nplus1, Ucalc_nplus1, t_nplus1
  */
 void Swan::executeTimeLoopN() noexcept
