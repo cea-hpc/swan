@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="fr.cea.nabla.ui.graalvm.launchconfig.NablabLaunchConfigurationType">
+    <stringAttribute key="Json file location" value="src-gen-cpp/stl-thread/schema1/Swan2D.json"/>
+    <listAttribute key="Monilogger Files Locations">
+        <listEntry value="swan/src/schema1/InspectU.mnlg"/>
+    </listAttribute>
+    <stringAttribute key="Nablagen File location" value="src/schema1/Schema1.ngen"/>
+    <stringAttribute key="Project name" value="swan"/>
+    <stringAttribute key="Python executable location" value="/home/masterccce/NabLab/graalvm-ce-java11-21.0.0/bin/graalpython"/>
+</launchConfiguration>

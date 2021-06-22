@@ -1,0 +1,16 @@
+{
+	"_comment": "GENERATED FILE - DO NOT OVERWRITE",
+	"schema2":
+	{
+		"_outputPath_comment":"empty outputPath to disable output",
+		"outputPath":"output",
+		"outputPeriod":0,
+		"deltat":0.5,
+		"maxIter":5000000,
+		"stopTime":20.0,
+		"bathyLib":{}
+	},
+	"mesh":
+	{
+	}
+}

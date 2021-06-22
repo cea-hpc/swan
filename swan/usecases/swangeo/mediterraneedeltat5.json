@@ -1,31 +1,28 @@
 {
-	"_comment": "Generated file - Do not overwrite",
-	"options":
+	"swangeo":
 	{
 		"_outputPath_comment":"empty outputPath to disable output",
 		"outputPath":"output",
 		"outputPeriod":100,
-		"X_EDGE_LENGTH":200.0,
-		"Y_EDGE_LENGTH":200.0,
-		"X_EDGE_ELEMS":693,
-		"Y_EDGE_ELEMS":333,
-		"X_LENGTH":220600.0,
-		"Y_LENGTH":8800.0,
-		"DConst":false,
-		"Dini":-1000.0,
 		"deltat":5.0,
 		"maxIter":1000000,
-		"stopTime":7200.0
+		"stopTime":1800.0,
+	    "bathyLib":{
+		    "waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/waveMediterrannee.grd",
+		    "waveVarName":"surf",
+		    "depthFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
+		    "depthVarName":"z",
+		    "lonFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
+		    "lonVarName":"x",
+		    "latFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
+		    "latVarName":"y"
+		    }
 	},
-	"swanGEOFunctions":
+	"mesh":
 	{
-		"waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/waveMediterrannee.grd",
-		"waveVarName":"surf",
-		"depthFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
-		"depthVarName":"z",
-		"lonFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
-		"lonVarName":"x",
-		"latFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/depthMediterrannee.grd",
-		"latVarName":"y"
+		"nbXQuads":693,
+		"nbYQuads":333,
+		"xSize":200.0,
+		"ySize":200.0
 	}
 }

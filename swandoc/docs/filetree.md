@@ -34,3 +34,4 @@ Liste des répertoires:
     - swangeo : jeux de données au format *.json*, destinés à être personnalisés par l'utilisateur. Nous rappelons que ces fichiers sont à donner en argument du programme *swangeo* uniquement.
     	- mediterrCases : jeux de données au format *.json*, ainsi qu'une vidéo par cas test montrant le résultat que l'on obtient après simulation, en utilisant le fichier json en question. 
     	Ces cas tests concernent le tsunami provoqué par le séisme de Boumerdes, 2003. Le contenu de ce sous dossier n'est pas destiné à être modifié par l'utilisateur. 
+    	- mediterranee2021 : eux de données au format *.json*. Ce cas test concerne le tsunami provoqué par le séisme de Mars 2021 au large de l'Algérie.

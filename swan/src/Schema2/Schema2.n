@@ -1,0 +1,284 @@
+module Schema2;
+
+with Math.*;
+with BathyLib.*;
+
+itemtypes { node, cell , face}
+
+// nodes collection
+connectivity nodes: → {node};
+connectivity nodesOfCell: cell → {node};
+
+// faces collection
+connectivity faces: → {face};
+connectivity innerFaces: → {face};
+
+// cells collection
+connectivity cells: → {cell};
+connectivity innerCells: → {cell};
+connectivity topCells: → {cell};
+connectivity bottomCells: → {cell};
+connectivity leftCells: → {cell};
+connectivity rightCells: → {cell};
+connectivity outerCells: → {cell};
+
+// cell related collection
+connectivity rightFaceOfCell: cell → face;
+connectivity leftFaceOfCell : cell → face;
+connectivity topFaceOfCell : cell → face;
+connectivity bottomFaceOfCell: cell → face;
+connectivity rightCell: cell → cell;
+connectivity leftCell: cell → cell;
+connectivity topCell: cell → cell;
+connectivity bottomCell: cell → cell;
+
+// options
+option ℝ δt = 0.5;
+option ℕ maxIter = 5000000;
+option ℝ stopTime = 20.0;
+
+//Long Lat
+let ℝ δx_lon = 0.033; // in °
+let ℝ δy_lat = 0.033; // in °
+let ℝ DEG2RAD_DP = 0.01745;//acos(-1)/180;
+let ℝ DEG2RAD = DEG2RAD_DP;
+let ℝ DEG2M_DP = 111194.9266;
+let ℝ DEG2M = DEG2M_DP;
+
+ℝ δx{cells};
+ℝ δy{cells};
+let ℝ g = -9.8;
+
+ℝ[2] center{cells};
+ℝ t;
+ℝ[2] X{nodes}, Xc{innerCells};
+
+ℝ U{faces}; // velocity in x direction
+ℝ Uini{faces}; 
+ℝ Ucalc{faces};
+
+ℝ H{cells}; // wave height above mean water level
+ℝ Hini{cells}; //
+ℝ Hcalc{cells};
+
+ℝ Hplot{cells};
+
+ℝ Dijini{cells}; // depth ( < 0)
+ℝ Dij{cells}; // depth ( < 0)
+ℝ Dt{cells};
+
+iterate n while (t^{n+1} < stopTime && n < maxIter);
+
+InitTime: t^{n=0} = 0.0;
+
+InitXc: ∀ic∈innerCells(),
+{
+	 Xc{ic}[0] = nextLon();
+	 Xc{ic}[1] = nextLat();
+}
+
+// init δx and δy on each cell
+Initδxδy:
+{
+	∀ic∈innerCells(),
+	{
+		δx{ic} = δx_lon * DEG2M * cos(Xc{ic}[1] * DEG2RAD);
+		δy{ic} = δy_lat * DEG2M_DP;
+	}
+	∀oc∈outerCells(), 
+	{
+		δx{oc} = 3000.0;
+		δy{oc} = 3000.0;
+	}
+}
+// depth initialization
+InitDijini: ∀ic∈innerCells(),Dijini{ic} = nextDepth();
+
+InitDij:
+{
+	∀tc∈topCells(),    ∀bc∈bottomCell(tc), Dij^{n=0}{tc} = Dijini{bc};
+	∀bc∈bottomCells(), ∀tc∈topCell(bc), Dij^{n=0}{bc} = Dijini{tc}; 
+	∀lc∈leftCells(),   ∀rc∈rightCell(lc), Dij^{n=0}{lc} = Dijini{rc}; 
+	∀rc∈rightCells(),  ∀lc∈leftCell(rc), Dij^{n=0}{rc} = Dijini{lc};
+	∀ic∈innerCells(),  Dij^{n=0}{ic} = Dijini{ic}; 
+}
+
+IniCenter: ∀j∈innerCells(), center{j} =(0.25 * ∑{r∈nodesOfCell(j)}(X{r}));
+
+IniDt: ∀j∈cells(), Dt^{n=0}{j} = max(H^{n=0}{j},H^{n=0}{j}-Dij^{n=0}{j});
+
+// wave initialization 
+
+InitHini:{∀ic∈innerCells(),
+if (Dij^{n=0}{ic}>0) 
+	Hini{ic} = nextWaveHeight() *0.0;
+else
+	 Hini{ic} = nextWaveHeight();
+}
+
+// trick to initialize Boundary Condition on H
+InitH:
+{
+	∀t∈topCells(), ∀bt∈bottomCell(t), H^{n=0}{t} = Hini{bt};
+	∀b∈bottomCells(), ∀tb∈topCell(b), H^{n=0}{b} = Hini{tb};
+	∀l∈leftCells(), ∀rl∈rightCell(l), H^{n=0}{l} = Hini{rl};
+	∀r∈rightCells(), ∀lr∈leftCell(r), H^{n=0}{r} = Hini{lr};
+	∀ic∈innerCells(), H^{n=0}{ic} = Hini{ic};
+}
+
+InitHcalc:	∀j∈cells(), Hcalc^{n=0}{j}=H^{n=0}{j};
+
+InitUcalc:	∀j∈faces(), Ucalc^{n=0}{j}=U^{n=0}{j};
+
+// x velocity initialization
+InitUini: ∀f∈innerFaces(), Uini{f} = 0.0;
+
+// trick to initialize Boundary Condition on U
+InitU:
+{
+	∀tc∈topCells(), ∀rf∈rightFaceOfCell(tc), ∀bc∈bottomCell(tc), ∀brf∈rightFaceOfCell(bc),
+		U^{n=0}{rf} = Uini{brf};
+	∀bc∈bottomCells(), ∀rf∈rightFaceOfCell(bc), ∀tc∈topCell(bc), ∀trf∈rightFaceOfCell(tc),
+		U^{n=0}{rf} = Uini{trf};
+	∀lc∈leftCells(), ∀lf∈leftFaceOfCell(lc), ∀rf∈rightFaceOfCell(lc),
+		U^{n=0}{lf} = Uini{rf};
+	∀rc∈rightCells(), ∀rf∈rightFaceOfCell(rc), ∀lf∈leftFaceOfCell(rc),
+		U^{n=0}{rf} = Uini{lf};
+}
+// compute new wave height using the numerical schema 
+UpdateHcalc:∀ic∈innerCells(), 
+{
+	let ℝ TD1 = 0.0;
+	let ℝ TD2 = 0.0;
+
+	// computeTD1;
+	∀ rf ∈ rightFaceOfCell(ic), ∀ rc ∈ rightCell(ic),
+		if (U^{n}{rf} <= 0)			
+			TD1 =  Dt^{n}{rc};
+		else
+			TD1 =  Dt^{n}{ic} ;
+
+	// computeTD2;
+	∀ lf ∈ leftFaceOfCell(ic),∀ lc ∈ leftCell(ic),
+		if( U^{n}{lf} <= 0)
+			TD2 =  Dt^{n}{ic} ;
+		else
+			TD2 = Dt^{n}{lc} ;
+
+	let ℝ TV1 = 0.0;
+	let ℝ TV2 = 0.0;
+	
+	// computeTV1;
+	∀ tf ∈ topFaceOfCell(ic), ∀ tc ∈ topCell(ic),
+		if (U^{n}{tf} <= 0)			
+			TV1 =  Dt^{n}{tc};
+		else
+			TV1 =  Dt^{n}{ic} ;
+
+	// computeTV2;
+	∀ bf ∈ bottomFaceOfCell(ic),∀ bc ∈ bottomCell(ic),
+		if( U^{n}{bf} <= 0)
+			TV2 =  Dt^{n}{ic} ;
+		else
+			TV2 = Dt^{n}{bc} ;
+
+	// computeH^{n+1}
+	∀rf∈rightFaceOfCell(ic), ∀lf∈leftFaceOfCell(ic), ∀ tf ∈ topFaceOfCell(ic), ∀ bf ∈ bottomFaceOfCell(ic),
+		Hcalc^{n+1}{ic} = H^{n}{ic} - δt/(δx{ic})*(U^{n}{rf} * TD1  - U^{n}{lf} * TD2) - δt/δy{ic} * (U^{n}{tf} * TV1  - U^{n}{bf} * TV2);
+
+}
+
+// update boundary condition for wave height
+UpdateHouter:  
+{
+	∀tc∈topCells(), ∀bc∈bottomCell(tc),
+		H^{n+1}{tc} = Hcalc^{n+1}{bc};
+	∀bc∈bottomCells(), ∀tc∈topCell(bc),
+		H^{n+1}{bc} = Hcalc^{n+1}{tc};
+	∀lc∈leftCells(), ∀rc∈rightCell(lc),
+		H^{n+1}{lc} = Hcalc^{n+1}{rc};
+	∀rc∈rightCells(), ∀lc∈leftCell(rc),
+		H^{n+1}{rc} = Hcalc^{n+1}{lc};
+}
+
+UpdateHinner:∀ic∈innerCells(), H^{n+1}{ic} = Hcalc^{n+1}{ic};
+
+// compute new x velocity using the numerical schema
+UpdateUcalc:∀ic∈innerCells(),∀rfc∈rightFaceOfCell(ic),∀tfc∈topFaceOfCell(ic), 
+{
+	//Horizontal
+	let ℝ TU1 = 0.0;
+	let ℝ TV1 = 0.0;
+	let ℝ V1=0.0;
+
+	∀bfc∈bottomFaceOfCell(ic), ∀icp∈rightCell(ic), ∀tfcp∈topFaceOfCell(icp), ∀bfcp∈bottomFaceOfCell(icp), V1= (U^{n}{tfc}+U^{n}{bfc}+U^{n}{tfcp}+U^{n}{bfcp})/4;
+
+	if(V1 <= 0)
+		∀ict∈topCell(ic), ∀rfct∈rightFaceOfCell(ict),
+			TV1  = U^{n}{rfct} - U^{n}{rfc};
+	else
+		∀icb∈bottomCell(ic), ∀rfcb∈rightFaceOfCell(icb),
+			TV1 = U^{n}{rfc} - U^{n}{rfcb};
+
+	// compute TU1
+	if(U^{n}{rfc} <= 0)
+		∀icp∈rightCell(ic), ∀rfcp∈rightFaceOfCell(icp),∀lfcp∈leftFaceOfCell(icp),
+			TU1  = U^{n}{rfcp} - U^{n}{lfcp};
+	else
+		∀lfc∈leftFaceOfCell(ic), 
+			TU1 = U^{n}{rfc} - U^{n}{lfc};
+
+	// compute U^{n+1}
+	∀icp∈rightCell(ic),	Ucalc^{n+1}{rfc} = U^{n}{rfc} - (δt/ δx{ic}) * (U^{n}{rfc} * TU1  - g * (H^{n+1}{icp} - H^{n+1}{ic}) ) - (δt/ δy{ic}) * (V1 * TV1) ;
+
+	//vertical
+	let ℝ TV2 = 0.0;
+	let ℝ TU2 = 0.0;
+	let ℝ U1=0.0;
+
+	∀lfc∈leftFaceOfCell(ic), ∀ict∈topCell(ic), ∀rfct∈rightFaceOfCell(ict), ∀lfct∈leftFaceOfCell(ict), U1= (U^{n}{rfc}+U^{n}{lfc}+U^{n}{rfct}+U^{n}{lfct})/4;
+
+	if(U1 <= 0)
+		∀icp∈rightCell(ic), ∀tfcp∈topFaceOfCell(icp),
+			TU2  = U^{n}{tfcp} - U^{n}{tfc};
+	else
+		∀icm∈leftCell(ic), ∀tfcm∈topFaceOfCell(icm),
+			TU2 = U^{n}{tfc} - U^{n}{tfcm};
+
+	// compute TV2
+	if(U^{n}{tfc} <= 0)
+		∀icp∈topCell(ic), ∀tfcp∈topFaceOfCell(icp),∀bfcp∈bottomFaceOfCell(icp),
+			TV2  = U^{n}{tfcp} - U^{n}{bfcp};
+	else
+		∀bfc∈bottomFaceOfCell(ic), 
+			TV2 = U^{n}{tfc} - U^{n}{bfc};
+
+	// compute V^{n+1} 
+	∀icp∈topCell(ic), Ucalc^{n+1}{tfc} = U^{n}{tfc} - (δt/ δy{ic}) * (U^{n}{tfc} * TV2  - g * (H^{n+1}{icp} - H^{n+1}{ic}) ) - (δt/ δx{ic}) * (U1 * TU2) ;
+
+}
+
+// update boundary condition for x velocity
+UpdateUouter:
+{
+	∀tc∈topCells(), ∀rf∈rightFaceOfCell(tc), ∀bc∈bottomCell(tc), ∀brf∈rightFaceOfCell(bc),
+		U^{n+1}{rf} = Ucalc^{n+1}{brf};
+	∀bc∈bottomCells(), ∀rf∈rightFaceOfCell(bc), ∀bcf∈topCell(bc), ∀trf∈rightFaceOfCell(bcf),
+		U^{n+1}{rf} = Ucalc^{n+1}{trf};
+	∀lc∈leftCells(), ∀lf∈leftFaceOfCell(lc), ∀rf∈rightFaceOfCell(lc),
+		U^{n+1}{lf} = Ucalc^{n+1}{rf};
+	∀rc∈rightCells(), ∀rf∈rightFaceOfCell(rc), ∀lf∈leftFaceOfCell(rc),
+		U^{n+1}{rf} = Ucalc^{n+1}{lf};
+}
+
+UpdateHplot:{ ∀j∈cells(),if (Dij^{n+1}{j}<0) Hplot^{n+1}{j}=Hcalc^{n+1}{j}; 
+						else Hplot^{n+1}{j}=Dij^{n+1}{j};
+}
+
+UpdateUinner: ∀ic∈faces(), U^{n+1}{ic} = Ucalc^{n+1}{ic};
+
+UpdateDtot:∀j∈cells(), Dt^{n+1}{j} = max(-Dij^{n+1}{j}+Hcalc^{n+1}{j},0.0);
+
+UpdateDij:∀j∈cells(), Dij^{n+1}{j}=Dij^{n}{j};
+
+ComputeTn: t^{n+1} = t^{n} + δt;

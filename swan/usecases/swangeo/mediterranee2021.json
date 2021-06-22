@@ -1,0 +1,28 @@
+{
+	"swangeo":
+	{
+		"_outputPath_comment":"empty outputPath to disable output",
+		"outputPath":"output",
+		"outputPeriod":5,
+		"deltat":10.0,
+		"maxIter":1000000,
+		"stopTime":7200.0,
+	    "bathyLib":{
+		    "waveFilename":"$ENV{HOME}/Workspace/swan/swan/data/swangeo/2021waveMediterrannee.grd",
+		    "waveVarName":"z",
+		    "depthFilename":"$ENV{HOME}/Workspace/swan/swan/data/swangeo/depthMediterrannee.grd",
+		    "depthVarName":"z",
+		    "lonFilename":"$ENV{HOME}/Workspace/swan/swan/data/swangeo/depthMediterrannee.grd",
+		    "lonVarName":"x",
+		    "latFilename":"$ENV{HOME}/Workspace/swan/swan/data/swangeo/depthMediterrannee.grd",
+		    "latVarName":"y"
+		    }
+	},
+	"mesh":
+	{
+		"nbXQuads":693,
+		"nbYQuads":333,
+		"xSize":200.0,
+		"ySize":200.0
+	}
+}

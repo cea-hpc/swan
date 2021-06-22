@@ -14,19 +14,20 @@ VtkOutput
 {
 	periodReferenceVariable = swan.n;
 	outputVariables = swan.H as "hauteur", 
-		swan.Dij as "profondeur", 
-		swan.Rij as "bottommotion";
+		swan.Dij as "profondeur";
 }
 
-//Interpreter
-//{
-//	outputPath = "/swan/src-gen-interpreter";
-//	extension BathyLib providedBy BathyLibCpp;
-//}
+Interpreter
+{
+	outputPath = "/swan/src-gen-interpreter";
+	extension BathyLib providedBy BathyLibCpp;
+	JAVA_HOME = "$ENV{HOME}/NabLab/graalvm-ce-java11-21.0.0";
+}
 
 StlThread
 {
 	outputPath = "/swan/src-gen-cpp/stl-thread";
 	extension BathyLib providedBy BathyLibCpp;
 	N_CXX_COMPILER = "/usr/bin/g++";
+	
 }

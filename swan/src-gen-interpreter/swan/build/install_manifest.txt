@@ -1,0 +1,2 @@
+/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan/swan/src-gen-interpreter/bathylibcppjni/lib/libbathylibcppjni.so
+/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan/swan/src-gen-interpreter/bathylibcppjni/lib/bathylibcppjni.jar

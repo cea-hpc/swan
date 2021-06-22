@@ -1,0 +1,36 @@
+{
+	"swan":
+	{	"_outputPath_comment":"empty outputPath to disable output",
+		"outputPath":"output",
+		"outputPeriod":10,
+		"X_EDGE_LENGTH":4000.0,
+		"Y_EDGE_LENGTH":4000.0,
+		"loadBathy":false,
+		"Dini":-1000.0,
+		"Dup":-1000.0,
+		"deltat":10.0,
+		"maxIter":5000000,
+		"stopTime":2500.0,
+		"loadWave":false,
+		"waveMode":3,
+		"LX":200.0,
+		"X0":200000.0,
+		"Y0":50.0,
+		"Amp":0.1,
+		"Sigma":10000.0,
+		"bathyLib":
+		{
+			"waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swan/waveSquareGauss.grd",
+			"waveVarName":"z",
+			"depthFilename":"$ENV{HOME}/workspaces/swan/swan/data/swan/depthSquare.grd",
+			"depthVarName":"z"
+		}			
+	},
+	"mesh":
+	{
+		"nbXQuads":100,
+		"nbYQuads":100,
+		"xSize":4000.0,
+		"ySize":4000.0
+	}
+}

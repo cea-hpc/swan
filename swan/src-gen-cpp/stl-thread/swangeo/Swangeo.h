@@ -32,8 +32,6 @@ public:
 	{
 		std::string outputPath;
 		int outputPeriod;
-		bool DConst;
-		double Dini;
 		double deltat;
 		int maxIter;
 		double stopTime;
@@ -48,27 +46,26 @@ public:
 	void simulate();
 	void computeTn() noexcept;
 	void initDijini() noexcept;
-	void initFw() noexcept;
-	void initHini() noexcept;
-	void initRijini() noexcept;
 	void initTime() noexcept;
 	void initUini() noexcept;
-	void initVini() noexcept;
 	void initXc() noexcept;
+	void updateDij() noexcept;
+	void initDij() noexcept;
+	void initU() noexcept;
+	void initdeltaxdeltay() noexcept;
+	void updateHcalc() noexcept;
+	void initHini() noexcept;
+	void initUcalc() noexcept;
+	void updateDtot() noexcept;
 	void updateHinner() noexcept;
 	void updateHouter() noexcept;
-	void updateRij() noexcept;
+	void updateHplot() noexcept;
+	void initH() noexcept;
+	void updateUcalc() noexcept;
+	void iniDt() noexcept;
+	void initHcalc() noexcept;
 	void updateUinner() noexcept;
 	void updateUouter() noexcept;
-	void updateVinner() noexcept;
-	void updateVouter() noexcept;
-	void initDij() noexcept;
-	void initH() noexcept;
-	void initRij() noexcept;
-	void initU() noexcept;
-	void initV() noexcept;
-	void initdeltaxdeltay() noexcept;
-	void initBool() noexcept;
 	void setUpTimeLoopN() noexcept;
 	void executeTimeLoopN() noexcept;
 
@@ -77,7 +74,7 @@ private:
 
 	// Mesh and mesh variables
 	CartesianMesh2D* mesh;
-	size_t nbNodes, nbFaces, nbInnerFaces, nbInnerVerticalFaces, nbInnerHorizontalFaces, nbCells, nbInnerCells, nbOuterCells, nbTopCells, nbBottomCells, nbLeftCells, nbRightCells;
+	size_t nbNodes, nbNodesOfCell, nbFaces, nbInnerFaces, nbCells, nbInnerCells, nbTopCells, nbBottomCells, nbLeftCells, nbRightCells, nbOuterCells;
 
 	// User options
 	Options& options;
@@ -94,40 +91,41 @@ public:
 	int n;
 	static constexpr double deltax_lon = 0.033;
 	static constexpr double deltay_lat = 0.033;
-	static constexpr double g = -9.8;
-	static constexpr double C = 40.0;
-	static constexpr double F = 0.0;
 	static constexpr double DEG2RAD_DP = 0.01745;
 	static constexpr double DEG2RAD = DEG2RAD_DP;
 	static constexpr double DEG2M_DP = 111194.9266;
 	static constexpr double DEG2M = DEG2M_DP;
+	std::vector<double> deltax;
+	std::vector<double> deltay;
+	static constexpr double g = -9.8;
 	double t_n;
 	double t_nplus1;
 	double t_n0;
 	std::vector<RealArray1D<2>> X;
 	std::vector<RealArray1D<2>> Xc;
-	std::vector<double> deltax;
-	std::vector<double> deltay;
 	std::vector<double> U_n;
 	std::vector<double> U_nplus1;
 	std::vector<double> U_n0;
 	std::vector<double> Uini;
-	std::vector<double> V_n;
-	std::vector<double> V_nplus1;
-	std::vector<double> V_n0;
-	std::vector<double> Vini;
+	std::vector<double> Ucalc_n;
+	std::vector<double> Ucalc_nplus1;
+	std::vector<double> Ucalc_n0;
 	std::vector<double> H_n;
 	std::vector<double> H_nplus1;
 	std::vector<double> H_n0;
 	std::vector<double> Hini;
-	std::vector<double> Rijini;
-	std::vector<double> Rij_n;
-	std::vector<double> Rij_nplus1;
-	std::vector<double> Rij_n0;
-	std::vector<RealArray1D<2>> Fw;
+	std::vector<double> Hcalc_n;
+	std::vector<double> Hcalc_nplus1;
+	std::vector<double> Hcalc_n0;
+	std::vector<double> Hplot_n;
+	std::vector<double> Hplot_nplus1;
 	std::vector<double> Dijini;
-	std::vector<double> Dij;
-	std::vector<double> Bool;
+	std::vector<double> Dij_n;
+	std::vector<double> Dij_nplus1;
+	std::vector<double> Dij_n0;
+	std::vector<double> Dt_n;
+	std::vector<double> Dt_nplus1;
+	std::vector<double> Dt_n0;
 };
 
 #endif
