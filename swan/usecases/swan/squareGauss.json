@@ -18,6 +18,8 @@
 		"Y0":50.0,
 		"Amp":0.1,
 		"Sigma":5000.0,
+		"epsh":1.0E-5,
+		"epsu":1.0E-6,
 		"bathyLib":
 		{
 			"waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swan/waveSquareGauss.grd",

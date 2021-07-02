@@ -35,6 +35,8 @@ public:
 		double deltat;
 		int maxIter;
 		double stopTime;
+		double dx;
+		double dy;
 		BathyLib bathyLib;
 
 		void jsonInit(const char* jsonContent);
@@ -89,8 +91,8 @@ public:
 	// Global variables
 	int lastDump;
 	int n;
-	static constexpr double deltax_lon = 0.033;
-	static constexpr double deltay_lat = 0.033;
+	const double deltax_lon;
+	const double deltay_lat;
 	static constexpr double DEG2RAD_DP = 0.01745;
 	static constexpr double DEG2RAD = DEG2RAD_DP;
 	static constexpr double DEG2M_DP = 111194.9266;

@@ -55,6 +55,8 @@ public:
 		double Y0;
 		double Amp;
 		double Sigma;
+		double epsh;
+		double epsu;
 		BathyLib bathyLib;
 
 		void jsonInit(const char* jsonContent);
@@ -73,21 +75,22 @@ public:
 	void initDijini() noexcept;
 	void initHini() noexcept;
 	void initU() noexcept;
-	void updateDtot() noexcept;
+	void updateHru() noexcept;
 	void initDij() noexcept;
 	void initH() noexcept;
 	void initUcalc() noexcept;
-	void updateHru() noexcept;
-	void iniDt() noexcept;
-	void initHcalc() noexcept;
+	void updateDtot() noexcept;
 	void updateHinner() noexcept;
 	void updateHouter() noexcept;
-	void setUpTimeLoopN() noexcept;
+	void initHcalc() noexcept;
 	void updateUcalc() noexcept;
-	void executeTimeLoopN() noexcept;
+	void iniDt() noexcept;
+	void iniHru() noexcept;
 	void updateUrunup() noexcept;
+	void setUpTimeLoopN() noexcept;
 	void updateUinner() noexcept;
 	void updateUouter() noexcept;
+	void executeTimeLoopN() noexcept;
 
 private:
 	void dumpVariables(int iteration, bool useTimer=true);
@@ -112,8 +115,6 @@ public:
 	const double deltax;
 	const double deltay;
 	static constexpr double g = -9.8;
-	static constexpr double epsh = 1.0E-6;
-	static constexpr double epsu = 1.0E-5;
 	std::vector<RealArray1D<2>> center;
 	double t_n;
 	double t_nplus1;
@@ -137,6 +138,7 @@ public:
 	std::vector<double> Hcalc_n0;
 	std::vector<double> Hru_n;
 	std::vector<double> Hru_nplus1;
+	std::vector<double> Hru_n0;
 	std::vector<double> Dijini;
 	std::vector<double> Dij_n;
 	std::vector<double> Dij_nplus1;

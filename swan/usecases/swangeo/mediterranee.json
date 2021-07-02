@@ -3,10 +3,12 @@
 	{
 		"_outputPath_comment":"empty outputPath to disable output",
 		"outputPath":"output",
-		"outputPeriod":100,
-		"deltat":0.1,
+		"outputPeriod":300,
+		"deltat":1.0,
 		"maxIter":1000000,
-		"stopTime":1800.0,
+		"stopTime":18000.0,
+		"dx":0.033,
+		"dy":0.033,
 		"bathyLib":{
 			"waveFilename":"$ENV{HOME}/workspaces/swan/swan/data/swangeo/waveMediterrannee.grd",
 			"waveVarName":"surf",

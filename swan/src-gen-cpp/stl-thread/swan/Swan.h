@@ -55,6 +55,8 @@ public:
 		double Y0;
 		double Amp;
 		double Sigma;
+		double epsh;
+		double epsu;
 		BathyLib bathyLib;
 
 		void jsonInit(const char* jsonContent);
@@ -73,18 +75,21 @@ public:
 	void initDijini() noexcept;
 	void initHini() noexcept;
 	void initU() noexcept;
-	void updateDtot() noexcept;
-	void updateHinner() noexcept;
-	void updateHouter() noexcept;
+	void updateHru() noexcept;
 	void initDij() noexcept;
 	void initH() noexcept;
 	void initUcalc() noexcept;
+	void updateDtot() noexcept;
+	void updateHinner() noexcept;
+	void updateHouter() noexcept;
+	void initHcalc() noexcept;
 	void updateUcalc() noexcept;
 	void iniDt() noexcept;
-	void initHcalc() noexcept;
+	void iniHru() noexcept;
+	void updateUrunup() noexcept;
+	void setUpTimeLoopN() noexcept;
 	void updateUinner() noexcept;
 	void updateUouter() noexcept;
-	void setUpTimeLoopN() noexcept;
 	void executeTimeLoopN() noexcept;
 
 private:
@@ -122,6 +127,8 @@ public:
 	std::vector<double> Ucalc_n;
 	std::vector<double> Ucalc_nplus1;
 	std::vector<double> Ucalc_n0;
+	std::vector<double> Urn_n;
+	std::vector<double> Urn_nplus1;
 	std::vector<double> H_n;
 	std::vector<double> H_nplus1;
 	std::vector<double> H_n0;
@@ -129,6 +136,9 @@ public:
 	std::vector<double> Hcalc_n;
 	std::vector<double> Hcalc_nplus1;
 	std::vector<double> Hcalc_n0;
+	std::vector<double> Hru_n;
+	std::vector<double> Hru_nplus1;
+	std::vector<double> Hru_n0;
 	std::vector<double> Dijini;
 	std::vector<double> Dij_n;
 	std::vector<double> Dij_nplus1;
