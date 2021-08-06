@@ -14,7 +14,7 @@ VtkOutput
 {
 	periodReferenceVariable = schema1.n;
 	outputVariables = schema1.H as "hauteur",
-					  schema1.Dt as "Dt";
+						schema1.B as "B";
 }
 
 

@@ -1,6 +1,6 @@
-Application SwanGEO;
+Application Boussinesq;
 
-MainModule SwanGEO swangeo
+MainModule Boussinesq boussinesq
 {
 	meshClassName = "CartesianMesh2D";
 	nodeCoord = X;
@@ -12,11 +12,11 @@ MainModule SwanGEO swangeo
 
 VtkOutput
 {
-	periodReferenceVariable = swangeo.n;
-	outputVariables = swangeo.H as "hauteur", 
-		swangeo.Hplot as "plot";
-
+	periodReferenceVariable = boussinesq.n;
+	outputVariables = boussinesq.H as "hauteur",
+						boussinesq.Dt as "htot";
 }
+
 
 StlThread
 {

@@ -1,0 +1,24 @@
+{
+	"boussinesq":
+	{
+		"_outputPath_comment":"empty outputPath to disable output",
+		"outputPath":"output",
+		"outputPeriod":100,
+		"X_EDGE_LENGTH":2.0,
+		"deltat":0.01,
+		"maxIter":5000000,
+		"stopTime":60.0,
+		"X0":200.0,
+		"Amp":0.1,
+		"Sigma":20.0,
+		"Dini":-10.0,
+		"linearAlgebra":{}
+	},
+	"mesh":
+	{
+		"nbXQuads":200,
+		"nbYQuads":100,
+		"xSize":2.0,
+		"ySize":2.0
+	}
+}
