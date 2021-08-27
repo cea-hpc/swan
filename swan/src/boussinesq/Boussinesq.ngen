@@ -14,7 +14,7 @@ VtkOutput
 {
 	periodReferenceVariable = boussinesq.n;
 	outputVariables = boussinesq.H as "hauteur",
-						boussinesq.Dt as "htot";
+						boussinesq.B as "B";
 }
 
 

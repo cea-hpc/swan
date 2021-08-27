@@ -1,6 +1,7 @@
 // C++ Extension Provider
 Provider BathyLibCpp : BathyLib
 {
-	target = StlThread;
-	outputPath = "/swan/src-gen-cpp/stl-thread";
+	target = OpenMP;
+	outputPath = "/swan/src-gen-cpp/openmp";
 }
+

@@ -111,19 +111,14 @@ InitHini:{ ∀ic∈innerCells(),
 	if (loadWave)
 		Hini{ic} = nextWaveHeight();
 	else if(waveMode==1)
-		if(center{ic}[0]<X0) 
-			Hini{ic} = Amp;
+		if(center{ic}[0]<(X0/2.0)) 
+			Hini{ic} =Amp * sin(center{ic}[0]*(2*3.1415/X0));
 		else
 			Hini{ic} = 0.0;	
 	else if(waveMode==2)
 		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma)) * exp(-0.5* (center{ic}[1]-Y0)*(center{ic}[1]-Y0)/(Sigma*Sigma));		
 	else if(waveMode==3)		
 		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma));
-	else if(waveMode==4)
-		if(center{ic}[0]<(X0/2.0)) 
-			Hini{ic} =Amp * sin(center{ic}[0]*(2*3.1415/X0));
-		else
-			Hini{ic} = 0.0;	
 }
 
 // trick to initialize Boundary Condition on H
@@ -177,11 +172,11 @@ IniD:{
 
 
 IniMcurr:{
-	∀ic∈innerCells(), Mcurr^{n+1,k}{ic}=M^{n}{ic}+2*ε;
+	∀ic∈innerCells(),if(abs(M^{n}{ic})<0) Mcurr^{n+1,k}{ic}=M^{n}{ic}+2*ε; else Mcurr^{n+1,k}{ic}=0.0;
 }
 
 IniNcurr:{
-	∀ic∈innerCells(), Ncurr^{n+1,k}{ic}=N^{n}{ic}+2*ε;
+	∀ic∈innerCells(), if(abs(N^{n}{ic})<0) Ncurr^{n+1,k}{ic}=N^{n}{ic}+2*ε; else Ncurr^{n+1,k}{ic}=0.0;
 }
 
 

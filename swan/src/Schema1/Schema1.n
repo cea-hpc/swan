@@ -91,17 +91,10 @@ IniCenter: ∀j∈cells(), center{j} =(0.25 * ∑{r∈nodesOfCell(j)}(X{r}));
 // wave initialization 
 
 InitHini:{ ∀ic∈innerCells(),
-	if (loadWave)
-		Hini{ic} = nextWaveHeight();
-	else if(waveMode==1)
-		if(center{ic}[0]<X0) 
-			Hini{ic} = Amp;
-		else
-			Hini{ic} = 0.0;	
-	else if(waveMode==2)
-		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma)) * exp(-0.5* (center{ic}[1]-Y0)*(center{ic}[1]-Y0)/(Sigma*Sigma));		
-	else if(waveMode==3)		
-		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma));
+	if(center{ic}[0]<(X0/2.0) && center{ic}[0]>δx)
+		Hini{ic} =Amp * sin(center{ic}[0]*(2*3.1415/X0));
+	else
+			Hini{ic} = 0.0;
 }
 
 // trick to initialize Boundary Condition on H

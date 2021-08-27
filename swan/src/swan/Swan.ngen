@@ -32,3 +32,9 @@ StlThread
 	N_CXX_COMPILER = "/ccc/products1/gcc-9.1.0/RedHat-7-x86_64/bin/g++";
 	
 }
+
+OpenMP
+{
+	outputPath = "/swan/src-gen-cpp/openmp";
+	N_CXX_COMPILER = "/ccc/products1/gcc-9.1.0/RedHat-7-x86_64/bin/g++";
+}
