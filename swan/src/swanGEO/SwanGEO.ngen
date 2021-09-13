@@ -18,16 +18,8 @@ VtkOutput
 		swangeo.Hplot as "plot";
 }
 
-//StlThread
-//{
-	//outputPath = "/swan/src-gen-cpp/stl-thread";
-	//N_CXX_COMPILER = "/usr/bin/g++";
-	//N_CXX_COMPILER = "/ccc/products1/gcc-9.1.0/RedHat-7-x86_64/bin/g++";
-	//N_CXX_COMPILER = "/ccc/products/gcc-9.3.0/system/default/bin/g++";
-//}
-
-OpenMP
+StlThread
 {
-	outputPath = "/swan/src-gen-cpp/openmp";
-	N_CXX_COMPILER = "/ccc/products1/gcc-9.1.0/RedHat-7-x86_64/bin/g++";
+	outputPath = "/swan/src-gen-cpp/stl-thread";
+	N_CXX_COMPILER ="/usr/bin/g++";
 }
