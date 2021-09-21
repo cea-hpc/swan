@@ -2,7 +2,6 @@ Application Swan;
 
 MainModule Swan swan
 {
-	meshClassName = "CartesianMesh2D";
 	nodeCoord = X;
 	time = t;
 	timeStep = δt;

@@ -2,7 +2,6 @@ Application Schema2;
 
 MainModule Schema2 schema2
 {
-	meshClassName = "CartesianMesh2D";
 	nodeCoord = X;
 	time = t;
 	timeStep = δt;

@@ -1,36 +1,9 @@
 module Schema1;
 
 with Math.*;
-with LinearAlgebra.*;
 with BathyLib.*;
-
-itemtypes {node, cell , face}
-
-// nodes collection
-connectivity nodes: → {node};
-connectivity nodesOfCell: cell → {node};
-
-// faces collection
-connectivity faces: → {face};
-connectivity innerFaces: → {face};
-
-// cells collection
-connectivity cells: → {cell};
-connectivity innerCells: → {cell};
-connectivity topCells: → {cell};
-connectivity bottomCells: → {cell};
-connectivity leftCells: → {cell};
-connectivity rightCells: → {cell};
-
-// cell related collection
-connectivity rightFaceOfCell: cell → face;
-connectivity leftFaceOfCell : cell → face;
-connectivity topFaceOfCell : cell → face;
-connectivity bottomFaceOfCell: cell → face;
-connectivity rightCell: cell → cell;
-connectivity leftCell: cell → cell;
-connectivity topCell: cell → cell;
-connectivity bottomCell: cell → cell;
+with LinearAlgebra.*;
+with CartesianMesh2D.*;
 
 // options
 option ℝ X_EDGE_LENGTH = 20.0;

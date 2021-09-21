@@ -1,39 +1,11 @@
 module Boussinesq;
 
 with Math.*;
-with LinearAlgebra.*;
 with BathyLib.*;
-itemtypes {node, cell , face}
-
-// nodes collection
-connectivity nodes: → {node};
-connectivity nodesOfCell: cell → {node};
-
-// faces collection
-connectivity faces: → {face};
-connectivity innerFaces: → {face};
-
-// cells collection
-connectivity cells: → {cell};
-connectivity innerCells: → {cell};
-connectivity topCells: → {cell};
-connectivity bottomCells: → {cell};
-connectivity leftCells: → {cell};
-connectivity rightCells: → {cell};
-
-// cell related collection
-connectivity rightFaceOfCell: cell → face;
-connectivity leftFaceOfCell : cell → face;
-connectivity topFaceOfCell : cell → face;
-connectivity bottomFaceOfCell: cell → face;
-connectivity rightCell: cell → cell;
-connectivity leftCell: cell → cell;
-connectivity topCell: cell → cell;
-connectivity bottomCell: cell → cell;
-
+with LinearAlgebra.*;
+with CartesianMesh2D.*;
 
 def check: ℾ → ℾ, (a) → if (a) return true; else exit "Assertion failed";
-
 
 // options
 option ℝ X_EDGE_LENGTH = 20.0;
@@ -42,7 +14,6 @@ option ℝ δt = 0.5;
 option ℕ maxIter = 5000000;
 option ℕ maxIterationsK = 1000;
 option ℝ stopTime = 20.0;
-
 
 ℝ[2] X{nodes};
 //Wave option
@@ -53,8 +24,6 @@ option ℝ Y0 = 50.0;
 option ℝ Amp = 0.1;
 option ℝ Sigma=5000.0;
 
-
-
 option ℾ loadBathy = true;
 option ℝ LX=200.0;
 option ℝ Dini = -1000.0;
@@ -63,14 +32,12 @@ option ℝ ε =  1.0e-8;
 
 ℝ residual;
 
-
 let ℝ δx = X_EDGE_LENGTH;
 let ℝ δy = Y_EDGE_LENGTH;
 let ℝ g = - 9.8;
 
 ℝ[2] center{cells};
 ℝ t;
-
 
 ℝ H{cells}; // wave height above mean water level
 ℝ Hcalc{cells};
@@ -87,12 +54,10 @@ let ℝ g = - 9.8;
 ℝ Mm{cells}; //Variable M^{n-1}
 ℝ Mcurr{cells};
 
-
 ℝ Ncalc{cells};
 ℝ N{cells};
 ℝ Nm{cells}; //Variable M^{n-1}
 ℝ Ncurr{cells};
-
 
 ℝ Dijini{cells}; // depth ( < 0)
 ℝ Dij{cells}; // depth ( < 0)
@@ -103,11 +68,10 @@ iterate n while (t^{n+1} < stopTime && n < maxIter),
 
 InitTime: t^{n=0} = 0.0;
 
-
 IniCenter: ∀j∈cells(), center{j} =(0.25 * ∑{r∈nodesOfCell(j)}(X{r}));
 // wave initialization 
 
-InitHini:{ ∀ic∈innerCells(),
+InitHini: ∀ic∈innerCells(),
 	if (loadWave)
 		Hini{ic} = nextWaveHeight();
 	else if(waveMode==1)
@@ -119,11 +83,9 @@ InitHini:{ ∀ic∈innerCells(),
 		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma)) * exp(-0.5* (center{ic}[1]-Y0)*(center{ic}[1]-Y0)/(Sigma*Sigma));		
 	else if(waveMode==3)		
 		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma));
-}
 
 // trick to initialize Boundary Condition on H
-InitH:
-{
+InitH: {
 	∀t∈topCells(), ∀bt∈bottomCell(t), H^{n=0}{t} = Hini{bt};
 	∀b∈bottomCells(), ∀tb∈topCell(b), H^{n=0}{b} = Hini{tb};
 	∀l∈leftCells(), ∀rl∈rightCell(l), H^{n=0}{l} = Hini{rl};
@@ -138,98 +100,80 @@ InitDijini: ∀ic∈innerCells(),
 	else
 		Dijini{ic} = Dini + center{ic}[0]*(Dup-Dini)/(LX);
 
-InitDij:
-{
+InitDij: {
 	∀tc∈topCells(),    ∀bc∈bottomCell(tc), Dij{tc} = Dijini{bc};
 	∀bc∈bottomCells(), ∀tc∈topCell(bc), Dij{bc} = Dijini{tc}; 
 	∀lc∈leftCells(),   ∀rc∈rightCell(lc), Dij{lc} = Dijini{rc}; 
 	∀rc∈rightCells(),  ∀lc∈leftCell(rc), Dij{rc} = Dijini{lc};
 	∀ic∈innerCells(),  Dij{ic} = Dijini{ic}; 
 }
+
 InitDt: ∀ic∈cells(),Dt^{n=0}{ic} = Dini+H^{n=0}{ic};
-
-
 
 InitM: ∀ic∈cells(), M^{n=0}{ic} = 0.0; 
 InitMm: ∀ic∈cells(), Mm^{n=0}{ic} = 0.0; 
-
 InitN: ∀ic∈cells(), N^{n=0}{ic} = 0.0; 
 InitNm: ∀ic∈cells(), Nm^{n=0}{ic} = 0.0; 
 
-
-
-
-
-
-IniB:{
+IniB: {
 	∀ic∈innerCells(), ∀ip∈rightCell(ic), ∀im∈leftCell(ic), ∀ib∈bottomCell(ic), ∀it∈topCell(ic), ∀itm∈leftCell(it), B^{n=0}{ic}= M^{n=0}{ic} + g*(δt/δx)*((Dt^{n=0}{ic}+Dt^{n=0}{ip})/2)*(H^{n=0}{ip}-H^{n=0}{ic}) - Dt^{n=0}{ic}*Dt^{n=0}{ic}/(3*δx*δx) *(Mm^{n=0}{im}-2*Mm^{n=0}{ic}+Mm^{n=0}{ip})+ Dt^{n=0}{ic}*Dt^{n=0}{ic}/(3*δx*δy) *(N^{n=0}{it}-N^{n=0}{itm}-N^{n=0}{ic}+N^{n=0}{im}-(Nm^{n=0}{it}-Nm^{n=0}{itm}-Nm^{n=0}{ic}+Nm^{n=0}{im})) - (δt/(Dt^{n=0}{ic}*δx)) * M^{n=0}{ic}*(M^{n=0}{ic}-M^{n=0}{im}) - (δt/(Dt^{n=0}{ic}*δy)) * N^{n=0}{ic}*(M^{n=0}{ic}-M^{n}{ib});
 }
 
-IniD:{
+IniD: {
 	∀ic∈innerCells(), ∀ip∈rightCell(ic), ∀it∈topCell(ic), ∀im∈leftCell(ic), ∀ib∈bottomCell(ic), ∀ibp∈rightCell(ib), D^{n=0}{ic}= N^{n=0}{ic} + g*(δt/δy)*((Dt^{n=0}{ic}+Dt^{n=0}{it})/2)*(H^{n=0}{it}-H^{n=0}{ic}) - Dt^{n=0}{ic}*Dt^{n=0}{ic}/(3*δy*δy) *(Nm^{n=0}{it}-2*Nm^{n=0}{ic}+Nm^{n=0}{ib})+ Dt^{n=0}{ic}*Dt^{n=0}{ic}/(3*δx*δy) *(M^{n=0}{ip}-M^{n=0}{ibp}-M^{n=0}{ic}+M^{n=0}{ib}-(Mm^{n=0}{ip}-Mm^{n=0}{ibp}-Mm^{n=0}{ic}+Mm^{n=0}{ib})) - (δt/(Dt^{n=0}{ic}*δx)) * M^{n=0}{ic}*(N^{n=0}{ic}-N^{n=0}{im}) - (δt/(Dt^{n=0}{ic}*δy)) * N^{n=0}{ic}*(N^{n=0}{ic}-N^{n=0}{ib});
 }
 
-
-
-IniMcurr:{
-	∀ic∈innerCells(),if(abs(M^{n}{ic})<0) Mcurr^{n+1,k}{ic}=M^{n}{ic}+2*ε; else Mcurr^{n+1,k}{ic}=0.0;
+IniMcurr: {
+	∀ic∈innerCells(), if (abs(M^{n}{ic})<0) Mcurr^{n+1,k}{ic} = M^{n}{ic}+2*ε; else Mcurr^{n+1,k}{ic} = 0.0;
 }
 
-IniNcurr:{
-	∀ic∈innerCells(), if(abs(N^{n}{ic})<0) Ncurr^{n+1,k}{ic}=N^{n}{ic}+2*ε; else Ncurr^{n+1,k}{ic}=0.0;
+IniNcurr: {
+	∀ic∈innerCells(), if (abs(N^{n}{ic})<0) Ncurr^{n+1,k}{ic} = N^{n}{ic}+2*ε; else Ncurr^{n+1,k}{ic} = 0.0;
 }
 
-
-UpdateA:{
-	∀ic∈innerCells(),	A{ic,ic}= 2*(Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δx))+1;
-	∀ic∈innerCells(), ∀ip∈rightCell(ic),	A{ic,ip}= - Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δx);
-	∀ic∈innerCells(), ∀im∈leftCell(ic), 	A{ic,im}= - Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δx);
+UpdateA: {
+	∀ic∈innerCells(), A{ic,ic} = 2*(Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δx))+1;
+	∀ic∈innerCells(), ∀ip∈rightCell(ic), A{ic,ip} = -Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δx);
+	∀ic∈innerCells(), ∀im∈leftCell(ic), A{ic,im} = -Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δx);
 }
 
 UpdateC:{
-	∀ic∈innerCells(),	C{ic,ic}= 2*(Dt^{n}{ic}*Dt^{n}{ic}/(3*δy*δy))+1;
-	∀ic∈innerCells(), ∀it∈topCell(ic),	C{ic,it}= - Dt^{n}{ic}*Dt^{n}{ic}/(3*δy*δy);
-	∀ic∈innerCells(), ∀ib∈bottomCell(ic), 	C{ic,ib}= - Dt^{n}{ic}*Dt^{n}{ic}/(3*δy*δy);
+	∀ic∈innerCells(), C{ic,ic} = 2*(Dt^{n}{ic}*Dt^{n}{ic}/(3*δy*δy))+1;
+	∀ic∈innerCells(), ∀it∈topCell(ic), C{ic,it} = -Dt^{n}{ic}*Dt^{n}{ic}/(3*δy*δy);
+	∀ic∈innerCells(), ∀ib∈bottomCell(ic), C{ic,ib} = -Dt^{n}{ic}*Dt^{n}{ic}/(3*δy*δy);
 }
 
-
-UpdateB:{
-	∀ic∈innerCells(), ∀ip∈rightCell(ic),∀ib∈bottomCell(ic), ∀im∈leftCell(ic), ∀it∈topCell(ic), ∀itm∈leftCell(it), B^{n+1,k}{ic}= M^{n}{ic} + g*(δt/δx)*((Dt^{n}{ic}+Dt^{n}{ip})/2)*(H^{n}{ip}-H^{n}{ic}) - Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δx) *(Mm^{n}{im}-2*Mm^{n}{ic}+Mm^{n}{ip})+ Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δy) *(Ncurr^{n+1,k}{it}-Ncurr^{n+1,k}{itm}-Ncurr^{n+1,k}{ic}+Ncurr^{n+1,k}{im}-(Nm^{n}{it}-Nm^{n}{itm}-Nm^{n}{ic}+Nm^{n}{im})) - (δt/(Dt^{n}{ic}*δx)) * M^{n}{ic}*(M^{n}{ic}-M^{n}{im}) - (δt/(Dt^{n}{ic}*δy)) * N^{n}{ic}*(M^{n}{ic}-M^{n}{ib});
+UpdateB: {
+	∀ic∈innerCells(), ∀ip∈rightCell(ic), ∀ib∈bottomCell(ic), ∀im∈leftCell(ic), ∀it∈topCell(ic), ∀itm∈leftCell(it), B^{n+1,k}{ic} = M^{n}{ic}+g*(δt/δx)*((Dt^{n}{ic}+Dt^{n}{ip})/2)*(H^{n}{ip}-H^{n}{ic})-Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δx)*(Mm^{n}{im}-2*Mm^{n}{ic}+Mm^{n}{ip})+Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δy)*(Ncurr^{n+1,k}{it}-Ncurr^{n+1,k}{itm}-Ncurr^{n+1,k}{ic}+Ncurr^{n+1,k}{im}-(Nm^{n}{it}-Nm^{n}{itm}-Nm^{n}{ic}+Nm^{n}{im}))-(δt/(Dt^{n}{ic}*δx))*M^{n}{ic}*(M^{n}{ic}-M^{n}{im})-(δt/(Dt^{n}{ic}*δy))*N^{n}{ic}*(M^{n}{ic}-M^{n}{ib});
 }
 
-UpdateD:{
+UpdateD: {
 	∀ic∈innerCells(), ∀ip∈rightCell(ic), ∀it∈topCell(ic), ∀ib∈bottomCell(ic), ∀im∈leftCell(ic), ∀ibp∈rightCell(ib), D^{n+1,k}{ic}= N^{n}{ic} + g*(δt/δy)*((Dt^{n}{ic}+Dt^{n}{it})/2)*(H^{n}{it}-H^{n}{ic}) - Dt^{n}{ic}*Dt^{n}{ic}/(3*δy*δy) *(Nm^{n}{it}-2*Nm^{n}{ic}+Nm^{n}{ib})+ Dt^{n}{ic}*Dt^{n}{ic}/(3*δx*δy) *(Mcurr^{n+1,k+1}{ip}-Mcurr^{n+1,k+1}{ibp}-Mcurr^{n+1,k+1}{ic}+Mcurr^{n+1,k+1}{ib}-(Mm^{n}{ip}-Mm^{n}{ibp}-Mm^{n}{ic}+Mm^{n}{ib})) - (δt/(Dt^{n}{ic}*δx)) * M^{n}{ic}*(N^{n}{ic}-N^{n}{im}) - (δt/(Dt^{n}{ic}*δy)) * N^{n}{ic}*(N^{n}{ic}-N^{n}{ib});
 }
 
-
-
-
-UpdateMcurr:{
+UpdateMcurr: {
 	Mcurr^{n+1,k+1}=solveLinearSystem(A, B^{n+1,k});
 }
 
-UpdateNcurr:{
+UpdateNcurr: {
 	Ncurr^{n+1,k+1}=solveLinearSystem(C, D^{n+1,k});
 }
 
-ComputeResidual:{
-	residual = max(Max{j ∈ innerCells()}(abs(Mcurr^{n+1,k+1}{j} - Mcurr^{n+1,k}{j})),Max{j ∈ innerCells()}(abs(Ncurr^{n+1,k+1}{j} - Ncurr^{n+1,k}{j})));
+ComputeResidual: {
+	residual = max(Max{j ∈ innerCells()}(abs(Mcurr^{n+1,k+1}{j} - Mcurr^{n+1,k}{j})), Max{j ∈ innerCells()}(abs(Ncurr^{n+1,k+1}{j} - Ncurr^{n+1,k}{j})));
 }
 
-UpdateM:∀ic∈innerCells(), Mcalc^{n+1}{ic}=Mcurr^{n+1}{ic};
-UpdateMm:∀ic∈cells(), Mm^{n+1}{ic}=M^{n}{ic};
+UpdateM: ∀ic∈innerCells(), Mcalc^{n+1}{ic} = Mcurr^{n+1}{ic};
+UpdateMm: ∀ic∈cells(), Mm^{n+1}{ic} = M^{n}{ic};
 
-UpdateN:∀ic∈innerCells(), Ncalc^{n+1}{ic}=Ncurr^{n+1}{ic};
-UpdateNm:∀ic∈cells(), Nm^{n+1}{ic}=N^{n}{ic};
+UpdateN: ∀ic∈innerCells(), Ncalc^{n+1}{ic} = Ncurr^{n+1}{ic};
+UpdateNm: ∀ic∈cells(), Nm^{n+1}{ic} = N^{n}{ic};
 
-
-
-UpdateH:{
+UpdateH: {
 	∀ic∈innerCells(), ∀im∈leftCell(ic), ∀ib∈bottomCell(ic), Hcalc^{n+1}{ic} = H^{n}{ic}-(δt/δx)*(M^{n+1}{ic}-M^{n+1}{im})-(δt/δy)*(N^{n+1}{ic}-N^{n+1}{ib});
 }
 
-UpdateHouter:  
-{
+UpdateHouter: {
 	∀tc∈topCells(), ∀bc∈bottomCell(tc),
 		H^{n+1}{tc} = Hcalc^{n+1}{bc};
 	∀bc∈bottomCells(), ∀tc∈topCell(bc),
@@ -240,12 +184,9 @@ UpdateHouter:
 		H^{n+1}{rc} = Hcalc^{n+1}{lc};
 }
 
-UpdateHinner:∀ic∈innerCells(),  H^{n+1}{ic} = Hcalc^{n+1}{ic};	
+UpdateHinner:∀ic∈innerCells(), H^{n+1}{ic} = Hcalc^{n+1}{ic};	
 
-
-
-UpdateMouter:  
-{
+UpdateMouter: {
 	∀tc∈topCells(),
 		M^{n+1}{tc} = 0.0;
 	∀bc∈bottomCells(),
@@ -256,10 +197,9 @@ UpdateMouter:
 		M^{n+1}{rc} = 0.0;
 }
 
-UpdateMinner:∀ic∈innerCells(),  M^{n+1}{ic} = Mcalc^{n+1}{ic};	
+UpdateMinner: ∀ic∈innerCells(), M^{n+1}{ic} = Mcalc^{n+1}{ic};	
 
-UpdateNouter:  
-{
+UpdateNouter: {
 	∀tc∈topCells(),
 		N^{n+1}{tc} = 0.0;
 	∀bc∈bottomCells(),
@@ -270,8 +210,8 @@ UpdateNouter:
 		N^{n+1}{rc} = 0.0;
 }
 
-UpdateNinner:∀ic∈innerCells(),  N^{n+1}{ic} = Ncalc^{n+1}{ic};	
+UpdateNinner: ∀ic∈innerCells(), N^{n+1}{ic} = Ncalc^{n+1}{ic};	
 
-UpdateDt: ∀ic∈cells(),Dt^{n+1}{ic} = -Dini + H^{n+1}{ic};
+UpdateDt: ∀ic∈cells(), Dt^{n+1}{ic} = -Dini+H^{n+1}{ic};
 
 ComputeTn: t^{n+1} = t^{n} + δt;

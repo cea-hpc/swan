@@ -2,7 +2,6 @@ Application SwanGEO;
 
 MainModule SwanGEO swangeo
 {
-	meshClassName = "CartesianMesh2D";
 	nodeCoord = X;
 	time = t;
 	timeStep = δt;

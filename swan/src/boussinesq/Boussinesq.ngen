@@ -2,7 +2,6 @@ Application Boussinesq;
 
 MainModule Boussinesq boussinesq
 {
-	meshClassName = "CartesianMesh2D";
 	nodeCoord = X;
 	time = t;
 	timeStep = δt;
