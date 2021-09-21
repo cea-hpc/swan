@@ -1,0 +1,25 @@
+Application Boussinesq;
+
+MainModule Boussinesq boussinesq
+{
+	meshClassName = "CartesianMesh2D";
+	nodeCoord = X;
+	time = t;
+	timeStep = δt;
+	iterationMax = maxIter;
+	timeMax = stopTime;
+}
+
+VtkOutput
+{
+	periodReferenceVariable = boussinesq.n;
+	outputVariables = boussinesq.H as "hauteur",
+						boussinesq.B as "B";
+}
+
+
+StlThread
+{
+	outputPath = "/swan/src-gen-cpp/stl-thread";
+	N_CXX_COMPILER = "/usr/bin/g++";
+}

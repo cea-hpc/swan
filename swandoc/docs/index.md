@@ -103,6 +103,25 @@ THV &amp = H^n_{i,j}   - H^n_{i,j-1} &amp \\
 \end{align}
 $$
 
+Un schéma numérique est également disponible. Celui ci est basé sur les équations de Boussinesq.
+
+\begin{align}
+    \frac{\partial \eta}{\partial t}&=-\frac{\partial}{\partial x} (Hu) -\frac{\partial}{\partial y} (Hu)\\
+    \frac{\partial u}{\partial t}&= -g \frac{\partial \eta}{\partial x} - u \frac{\partial u}{\partial x} - v \frac{\partial u}{\partial y} + \frac{d}{2} \frac{\partial}{\partial x} [\frac{\partial d(\partial_t u)}{\partial x} + \frac{\partial d(\partial_t v)}{\partial y}] - \frac{d^2}{6} \frac{\partial}{\partial x} [\frac{\partial (\partial_t u)}{\partial x} + \frac{\partial (\partial_t v)}{\partial y}]\\
+    \frac{\partial v}{\partial t}&= -g \frac{\partial \eta}{\partial y} - u \frac{\partial v}{\partial x} - v \frac{\partial v}{\partial y} + \frac{d}{2} \frac{\partial}{\partial y} [\frac{\partial d(\partial_t u)}{\partial x} + \frac{\partial d(\partial_t v)}{\partial y}] - \frac{d^2}{6} \frac{\partial}{\partial y} [\frac{\partial (\partial_t u)}{\partial x} + \frac{\partial (\partial_t v)}{\partial y}]
+\end{align}
+
+\begin{align}
+    \eta^{n+1}_{i,j} &= \eta^{n}_{i,j} -\frac{\Delta t}{\Delta x}(M^{n+\frac{1}{2}}_{i,j}-M^{n+\frac{1}{2}}_{i-1,j}) - \frac{\Delta t}{\Delta y}(N^{n+\frac{1}{2}}_{i,j}-N^{n+\frac{1}{2}}_{i,j-1})\\
+    M^{n+\frac{1}{2}}_{i,j} &= M^{n-\frac{1}{2}}_{i,j} -g \overline{h_{i,j}}\frac{\Delta t}{\Delta x}(\eta^{n}_{i+1,j}-\eta^{n}_{i,j}) + \frac{d^2}{3\Delta x}(\frac{U^{n+\frac{1}{2}}_{i,j}-U^{n-\frac{1}{2}}_{i,j}}{\Delta x}+\frac{E^{n+\frac{1}{2}}_{i,j}-E^{n-\frac{1}{2}}_{i,j}}{\Delta y}) - \frac{\Delta t}{h_{ij}\Delta x} M^{n-\frac{1}{2}}_{i,j}*(M^{n-\frac{1}{2}}_{i,j}-M^{n-\frac{1}{2}}_{i-1,j}) - \frac{\Delta t}{h_{ij}\Delta y} N^{n-\frac{1}{2}}_{i,j}*(M^{n-\frac{1}{2}}_{i,j}-M^{n-\frac{1}{2}}_{i,j-1})\\
+    N^{n+\frac{1}{2}}_{i,j} &= N^{n-\frac{1}{2}}_{i,j} -g \overline{h_{i,j}}\frac{\Delta t}{\Delta y}(\eta^{n}_{i,j+1}-\eta^{n}_{i,j}) + \frac{d^2}{3\Delta y}(\frac{F^{n+\frac{1}{2}}_{i,j}-F^{n-\frac{1}{2}}_{i,j}}{\Delta x}+\frac{G^{n+\frac{1}{2}}_{i,j}-G^{n-\frac{1}{2}}_{i,j}}{\Delta y}) - \frac{\Delta t}{h_{ij}\Delta x} M^{n-\frac{1}{2}}_{i,j}*(N^{n-\frac{1}{2}}_{i,j}-N^{n-\frac{1}{2}}_{i-1,j}) - \frac{\Delta t}{h_{ij}\Delta y} N^{n-\frac{1}{2}}_{i,j}*(N^{n-\frac{1}{2}}_{i,j}-N^{n-\frac{1}{2}}_{i,j-1})
+\end{align}
+
+Les deux dernieres équation peuvent être réécris sous forme d'équations matricielle. Ces deux équations étant interdépendantes une méthode du point fixes est utilisé.
+La boucle iterative n'étant pas optimal ce schéma est pour le moment restreint a des domaines relativement petits.
+
+
+
 ## Le graphe du programme
 
 

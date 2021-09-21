@@ -54,6 +54,24 @@ Swangeo::Options::jsonInit(const char* jsonContent)
 	}
 	else
 		stopTime = 20.0;
+	// dx
+	if (o.HasMember("dx"))
+	{
+		const rapidjson::Value& valueof_dx = o["dx"];
+		assert(valueof_dx.IsDouble());
+		dx = valueof_dx.GetDouble();
+	}
+	else
+		dx = 0.033;
+	// dy
+	if (o.HasMember("dy"))
+	{
+		const rapidjson::Value& valueof_dy = o["dy"];
+		assert(valueof_dy.IsDouble());
+		dy = valueof_dy.GetDouble();
+	}
+	else
+		dy = 0.033;
 	// bathyLib
 	if (o.HasMember("bathyLib"))
 	{
@@ -82,6 +100,8 @@ Swangeo::Swangeo(CartesianMesh2D* aMesh, Options& aOptions)
 , options(aOptions)
 , writer("SwanGEO", options.outputPath)
 , lastDump(numeric_limits<int>::min())
+, deltax_lon(options.dx)
+, deltay_lat(options.dy)
 , deltax(nbCells)
 , deltay(nbCells)
 , X(nbNodes)
@@ -813,7 +833,7 @@ void Swangeo::updateUinner() noexcept
 
 /**
  * Job updateUouter called @5.0 in executeTimeLoopN method.
- * In variables: Ucalc_nplus1
+ * In variables: U_n, Ucalc_nplus1
  * Out variables: U_nplus1
  */
 void Swangeo::updateUouter() noexcept
@@ -870,6 +890,60 @@ void Swangeo::updateUouter() noexcept
 			const Id lfId(mesh->getLeftFaceOfCell(rcId));
 			const size_t lfFaces(lfId);
 			U_nplus1[rfFaces] = Ucalc_nplus1[lfFaces];
+		});
+	}
+	{
+		const auto topCells(mesh->getTopCells());
+		const size_t nbTopCells(topCells.size());
+		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
+		{
+			const Id tcId(topCells[tcTopCells]);
+			const Id bfId(mesh->getBottomFaceOfCell(tcId));
+			const size_t bfFaces(bfId);
+			const Id tfId(mesh->getTopFaceOfCell(tcId));
+			const size_t tfFaces(tfId);
+			U_nplus1[tfFaces] = U_n[bfFaces];
+		});
+	}
+	{
+		const auto bottomCells(mesh->getBottomCells());
+		const size_t nbBottomCells(bottomCells.size());
+		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
+		{
+			const Id bcId(bottomCells[bcBottomCells]);
+			const Id bfId(mesh->getBottomFaceOfCell(bcId));
+			const size_t bfFaces(bfId);
+			const Id tfId(mesh->getTopFaceOfCell(bcId));
+			const size_t tfFaces(tfId);
+			U_nplus1[bfFaces] = U_n[tfFaces];
+		});
+	}
+	{
+		const auto leftCells(mesh->getLeftCells());
+		const size_t nbLeftCells(leftCells.size());
+		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
+		{
+			const Id lcId(leftCells[lcLeftCells]);
+			const Id bfId(mesh->getBottomFaceOfCell(lcId));
+			const size_t bfFaces(bfId);
+			const Id rcId(mesh->getRightCell(lcId));
+			const Id bfrcId(mesh->getBottomFaceOfCell(rcId));
+			const size_t bfrcFaces(bfrcId);
+			U_nplus1[bfFaces] = U_n[bfrcFaces];
+		});
+	}
+	{
+		const auto rightCells(mesh->getRightCells());
+		const size_t nbRightCells(rightCells.size());
+		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
+		{
+			const Id rcId(rightCells[rcRightCells]);
+			const Id bfId(mesh->getBottomFaceOfCell(rcId));
+			const size_t bfFaces(bfId);
+			const Id lcId(mesh->getLeftCell(rcId));
+			const Id bflcId(mesh->getBottomFaceOfCell(lcId));
+			const size_t bflcFaces(bflcId);
+			U_nplus1[bfFaces] = U_n[bflcFaces];
 		});
 	}
 }

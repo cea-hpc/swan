@@ -3,7 +3,7 @@ module Swan;
 with Math.*;
 with BathyLib.*;
 
-itemtypes { node, cell , face}
+itemtypes {node, cell , face}
 
 // nodes collection
 connectivity nodes: → {node};
@@ -31,7 +31,6 @@ connectivity leftCell: cell → cell;
 connectivity topCell: cell → cell;
 connectivity bottomCell: cell → cell;
 
-
 // options
 option ℝ X_EDGE_LENGTH = 20.0;
 option ℝ Y_EDGE_LENGTH = 20.0;
@@ -41,11 +40,10 @@ option ℝ Dup = -1000.0;
 option ℝ δt = 0.5;
 option ℕ maxIter = 5000000;
 option ℝ stopTime = 20.0;
-
+//Wave option
 option ℾ loadWave = true;
 option ℕ waveMode = 3;
 option ℝ LX=200.0;
-
 option ℝ X0 = 50.0;
 option ℝ Y0 = 50.0;
 option ℝ Amp = 0.1;
@@ -54,6 +52,8 @@ option ℝ Sigma=5000.0;
 let ℝ δx = X_EDGE_LENGTH;
 let ℝ δy = Y_EDGE_LENGTH;
 let ℝ g = -9.8;
+option ℝ epsh=0.01;
+option ℝ epsu=0.000001;
 
 ℝ[2] center{cells};
 ℝ t;
@@ -62,11 +62,13 @@ let ℝ g = -9.8;
 ℝ U{faces}; // velocity in x direction
 ℝ Uini{faces}; 
 ℝ Ucalc{faces};
+ℝ Urn{faces};
 
 ℝ H{cells}; // wave height above mean water level
 ℝ Hini{cells}; //
 ℝ Hcalc{cells};
-
+ℝ Hru{cells};
+ 
 ℝ Dijini{cells}; // depth ( < 0)
 ℝ Dij{cells}; // depth ( < 0)
 ℝ Dt{cells};
@@ -93,23 +95,27 @@ InitDij:
 
 IniCenter: ∀j∈innerCells(), center{j} =(0.25 * ∑{r∈nodesOfCell(j)}(X{r}));
 
-IniDt: ∀j∈cells(), Dt^{n=0}{j} = max(H^{n=0}{j},H^{n=0}{j}-Dij^{n=0}{j});
+IniDt: ∀j∈innerCells(), Dt^{n=0}{j} = max(-Dij^{n=0}{j}+Hcalc^{n=0}{j},0.0);
 
 // wave initialization 
 
 InitHini:{ ∀ic∈innerCells(),
-	if (loadWave)
-		Hini{ic} = nextWaveHeight();
-	else if(waveMode==1)
+	if (loadWave){
+		Hini{ic} = nextWaveHeight();}
+	else if(waveMode==1){
 		if(center{ic}[0]<X0) 
 			Hini{ic} = Amp;
 		else
-			Hini{ic} = 0.0;	
-	else if(waveMode==2)
-		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma)) * exp(-0.5* (center{ic}[1]-Y0)*(center{ic}[1]-Y0)/(Sigma*Sigma));		
-	else if(waveMode==3)		
-		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma));
-
+			Hini{ic} = 0.0;}	
+	else if(waveMode==2){
+		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma)) * exp(-0.5* (center{ic}[1]-Y0)*(center{ic}[1]-Y0)/(Sigma*Sigma));}		
+	else if(waveMode==3){
+		Hini{ic} =Amp * exp(-0.5* (center{ic}[0]-X0)*(center{ic}[0]-X0)/(Sigma*Sigma));}
+	else if(waveMode==4){
+		if(center{ic}[0]<(X0/2.0)) 
+			Hini{ic} =Amp * sin(center{ic}[0]*(2*3.1415/X0));
+		else
+			Hini{ic} = 0.0;}
 }
 
 // trick to initialize Boundary Condition on H
@@ -123,6 +129,8 @@ InitH:
 }
 
 InitHcalc:	∀j∈cells(), Hcalc^{n=0}{j}=H^{n=0}{j};
+
+IniHru:∀ic∈innerCells(), Hru^{n=0}{ic} = max(Hcalc^{n=0}{ic},Dij^{n=0}{ic});
 
 InitUcalc:	∀j∈faces(), Ucalc^{n=0}{j}=U^{n=0}{j};
 
@@ -189,16 +197,18 @@ UpdateHcalc:∀ic∈innerCells(),
 UpdateHouter:  
 {
 	∀tc∈topCells(), ∀bc∈bottomCell(tc),
-		H^{n+1}{tc} = Hcalc^{n+1}{bc};
+		H^{n+1}{tc} = Hru^{n+1}{bc};
 	∀bc∈bottomCells(), ∀tc∈topCell(bc),
-		H^{n+1}{bc} = Hcalc^{n+1}{tc};
+		H^{n+1}{bc} = Hru^{n+1}{tc};
 	∀lc∈leftCells(), ∀rc∈rightCell(lc),
-		H^{n+1}{lc} = Hcalc^{n+1}{rc};
+		H^{n+1}{lc} = Hru^{n+1}{rc};
 	∀rc∈rightCells(), ∀lc∈leftCell(rc),
-		H^{n+1}{rc} = Hcalc^{n+1}{lc};
+		H^{n+1}{rc} = Hru^{n+1}{lc};
 }
 
-UpdateHinner:∀ic∈innerCells(),  H^{n+1}{ic} = Hcalc^{n+1}{ic};	
+UpdateHinner:∀ic∈innerCells(),  H^{n+1}{ic} = Hru^{n+1}{ic};	
+
+UpdateHru:∀ic∈innerCells(), Hru^{n+1}{ic} = max(Hcalc^{n+1}{ic},Dij^{n+1}{ic});
 
 // compute new x velocity using the numerical schema
 UpdateUcalc:∀ic∈innerCells(),∀rfc∈rightFaceOfCell(ic),∀tfc∈topFaceOfCell(ic), 
@@ -209,7 +219,7 @@ UpdateUcalc:∀ic∈innerCells(),∀rfc∈rightFaceOfCell(ic),∀tfc∈topFaceOf
 	let ℝ V1=0.0;
 
 	∀bfc∈bottomFaceOfCell(ic), ∀icp∈rightCell(ic), ∀tfcp∈topFaceOfCell(icp), ∀bfcp∈bottomFaceOfCell(icp), V1= (U^{n}{tfc}+U^{n}{bfc}+U^{n}{tfcp}+U^{n}{bfcp})/4;
-	
+
 	if(V1 <= 0)
 		∀ict∈topCell(ic), ∀rfct∈rightFaceOfCell(ict),
 			TV1  = U^{n}{rfct} - U^{n}{rfc};
@@ -226,7 +236,7 @@ UpdateUcalc:∀ic∈innerCells(),∀rfc∈rightFaceOfCell(ic),∀tfc∈topFaceOf
 			TU1 = U^{n}{rfc} - U^{n}{lfc};
 
 	// compute U^{n+1}
-	∀icp∈rightCell(ic),	Ucalc^{n+1}{rfc} = U^{n}{rfc} - (δt/ δx) * (U^{n}{rfc} * TU1  - g * (H^{n+1}{icp} - H^{n+1}{ic}) ) - (δt/ δy) * (V1 * TV1) ;
+	∀icp∈rightCell(ic),	Ucalc^{n+1}{rfc} = U^{n} {rfc} - (δt/ δx) * (U^{n}{rfc} * TU1  - g * (H^{n+1}{icp} - H^{n+1}{ic}) ) - (δt/ δy) * (V1 * TV1) ;
 
 	//vertical
 	let ℝ TV2 = 0.0;
@@ -234,7 +244,7 @@ UpdateUcalc:∀ic∈innerCells(),∀rfc∈rightFaceOfCell(ic),∀tfc∈topFaceOf
 	let ℝ U1=0.0;
 
 	∀lfc∈leftFaceOfCell(ic), ∀ict∈topCell(ic), ∀rfct∈rightFaceOfCell(ict), ∀lfct∈leftFaceOfCell(ict), U1= (U^{n}{rfc}+U^{n}{lfc}+U^{n}{rfct}+U^{n}{lfct})/4;
-	
+
 	if(U1 <= 0)
 		∀icp∈rightCell(ic), ∀tfcp∈topFaceOfCell(icp),
 			TU2  = U^{n}{tfcp} - U^{n}{tfc};
@@ -258,18 +268,62 @@ UpdateUcalc:∀ic∈innerCells(),∀rfc∈rightFaceOfCell(ic),∀tfc∈topFaceOf
 UpdateUouter:
 {
 	∀tc∈topCells(), ∀rf∈rightFaceOfCell(tc), ∀bc∈bottomCell(tc), ∀brf∈rightFaceOfCell(bc),
-		U^{n+1}{rf} = Ucalc^{n+1}{brf};
+		U^{n+1}{rf} = Urn^{n+1}{brf};
 	∀bc∈bottomCells(), ∀rf∈rightFaceOfCell(bc), ∀bcf∈topCell(bc), ∀trf∈rightFaceOfCell(bcf),
-		U^{n+1}{rf} = Ucalc^{n+1}{trf};
+		U^{n+1}{rf} = Urn^{n+1}{trf};
 	∀lc∈leftCells(), ∀lf∈leftFaceOfCell(lc), ∀rf∈rightFaceOfCell(lc),
-		U^{n+1}{lf} = Ucalc^{n+1}{rf};
+		U^{n+1}{lf} = Urn^{n+1}{rf};
 	∀rc∈rightCells(), ∀rf∈rightFaceOfCell(rc), ∀lf∈leftFaceOfCell(rc),
-		U^{n+1}{rf} = Ucalc^{n+1}{lf};
+		U^{n+1}{rf} = Urn^{n+1}{lf};
 }
 
-UpdateUinner: ∀ic∈faces(), U^{n+1}{ic} = Ucalc^{n+1}{ic};
+UpdateUinner: ∀ic∈innerFaces(), U^{n+1}{ic} = Urn^{n+1}{ic};
 
-UpdateDtot:∀j∈cells(), Dt^{n+1}{j} =-Dij^{n+1}{j}+Hcalc^{n+1}{j};
+UpdateUrunup:
+{//run-up
+	
+	
+	∀ic∈innerCells(),∀rfc∈rightFaceOfCell(ic),
+	if ((Dt^{n+1}{ic}<epsh))
+		Urn^{n+1}{rfc}=0.0;
+	else 
+		Urn^{n+1}{rfc}=Ucalc^{n+1}{rfc};
+	∀ic∈innerCells(),∀lfc∈rightFaceOfCell(ic),
+	if ((Dt^{n+1}{ic}<epsh))
+		Urn^{n+1}{lfc}=0.0;
+	else 
+		Urn^{n+1}{lfc}=Ucalc^{n+1}{lfc};
+	∀ic∈innerCells(),∀tfc∈topFaceOfCell(ic),
+	if ((Dt^{n+1}{ic}<epsh))
+		Urn^{n+1}{tfc}=0.0;
+	else 
+		Urn^{n+1}{tfc}=Ucalc^{n+1}{tfc};
+	∀ic∈innerCells(),∀bfc∈bottomFaceOfCell(ic),
+	if ((Dt^{n+1}{ic}<epsh))
+		Urn^{n+1}{bfc}=0.0;
+	else 
+		Urn^{n+1}{bfc}=Ucalc^{n+1}{bfc};
+		
+	//right	
+	∀ic∈innerCells(),∀icp∈rightCell(ic),∀icm∈leftCell(ic),∀lfc∈leftFaceOfCell(ic),∀rfc∈rightFaceOfCell(ic),∀rfcm∈rightFaceOfCell(icm),
+	if ((Dt^{n+1}{ic}>epsh) && (Dt^{n+1}{icp}<epsh) && (Ucalc^{n+1}{lfc}>epsu) && (H^{n+1}{ic}>(H^{n}{icp}+epsh)))
+		Urn^{n+1}{rfc}=Ucalc^{n+1}{rfcm};
+	//left
+	∀ic∈innerCells(),∀icm∈leftCell(ic),∀lfc∈leftFaceOfCell(ic),∀rfc∈rightFaceOfCell(ic),
+	if ((Dt^{n+1}{ic}>epsh) && (Dt^{n+1}{icm}<epsh) && (Ucalc^{n+1}{rfc}<(-1*epsu)) && (H^{n+1}{ic}>(H^{n}{icm}+epsh)))
+		Urn^{n+1}{lfc}=Ucalc^{n+1}{rfc};
+	//up	
+	∀ic∈innerCells(),∀ict∈topCell(ic),∀tfc∈topFaceOfCell(ic),∀bfc∈bottomFaceOfCell(ic),
+	if ((Dt^{n+1}{ic}>epsh) && (Dt^{n+1}{ict}<epsh) && (Ucalc^{n+1}{bfc}>epsu) && (H^{n+1}{ic}>(H^{n}{ict}+epsh)))
+		Urn^{n+1}{tfc}=Ucalc^{n+1}{bfc};
+	//bottom
+	∀ic∈innerCells(),∀icb∈bottomCell(ic),∀tfc∈topFaceOfCell(ic),∀bfc∈bottomFaceOfCell(ic),
+	if ((Dt^{n+1}{ic}>epsh) && (Dt^{n+1}{icb}<epsh) && (Ucalc^{n+1}{tfc}<(-1*epsu)) && (H^{n+1}{ic}>(H^{n}{icb}+epsh)))
+		Urn^{n+1}{bfc}=Ucalc^{n+1}{tfc};
+	
+}
+
+UpdateDtot:∀j∈innerCells(), Dt^{n+1}{j} = max(-Dij^{n+1}{j}+Hru^{n+1}{j},0.0);
 
 UpdateDij:∀j∈cells(), Dij^{n+1}{j}=Dij^{n}{j};
 

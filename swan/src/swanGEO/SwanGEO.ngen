@@ -10,16 +10,16 @@ MainModule SwanGEO swangeo
 	timeMax = stopTime;
 }
 
+
 VtkOutput
 {
 	periodReferenceVariable = swangeo.n;
 	outputVariables = swangeo.H as "hauteur", 
 		swangeo.Hplot as "plot";
-
 }
 
 StlThread
 {
 	outputPath = "/swan/src-gen-cpp/stl-thread";
-	N_CXX_COMPILER = "/usr/bin/g++";
+	N_CXX_COMPILER ="/usr/bin/g++";
 }

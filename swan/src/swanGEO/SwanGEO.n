@@ -38,8 +38,10 @@ option ℕ maxIter = 5000000;
 option ℝ stopTime = 20.0;
 
 //Long Lat
-let ℝ δx_lon = 0.033; // in °
-let ℝ δy_lat = 0.033; // in °
+option ℝ dx = 0.033;
+option ℝ dy = 0.033;
+let ℝ δx_lon = dx; // in °
+let ℝ δy_lat = dy; // in °
 let ℝ DEG2RAD_DP = 0.01745;//acos(-1)/180;
 let ℝ DEG2RAD = DEG2RAD_DP;
 let ℝ DEG2M_DP = 111194.9266;
@@ -261,6 +263,7 @@ UpdateUcalc:∀ic∈innerCells(),∀rfc∈rightFaceOfCell(ic),∀tfc∈topFaceOf
 // update boundary condition for x velocity
 UpdateUouter:
 {
+	// Update U
 	∀tc∈topCells(), ∀rf∈rightFaceOfCell(tc), ∀bc∈bottomCell(tc), ∀brf∈rightFaceOfCell(bc),
 		U^{n+1}{rf} = Ucalc^{n+1}{brf};
 	∀bc∈bottomCells(), ∀rf∈rightFaceOfCell(bc), ∀bcf∈topCell(bc), ∀trf∈rightFaceOfCell(bcf),
@@ -269,7 +272,17 @@ UpdateUouter:
 		U^{n+1}{lf} = Ucalc^{n+1}{rf};
 	∀rc∈rightCells(), ∀rf∈rightFaceOfCell(rc), ∀lf∈leftFaceOfCell(rc),
 		U^{n+1}{rf} = Ucalc^{n+1}{lf};
+	// Update V
+	∀tc∈topCells(), ∀bf∈bottomFaceOfCell(tc), ∀tf∈topFaceOfCell(tc),
+		U^{n+1}{tf} = U^{n}{bf};
+	∀bc∈bottomCells(), ∀bf∈bottomFaceOfCell(bc), ∀tf∈topFaceOfCell(bc),
+		U^{n+1}{bf} = U^{n}{tf} ;
+	∀lc∈leftCells(), ∀bf∈bottomFaceOfCell(lc), ∀rc∈rightCell(lc), ∀bfrc∈bottomFaceOfCell(rc),
+		U^{n+1}{bf} = U^{n}{bfrc};
+	∀rc∈rightCells(), ∀bf∈bottomFaceOfCell(rc), ∀lc∈leftCell(rc), ∀bflc∈bottomFaceOfCell(lc),
+		U^{n+1}{bf} = U^{n}{bflc};
 }
+
 
 UpdateHplot:{ ∀j∈cells(),if (Dij^{n+1}{j}<0) Hplot^{n+1}{j}=Hcalc^{n+1}{j}; 
 						else Hplot^{n+1}{j}=Dij^{n+1}{j};
