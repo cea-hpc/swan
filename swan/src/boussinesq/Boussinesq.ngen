@@ -13,12 +13,19 @@ VtkOutput
 {
 	periodReferenceVariable = boussinesq.n;
 	outputVariables = boussinesq.H as "hauteur",
-						boussinesq.B as "B";
+		boussinesq.B as "B";
 }
 
+Interpreter
+{
+	outputPath = "/swan/src-gen-interpreter";
+	extension BathyLib providedBy BathyLibCpp;
+	JAVA_HOME = "$ENV{HOME}/NabLabTool/graalvm-ce-java11-21.1.0";
+}
 
 StlThread
 {
 	outputPath = "/swan/src-gen-cpp/stl-thread";
+	extension BathyLib providedBy BathyLibCpp;
 	N_CXX_COMPILER = "/usr/bin/g++";
 }

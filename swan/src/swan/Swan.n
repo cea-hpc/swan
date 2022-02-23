@@ -66,7 +66,9 @@ InitDij:
 	∀ic∈innerCells(), Dij^{n=0}{ic} = Dijini{ic}; 
 }
 
-IniCenter: ∀j∈innerCells(), center{j} =(0.25*∑{r∈nodesOfCell(j)}(X{r}));
+//MPO -> pour avoir X meme aux mailles de bord...
+//IniCenter: ∀j∈innerCells(), center{j} =(0.25*∑{r∈nodesOfCell(j)}(X{r}));
+IniCenter: ∀j∈cells(), center{j} =(0.25*∑{r∈nodesOfCell(j)}(X{r}));
 
 IniDt: ∀j∈innerCells(), Dt^{n=0}{j} = max(-Dij^{n=0}{j}+Hcalc^{n=0}{j},0.0);
 

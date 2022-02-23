@@ -8,7 +8,8 @@
 		"deltat":0.5,
 		"maxIter":5000000,
 		"stopTime":20.0,
-		"bathyLib":{}
+		"dx":0.033,
+		"dy":0.033
 	},
 	"mesh":
 	{

@@ -1,0 +1,43 @@
+package fr.cea.nabla.monilog.Iterative
+
+import org.gemoc.monilog.stl.*
+import fr.cea.nabla.monilog.nablalib.*
+import Swan.*
+import "/home/oudotmp/workspaces/swan/swan/src/swan/Utiles.py" as pythonUtils
+
+event BeforeComputeTn {
+	before call ComputeTn
+}
+
+event BeforeInitCenter {
+	before call IniCenter
+}
+
+event AfterInitCenter {
+	after call IniCenter
+}
+
+monilogger CleanFles {
+	when BeforeInitCenter
+	{
+		python(pythonUtils.clean("/home/oudotmp/workspaces/swan/swan/src/swan/dumpX.csv"));
+		NabLabConsoleAppender.call(python(pythonUtils.clean(StringLayout.call("/home/oudotmp/workspaces/swan/swan/src/swan/dumpHAmp{0}.csv", python(pythonUtils.escapeDot(context(Amp)))))));
+	}
+}
+
+monilogger LogX {
+	when AfterInitCenter
+	{
+		//NabLabConsoleAppender.call(python(pythonUtils.getSliceX(context(center))));
+		FileAppender.call(python(pythonUtils.getSliceX(context(center))), "/home/oudotmp/workspaces/swan/swan/src/swan/dumpX.csv");		
+	}
+}
+
+monilogger LogH {
+	when BeforeComputeTn
+	{
+		//NabLabConsoleAppender.call(StringLayout.call("ComputeTn : {0}", context(t_n)));
+		//NabLabConsoleAppender.call(StringLayout.call("{0,number,0.00000}, {1}", context(t_n), python(pythonUtils.getSlice(context(H_n)))));
+		FileAppender.call(StringLayout.call("{0,number,0.00000}, {1}", context(t_n), python(pythonUtils.getSlice(context(H_n)))), StringLayout.call("/home/oudotmp/workspaces/swan/swan/src/swan/dumpHAmp{0}.csv", python(pythonUtils.escapeDot(context(Amp)))));
+	}
+}
