@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="ASCII"?>
+<instrumentationInterface:InstrumentationInterface xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:instrumentationInterface="http://www.gemoc.org/instrument/InstrumentationInterface"
+    name="Swan">
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="ComputeTn"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="IniCenter"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitTime"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitUini"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateDij"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateHcalc"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitDijini"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitHini"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitU"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateHru"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitDij"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitH"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitUcalc"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateDtot"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateHinner"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateHouter"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitHcalc"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateUcalc"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="IniDt"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="IniHru"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateUrunup"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="SetUpTimeLoopN"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateUinner"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateUouter"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="ExecuteTimeLoopN"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="sumR1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="nextDepth"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="nextWaveHeight"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="max"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="exp"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="sin"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="t_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="reduction0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="center"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="t_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Uini"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dij_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="TD1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="TD2"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="TV1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="TV2"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Hcalc_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dijini"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Hini"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="U_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Hru_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dij_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="H_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Ucalc_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dt_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="H_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Hcalc_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="V1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="TV1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="TU1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Ucalc_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="U1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="TU2"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="TV2"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dt_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Hru_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Urn_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="t_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="U_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Ucalc_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="H_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Hcalc_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Hru_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dij_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dt_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="U_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Urn_n"/>
+  <readableElements name="x"/>
+  <readableElements name="a"/>
+  <readableElements name="b"/>
+  <readableElements name="outputPeriod"/>
+  <readableElements name="lastDump"/>
+  <readableElements name="n"/>
+  <readableElements name="X_EDGE_LENGTH"/>
+  <readableElements name="Y_EDGE_LENGTH"/>
+  <readableElements name="loadBathy"/>
+  <readableElements name="Dini"/>
+  <readableElements name="Dup"/>
+  <readableElements name="deltat"/>
+  <readableElements name="maxIter"/>
+  <readableElements name="stopTime"/>
+  <readableElements name="loadWave"/>
+  <readableElements name="waveMode"/>
+  <readableElements name="LX"/>
+  <readableElements name="X0"/>
+  <readableElements name="Y0"/>
+  <readableElements name="Amp"/>
+  <readableElements name="Sigma"/>
+  <readableElements name="deltax"/>
+  <readableElements name="deltay"/>
+  <readableElements name="g"/>
+  <readableElements name="epsh"/>
+  <readableElements name="epsu"/>
+  <readableElements name="X"/>
+  <readableElements name="x0"/>
+  <readableElements name="x1"/>
+  <readableElements name="x0"/>
+  <readableElements name="x0"/>
+</instrumentationInterface:InstrumentationInterface>

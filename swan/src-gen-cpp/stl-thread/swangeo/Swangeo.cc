@@ -7,105 +7,24 @@
 #include <rapidjson/writer.h>
 
 
-/******************** Options definition ********************/
-
-void
-Swangeo::Options::jsonInit(const char* jsonContent)
-{
-	rapidjson::Document document;
-	assert(!document.Parse(jsonContent).HasParseError());
-	assert(document.IsObject());
-	const rapidjson::Value::Object& o = document.GetObject();
-
-	// outputPath
-	assert(o.HasMember("outputPath"));
-	const rapidjson::Value& valueof_outputPath = o["outputPath"];
-	assert(valueof_outputPath.IsString());
-	outputPath = valueof_outputPath.GetString();
-	// outputPeriod
-	assert(o.HasMember("outputPeriod"));
-	const rapidjson::Value& valueof_outputPeriod = o["outputPeriod"];
-	assert(valueof_outputPeriod.IsInt());
-	outputPeriod = valueof_outputPeriod.GetInt();
-	// deltat
-	if (o.HasMember("deltat"))
-	{
-		const rapidjson::Value& valueof_deltat = o["deltat"];
-		assert(valueof_deltat.IsDouble());
-		deltat = valueof_deltat.GetDouble();
-	}
-	else
-		deltat = 0.5;
-	// maxIter
-	if (o.HasMember("maxIter"))
-	{
-		const rapidjson::Value& valueof_maxIter = o["maxIter"];
-		assert(valueof_maxIter.IsInt());
-		maxIter = valueof_maxIter.GetInt();
-	}
-	else
-		maxIter = 5000000;
-	// stopTime
-	if (o.HasMember("stopTime"))
-	{
-		const rapidjson::Value& valueof_stopTime = o["stopTime"];
-		assert(valueof_stopTime.IsDouble());
-		stopTime = valueof_stopTime.GetDouble();
-	}
-	else
-		stopTime = 20.0;
-	// dx
-	if (o.HasMember("dx"))
-	{
-		const rapidjson::Value& valueof_dx = o["dx"];
-		assert(valueof_dx.IsDouble());
-		dx = valueof_dx.GetDouble();
-	}
-	else
-		dx = 0.033;
-	// dy
-	if (o.HasMember("dy"))
-	{
-		const rapidjson::Value& valueof_dy = o["dy"];
-		assert(valueof_dy.IsDouble());
-		dy = valueof_dy.GetDouble();
-	}
-	else
-		dy = 0.033;
-	// bathyLib
-	if (o.HasMember("bathyLib"))
-	{
-		rapidjson::StringBuffer strbuf;
-		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
-		o["bathyLib"].Accept(writer);
-		bathyLib.jsonInit(strbuf.GetString());
-	}
-}
-
 /******************** Module definition ********************/
 
-Swangeo::Swangeo(CartesianMesh2D* aMesh, Options& aOptions)
+Swangeo::Swangeo(CartesianMesh2D& aMesh)
 : mesh(aMesh)
-, nbNodes(mesh->getNbNodes())
-, nbNodesOfCell(CartesianMesh2D::MaxNbNodesOfCell)
-, nbFaces(mesh->getNbFaces())
-, nbInnerFaces(mesh->getNbInnerFaces())
-, nbCells(mesh->getNbCells())
-, nbInnerCells(mesh->getNbInnerCells())
-, nbTopCells(mesh->getNbTopCells())
-, nbBottomCells(mesh->getNbBottomCells())
-, nbLeftCells(mesh->getNbLeftCells())
-, nbRightCells(mesh->getNbRightCells())
-, nbOuterCells(mesh->getNbOuterCells())
-, options(aOptions)
-, writer("SwanGEO", options.outputPath)
-, lastDump(numeric_limits<int>::min())
-, deltax_lon(options.dx)
-, deltay_lat(options.dy)
+, nbCells(mesh.getNbCells())
+, nbNodes(mesh.getNbNodes())
+, nbFaces(mesh.getNbFaces())
+, nbInnerCells(mesh.getGroup("InnerCells").size())
+, nbInnerFaces(mesh.getGroup("InnerFaces").size())
+, nbTopCells(mesh.getGroup("TopCells").size())
+, nbBottomCells(mesh.getGroup("BottomCells").size())
+, nbLeftCells(mesh.getGroup("LeftCells").size())
+, nbRightCells(mesh.getGroup("RightCells").size())
+, nbOuterCells(mesh.getGroup("OuterCells").size())
 , deltax(nbCells)
 , deltay(nbCells)
 , X(nbNodes)
-, Xc(nbInnerCells)
+, Xc(nbCells)
 , U_n(nbFaces)
 , U_nplus1(nbFaces)
 , U_n0(nbFaces)
@@ -130,17 +49,69 @@ Swangeo::Swangeo(CartesianMesh2D* aMesh, Options& aOptions)
 , Dt_nplus1(nbCells)
 , Dt_n0(nbCells)
 {
+}
+
+Swangeo::~Swangeo()
+{
+}
+
+void
+Swangeo::jsonInit(const char* jsonContent)
+{
+	rapidjson::Document document;
+	assert(!document.Parse(jsonContent).HasParseError());
+	assert(document.IsObject());
+	const rapidjson::Value::Object& options = document.GetObject();
+
+	assert(options.HasMember("outputPath"));
+	const rapidjson::Value& valueof_outputPath = options["outputPath"];
+	assert(valueof_outputPath.IsString());
+	outputPath = valueof_outputPath.GetString();
+	writer = new PvdFileWriter2D("SwanGEO", outputPath);
+	assert(options.HasMember("outputPeriod"));
+	const rapidjson::Value& valueof_outputPeriod = options["outputPeriod"];
+	assert(valueof_outputPeriod.IsInt());
+	outputPeriod = valueof_outputPeriod.GetInt();
+	lastDump = numeric_limits<int>::min();
+	n = 0;
+	assert(options.HasMember("deltat"));
+	const rapidjson::Value& valueof_deltat = options["deltat"];
+	assert(valueof_deltat.IsDouble());
+	deltat = valueof_deltat.GetDouble();
+	assert(options.HasMember("maxIter"));
+	const rapidjson::Value& valueof_maxIter = options["maxIter"];
+	assert(valueof_maxIter.IsInt());
+	maxIter = valueof_maxIter.GetInt();
+	assert(options.HasMember("stopTime"));
+	const rapidjson::Value& valueof_stopTime = options["stopTime"];
+	assert(valueof_stopTime.IsDouble());
+	stopTime = valueof_stopTime.GetDouble();
+	assert(options.HasMember("dx"));
+	const rapidjson::Value& valueof_dx = options["dx"];
+	assert(valueof_dx.IsDouble());
+	dx = valueof_dx.GetDouble();
+	assert(options.HasMember("dy"));
+	const rapidjson::Value& valueof_dy = options["dy"];
+	assert(valueof_dy.IsDouble());
+	dy = valueof_dy.GetDouble();
+	deltax_lon = dx;
+	deltay_lat = dy;
+	// bathyLib
+	if (options.HasMember("bathyLib"))
+	{
+		rapidjson::StringBuffer strbuf;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
+		options["bathyLib"].Accept(writer);
+		bathyLib.jsonInit(strbuf.GetString());
+	}
+
 	// Copy node coordinates
-	const auto& gNodes = mesh->getGeometry()->getNodes();
+	const auto& gNodes = mesh.getGeometry()->getNodes();
 	for (size_t rNodes=0; rNodes<nbNodes; rNodes++)
 	{
 		X[rNodes][0] = gNodes[rNodes][0];
 		X[rNodes][1] = gNodes[rNodes][1];
 	}
-}
-
-Swangeo::~Swangeo()
-{
 }
 
 /**
@@ -150,7 +121,7 @@ Swangeo::~Swangeo()
  */
 void Swangeo::computeTn() noexcept
 {
-	t_nplus1 = t_n + options.deltat;
+	t_nplus1 = t_n + deltat;
 }
 
 /**
@@ -161,13 +132,12 @@ void Swangeo::computeTn() noexcept
 void Swangeo::initDijini() noexcept
 {
 	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
+		const auto innerCells(mesh.getGroup("InnerCells"));
 		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
 		{
 			const Id icId(innerCells[icInnerCells]);
 			const size_t icCells(icId);
-			Dijini[icCells] = options.bathyLib.nextDepth();
+			Dijini[icCells] = bathyLib.nextDepth();
 		}
 	}
 }
@@ -190,8 +160,7 @@ void Swangeo::initTime() noexcept
 void Swangeo::initUini() noexcept
 {
 	{
-		const auto innerFaces(mesh->getInnerFaces());
-		const size_t nbInnerFaces(innerFaces.size());
+		const auto innerFaces(mesh.getGroup("InnerFaces"));
 		parallel_exec(nbInnerFaces, [&](const size_t& fInnerFaces)
 		{
 			const Id fId(innerFaces[fInnerFaces]);
@@ -209,12 +178,13 @@ void Swangeo::initUini() noexcept
 void Swangeo::initXc() noexcept
 {
 	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
+		const auto innerCells(mesh.getGroup("InnerCells"));
 		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
 		{
-			Xc[icInnerCells][0] = options.bathyLib.nextLon();
-			Xc[icInnerCells][1] = options.bathyLib.nextLat();
+			const Id icId(innerCells[icInnerCells]);
+			const size_t icCells(icId);
+			Xc[icCells][0] = bathyLib.nextLon();
+			Xc[icCells][1] = bathyLib.nextLat();
 		}
 	}
 }
@@ -240,56 +210,51 @@ void Swangeo::updateDij() noexcept
 void Swangeo::initDij() noexcept
 {
 	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
+		const auto topCells(mesh.getGroup("TopCells"));
 		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
 		{
 			const Id tcId(topCells[tcTopCells]);
 			const size_t tcCells(tcId);
-			const Id bcId(mesh->getBottomCell(tcId));
+			const Id bcId(mesh.getBottomCell(tcId));
 			const size_t bcCells(bcId);
 			Dij_n0[tcCells] = Dijini[bcCells];
 		});
 	}
 	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
+		const auto bottomCells(mesh.getGroup("BottomCells"));
 		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
 		{
 			const Id bcId(bottomCells[bcBottomCells]);
 			const size_t bcCells(bcId);
-			const Id tcId(mesh->getTopCell(bcId));
+			const Id tcId(mesh.getTopCell(bcId));
 			const size_t tcCells(tcId);
 			Dij_n0[bcCells] = Dijini[tcCells];
 		});
 	}
 	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
+		const auto leftCells(mesh.getGroup("LeftCells"));
 		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
 		{
 			const Id lcId(leftCells[lcLeftCells]);
 			const size_t lcCells(lcId);
-			const Id rcId(mesh->getRightCell(lcId));
+			const Id rcId(mesh.getRightCell(lcId));
 			const size_t rcCells(rcId);
 			Dij_n0[lcCells] = Dijini[rcCells];
 		});
 	}
 	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
+		const auto rightCells(mesh.getGroup("RightCells"));
 		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
 		{
 			const Id rcId(rightCells[rcRightCells]);
 			const size_t rcCells(rcId);
-			const Id lcId(mesh->getLeftCell(rcId));
+			const Id lcId(mesh.getLeftCell(rcId));
 			const size_t lcCells(lcId);
 			Dij_n0[rcCells] = Dijini[lcCells];
 		});
 	}
 	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
+		const auto innerCells(mesh.getGroup("InnerCells"));
 		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
 		{
 			const Id icId(innerCells[icInnerCells]);
@@ -307,55 +272,51 @@ void Swangeo::initDij() noexcept
 void Swangeo::initU() noexcept
 {
 	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
+		const auto topCells(mesh.getGroup("TopCells"));
 		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
 		{
 			const Id tcId(topCells[tcTopCells]);
-			const Id rfId(mesh->getRightFaceOfCell(tcId));
+			const Id rfId(mesh.getRightFaceOfCell(tcId));
 			const size_t rfFaces(rfId);
-			const Id bcId(mesh->getBottomCell(tcId));
-			const Id brfId(mesh->getRightFaceOfCell(bcId));
+			const Id bcId(mesh.getBottomCell(tcId));
+			const Id brfId(mesh.getRightFaceOfCell(bcId));
 			const size_t brfFaces(brfId);
 			U_n0[rfFaces] = Uini[brfFaces];
 		});
 	}
 	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
+		const auto bottomCells(mesh.getGroup("BottomCells"));
 		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
 		{
 			const Id bcId(bottomCells[bcBottomCells]);
-			const Id rfId(mesh->getRightFaceOfCell(bcId));
+			const Id rfId(mesh.getRightFaceOfCell(bcId));
 			const size_t rfFaces(rfId);
-			const Id tcId(mesh->getTopCell(bcId));
-			const Id trfId(mesh->getRightFaceOfCell(tcId));
+			const Id tcId(mesh.getTopCell(bcId));
+			const Id trfId(mesh.getRightFaceOfCell(tcId));
 			const size_t trfFaces(trfId);
 			U_n0[rfFaces] = Uini[trfFaces];
 		});
 	}
 	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
+		const auto leftCells(mesh.getGroup("LeftCells"));
 		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
 		{
 			const Id lcId(leftCells[lcLeftCells]);
-			const Id lfId(mesh->getLeftFaceOfCell(lcId));
+			const Id lfId(mesh.getLeftFaceOfCell(lcId));
 			const size_t lfFaces(lfId);
-			const Id rfId(mesh->getRightFaceOfCell(lcId));
+			const Id rfId(mesh.getRightFaceOfCell(lcId));
 			const size_t rfFaces(rfId);
 			U_n0[lfFaces] = Uini[rfFaces];
 		});
 	}
 	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
+		const auto rightCells(mesh.getGroup("RightCells"));
 		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
 		{
 			const Id rcId(rightCells[rcRightCells]);
-			const Id rfId(mesh->getRightFaceOfCell(rcId));
+			const Id rfId(mesh.getRightFaceOfCell(rcId));
 			const size_t rfFaces(rfId);
-			const Id lfId(mesh->getLeftFaceOfCell(rcId));
+			const Id lfId(mesh.getLeftFaceOfCell(rcId));
 			const size_t lfFaces(lfId);
 			U_n0[rfFaces] = Uini[lfFaces];
 		});
@@ -370,19 +331,17 @@ void Swangeo::initU() noexcept
 void Swangeo::initdeltaxdeltay() noexcept
 {
 	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
+		const auto innerCells(mesh.getGroup("InnerCells"));
 		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
 		{
 			const Id icId(innerCells[icInnerCells]);
 			const size_t icCells(icId);
-			deltax[icCells] = deltax_lon * DEG2M * std::cos(Xc[icInnerCells][1] * DEG2RAD);
+			deltax[icCells] = deltax_lon * DEG2M * std::cos(Xc[icCells][1] * DEG2RAD);
 			deltay[icCells] = deltay_lat * DEG2M_DP;
 		});
 	}
 	{
-		const auto outerCells(mesh->getOuterCells());
-		const size_t nbOuterCells(outerCells.size());
+		const auto outerCells(mesh.getGroup("OuterCells"));
 		parallel_exec(nbOuterCells, [&](const size_t& ocOuterCells)
 		{
 			const Id ocId(outerCells[ocOuterCells]);
@@ -401,8 +360,7 @@ void Swangeo::initdeltaxdeltay() noexcept
 void Swangeo::updateHcalc() noexcept
 {
 	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
+		const auto innerCells(mesh.getGroup("InnerCells"));
 		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
 		{
 			const Id icId(innerCells[icInnerCells]);
@@ -410,9 +368,9 @@ void Swangeo::updateHcalc() noexcept
 			double TD1(0.0);
 			double TD2(0.0);
 			{
-				const Id rfId(mesh->getRightFaceOfCell(icId));
+				const Id rfId(mesh.getRightFaceOfCell(icId));
 				const size_t rfFaces(rfId);
-				const Id rcId(mesh->getRightCell(icId));
+				const Id rcId(mesh.getRightCell(icId));
 				const size_t rcCells(rcId);
 				if (U_n[rfFaces] <= 0) 
 					TD1 = Dt_n[rcCells];
@@ -420,9 +378,9 @@ void Swangeo::updateHcalc() noexcept
 					TD1 = Dt_n[icCells];
 			}
 			{
-				const Id lfId(mesh->getLeftFaceOfCell(icId));
+				const Id lfId(mesh.getLeftFaceOfCell(icId));
 				const size_t lfFaces(lfId);
-				const Id lcId(mesh->getLeftCell(icId));
+				const Id lcId(mesh.getLeftCell(icId));
 				const size_t lcCells(lcId);
 				if (U_n[lfFaces] <= 0) 
 					TD2 = Dt_n[icCells];
@@ -432,9 +390,9 @@ void Swangeo::updateHcalc() noexcept
 			double TV1(0.0);
 			double TV2(0.0);
 			{
-				const Id tfId(mesh->getTopFaceOfCell(icId));
+				const Id tfId(mesh.getTopFaceOfCell(icId));
 				const size_t tfFaces(tfId);
-				const Id tcId(mesh->getTopCell(icId));
+				const Id tcId(mesh.getTopCell(icId));
 				const size_t tcCells(tcId);
 				if (U_n[tfFaces] <= 0) 
 					TV1 = Dt_n[tcCells];
@@ -442,9 +400,9 @@ void Swangeo::updateHcalc() noexcept
 					TV1 = Dt_n[icCells];
 			}
 			{
-				const Id bfId(mesh->getBottomFaceOfCell(icId));
+				const Id bfId(mesh.getBottomFaceOfCell(icId));
 				const size_t bfFaces(bfId);
-				const Id bcId(mesh->getBottomCell(icId));
+				const Id bcId(mesh.getBottomCell(icId));
 				const size_t bcCells(bcId);
 				if (U_n[bfFaces] <= 0) 
 					TV2 = Dt_n[icCells];
@@ -453,15 +411,15 @@ void Swangeo::updateHcalc() noexcept
 			}
 			if (Dij_nplus1[icCells] < 0) 
 			{
-				const Id rfId(mesh->getRightFaceOfCell(icId));
+				const Id rfId(mesh.getRightFaceOfCell(icId));
 				const size_t rfFaces(rfId);
-				const Id lfId(mesh->getLeftFaceOfCell(icId));
+				const Id lfId(mesh.getLeftFaceOfCell(icId));
 				const size_t lfFaces(lfId);
-				const Id tfId(mesh->getTopFaceOfCell(icId));
+				const Id tfId(mesh.getTopFaceOfCell(icId));
 				const size_t tfFaces(tfId);
-				const Id bfId(mesh->getBottomFaceOfCell(icId));
+				const Id bfId(mesh.getBottomFaceOfCell(icId));
 				const size_t bfFaces(bfId);
-				Hcalc_nplus1[icCells] = H_n[icCells] - options.deltat / (deltax[icCells]) * (U_n[rfFaces] * TD1 - U_n[lfFaces] * TD2) - options.deltat / deltay[icCells] * (U_n[tfFaces] * TV1 - U_n[bfFaces] * TV2);
+				Hcalc_nplus1[icCells] = H_n[icCells] - deltat / (deltax[icCells]) * (U_n[rfFaces] * TD1 - U_n[lfFaces] * TD2) - deltat / deltay[icCells] * (U_n[tfFaces] * TV1 - U_n[bfFaces] * TV2);
 			}
 			else
 				Hcalc_nplus1[icCells] = 0.0;
@@ -477,16 +435,15 @@ void Swangeo::updateHcalc() noexcept
 void Swangeo::initHini() noexcept
 {
 	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
+		const auto innerCells(mesh.getGroup("InnerCells"));
 		for (size_t icInnerCells=0; icInnerCells<nbInnerCells; icInnerCells++)
 		{
 			const Id icId(innerCells[icInnerCells]);
 			const size_t icCells(icId);
 			if (Dij_n0[icCells] > 0) 
-				Hini[icCells] = options.bathyLib.nextWaveHeight() * 0.0;
+				Hini[icCells] = bathyLib.nextWaveHeight() * 0.0;
 			else
-				Hini[icCells] = options.bathyLib.nextWaveHeight();
+				Hini[icCells] = bathyLib.nextWaveHeight();
 		}
 	}
 }
@@ -525,8 +482,7 @@ void Swangeo::updateDtot() noexcept
 void Swangeo::updateHinner() noexcept
 {
 	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
+		const auto innerCells(mesh.getGroup("InnerCells"));
 		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
 		{
 			const Id icId(innerCells[icInnerCells]);
@@ -544,49 +500,45 @@ void Swangeo::updateHinner() noexcept
 void Swangeo::updateHouter() noexcept
 {
 	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
+		const auto topCells(mesh.getGroup("TopCells"));
 		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
 		{
 			const Id tcId(topCells[tcTopCells]);
 			const size_t tcCells(tcId);
-			const Id bcId(mesh->getBottomCell(tcId));
+			const Id bcId(mesh.getBottomCell(tcId));
 			const size_t bcCells(bcId);
 			H_nplus1[tcCells] = Hcalc_nplus1[bcCells];
 		});
 	}
 	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
+		const auto bottomCells(mesh.getGroup("BottomCells"));
 		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
 		{
 			const Id bcId(bottomCells[bcBottomCells]);
 			const size_t bcCells(bcId);
-			const Id tcId(mesh->getTopCell(bcId));
+			const Id tcId(mesh.getTopCell(bcId));
 			const size_t tcCells(tcId);
 			H_nplus1[bcCells] = Hcalc_nplus1[tcCells];
 		});
 	}
 	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
+		const auto leftCells(mesh.getGroup("LeftCells"));
 		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
 		{
 			const Id lcId(leftCells[lcLeftCells]);
 			const size_t lcCells(lcId);
-			const Id rcId(mesh->getRightCell(lcId));
+			const Id rcId(mesh.getRightCell(lcId));
 			const size_t rcCells(rcId);
 			H_nplus1[lcCells] = Hcalc_nplus1[rcCells];
 		});
 	}
 	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
+		const auto rightCells(mesh.getGroup("RightCells"));
 		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
 		{
 			const Id rcId(rightCells[rcRightCells]);
 			const size_t rcCells(rcId);
-			const Id lcId(mesh->getLeftCell(rcId));
+			const Id lcId(mesh.getLeftCell(rcId));
 			const size_t lcCells(lcId);
 			H_nplus1[rcCells] = Hcalc_nplus1[lcCells];
 		});
@@ -617,56 +569,51 @@ void Swangeo::updateHplot() noexcept
 void Swangeo::initH() noexcept
 {
 	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
+		const auto topCells(mesh.getGroup("TopCells"));
 		parallel_exec(nbTopCells, [&](const size_t& tTopCells)
 		{
 			const Id tId(topCells[tTopCells]);
 			const size_t tCells(tId);
-			const Id btId(mesh->getBottomCell(tId));
+			const Id btId(mesh.getBottomCell(tId));
 			const size_t btCells(btId);
 			H_n0[tCells] = Hini[btCells];
 		});
 	}
 	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
+		const auto bottomCells(mesh.getGroup("BottomCells"));
 		parallel_exec(nbBottomCells, [&](const size_t& bBottomCells)
 		{
 			const Id bId(bottomCells[bBottomCells]);
 			const size_t bCells(bId);
-			const Id tbId(mesh->getTopCell(bId));
+			const Id tbId(mesh.getTopCell(bId));
 			const size_t tbCells(tbId);
 			H_n0[bCells] = Hini[tbCells];
 		});
 	}
 	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
+		const auto leftCells(mesh.getGroup("LeftCells"));
 		parallel_exec(nbLeftCells, [&](const size_t& lLeftCells)
 		{
 			const Id lId(leftCells[lLeftCells]);
 			const size_t lCells(lId);
-			const Id rlId(mesh->getRightCell(lId));
+			const Id rlId(mesh.getRightCell(lId));
 			const size_t rlCells(rlId);
 			H_n0[lCells] = Hini[rlCells];
 		});
 	}
 	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
+		const auto rightCells(mesh.getGroup("RightCells"));
 		parallel_exec(nbRightCells, [&](const size_t& rRightCells)
 		{
 			const Id rId(rightCells[rRightCells]);
 			const size_t rCells(rId);
-			const Id lrId(mesh->getLeftCell(rId));
+			const Id lrId(mesh.getLeftCell(rId));
 			const size_t lrCells(lrId);
 			H_n0[rCells] = Hini[lrCells];
 		});
 	}
 	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
+		const auto innerCells(mesh.getGroup("InnerCells"));
 		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
 		{
 			const Id icId(innerCells[icInnerCells]);
@@ -684,109 +631,108 @@ void Swangeo::initH() noexcept
 void Swangeo::updateUcalc() noexcept
 {
 	{
-		const auto innerCells(mesh->getInnerCells());
-		const size_t nbInnerCells(innerCells.size());
+		const auto innerCells(mesh.getGroup("InnerCells"));
 		parallel_exec(nbInnerCells, [&](const size_t& icInnerCells)
 		{
 			const Id icId(innerCells[icInnerCells]);
 			const size_t icCells(icId);
-			const Id rfcId(mesh->getRightFaceOfCell(icId));
+			const Id rfcId(mesh.getRightFaceOfCell(icId));
 			const size_t rfcFaces(rfcId);
-			const Id tfcId(mesh->getTopFaceOfCell(icId));
+			const Id tfcId(mesh.getTopFaceOfCell(icId));
 			const size_t tfcFaces(tfcId);
 			double TU1(0.0);
 			double TV1(0.0);
 			double V1(0.0);
 			{
-				const Id bfcId(mesh->getBottomFaceOfCell(icId));
+				const Id bfcId(mesh.getBottomFaceOfCell(icId));
 				const size_t bfcFaces(bfcId);
-				const Id icpId(mesh->getRightCell(icId));
-				const Id tfcpId(mesh->getTopFaceOfCell(icpId));
+				const Id icpId(mesh.getRightCell(icId));
+				const Id tfcpId(mesh.getTopFaceOfCell(icpId));
 				const size_t tfcpFaces(tfcpId);
-				const Id bfcpId(mesh->getBottomFaceOfCell(icpId));
+				const Id bfcpId(mesh.getBottomFaceOfCell(icpId));
 				const size_t bfcpFaces(bfcpId);
 				V1 = (U_n[tfcFaces] + U_n[bfcFaces] + U_n[tfcpFaces] + U_n[bfcpFaces]) / 4;
 			}
 			if (V1 <= 0) 
 			{
-				const Id ictId(mesh->getTopCell(icId));
-				const Id rfctId(mesh->getRightFaceOfCell(ictId));
+				const Id ictId(mesh.getTopCell(icId));
+				const Id rfctId(mesh.getRightFaceOfCell(ictId));
 				const size_t rfctFaces(rfctId);
 				TV1 = U_n[rfctFaces] - U_n[rfcFaces];
 			}
 			else
 			{
-				const Id icbId(mesh->getBottomCell(icId));
-				const Id rfcbId(mesh->getRightFaceOfCell(icbId));
+				const Id icbId(mesh.getBottomCell(icId));
+				const Id rfcbId(mesh.getRightFaceOfCell(icbId));
 				const size_t rfcbFaces(rfcbId);
 				TV1 = U_n[rfcFaces] - U_n[rfcbFaces];
 			}
 			if (U_n[rfcFaces] <= 0) 
 			{
-				const Id icpId(mesh->getRightCell(icId));
-				const Id rfcpId(mesh->getRightFaceOfCell(icpId));
+				const Id icpId(mesh.getRightCell(icId));
+				const Id rfcpId(mesh.getRightFaceOfCell(icpId));
 				const size_t rfcpFaces(rfcpId);
-				const Id lfcpId(mesh->getLeftFaceOfCell(icpId));
+				const Id lfcpId(mesh.getLeftFaceOfCell(icpId));
 				const size_t lfcpFaces(lfcpId);
 				TU1 = U_n[rfcpFaces] - U_n[lfcpFaces];
 			}
 			else
 			{
-				const Id lfcId(mesh->getLeftFaceOfCell(icId));
+				const Id lfcId(mesh.getLeftFaceOfCell(icId));
 				const size_t lfcFaces(lfcId);
 				TU1 = U_n[rfcFaces] - U_n[lfcFaces];
 			}
 			{
-				const Id icpId(mesh->getRightCell(icId));
+				const Id icpId(mesh.getRightCell(icId));
 				const size_t icpCells(icpId);
-				Ucalc_nplus1[rfcFaces] = U_n[rfcFaces] - (options.deltat / deltax[icCells]) * (U_n[rfcFaces] * TU1 - g * (H_nplus1[icpCells] - H_nplus1[icCells])) - (options.deltat / deltay[icCells]) * (V1 * TV1);
+				Ucalc_nplus1[rfcFaces] = U_n[rfcFaces] - (deltat / deltax[icCells]) * (U_n[rfcFaces] * TU1 - g * (H_nplus1[icpCells] - H_nplus1[icCells])) - (deltat / deltay[icCells]) * (V1 * TV1);
 			}
 			double TV2(0.0);
 			double TU2(0.0);
 			double U1(0.0);
 			{
-				const Id lfcId(mesh->getLeftFaceOfCell(icId));
+				const Id lfcId(mesh.getLeftFaceOfCell(icId));
 				const size_t lfcFaces(lfcId);
-				const Id ictId(mesh->getTopCell(icId));
-				const Id rfctId(mesh->getRightFaceOfCell(ictId));
+				const Id ictId(mesh.getTopCell(icId));
+				const Id rfctId(mesh.getRightFaceOfCell(ictId));
 				const size_t rfctFaces(rfctId);
-				const Id lfctId(mesh->getLeftFaceOfCell(ictId));
+				const Id lfctId(mesh.getLeftFaceOfCell(ictId));
 				const size_t lfctFaces(lfctId);
 				U1 = (U_n[rfcFaces] + U_n[lfcFaces] + U_n[rfctFaces] + U_n[lfctFaces]) / 4;
 			}
 			if (U1 <= 0) 
 			{
-				const Id icpId(mesh->getRightCell(icId));
-				const Id tfcpId(mesh->getTopFaceOfCell(icpId));
+				const Id icpId(mesh.getRightCell(icId));
+				const Id tfcpId(mesh.getTopFaceOfCell(icpId));
 				const size_t tfcpFaces(tfcpId);
 				TU2 = U_n[tfcpFaces] - U_n[tfcFaces];
 			}
 			else
 			{
-				const Id icmId(mesh->getLeftCell(icId));
-				const Id tfcmId(mesh->getTopFaceOfCell(icmId));
+				const Id icmId(mesh.getLeftCell(icId));
+				const Id tfcmId(mesh.getTopFaceOfCell(icmId));
 				const size_t tfcmFaces(tfcmId);
 				TU2 = U_n[tfcFaces] - U_n[tfcmFaces];
 			}
 			if (U_n[tfcFaces] <= 0) 
 			{
-				const Id icpId(mesh->getTopCell(icId));
-				const Id tfcpId(mesh->getTopFaceOfCell(icpId));
+				const Id icpId(mesh.getTopCell(icId));
+				const Id tfcpId(mesh.getTopFaceOfCell(icpId));
 				const size_t tfcpFaces(tfcpId);
-				const Id bfcpId(mesh->getBottomFaceOfCell(icpId));
+				const Id bfcpId(mesh.getBottomFaceOfCell(icpId));
 				const size_t bfcpFaces(bfcpId);
 				TV2 = U_n[tfcpFaces] - U_n[bfcpFaces];
 			}
 			else
 			{
-				const Id bfcId(mesh->getBottomFaceOfCell(icId));
+				const Id bfcId(mesh.getBottomFaceOfCell(icId));
 				const size_t bfcFaces(bfcId);
 				TV2 = U_n[tfcFaces] - U_n[bfcFaces];
 			}
 			{
-				const Id icpId(mesh->getTopCell(icId));
+				const Id icpId(mesh.getTopCell(icId));
 				const size_t icpCells(icpId);
-				Ucalc_nplus1[tfcFaces] = U_n[tfcFaces] - (options.deltat / deltay[icCells]) * (U_n[tfcFaces] * TV2 - g * (H_nplus1[icpCells] - H_nplus1[icCells])) - (options.deltat / deltax[icCells]) * (U1 * TU2);
+				Ucalc_nplus1[tfcFaces] = U_n[tfcFaces] - (deltat / deltay[icCells]) * (U_n[tfcFaces] * TV2 - g * (H_nplus1[icpCells] - H_nplus1[icCells])) - (deltat / deltax[icCells]) * (U1 * TU2);
 			}
 		});
 	}
@@ -839,109 +785,101 @@ void Swangeo::updateUinner() noexcept
 void Swangeo::updateUouter() noexcept
 {
 	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
+		const auto topCells(mesh.getGroup("TopCells"));
 		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
 		{
 			const Id tcId(topCells[tcTopCells]);
-			const Id rfId(mesh->getRightFaceOfCell(tcId));
+			const Id rfId(mesh.getRightFaceOfCell(tcId));
 			const size_t rfFaces(rfId);
-			const Id bcId(mesh->getBottomCell(tcId));
-			const Id brfId(mesh->getRightFaceOfCell(bcId));
+			const Id bcId(mesh.getBottomCell(tcId));
+			const Id brfId(mesh.getRightFaceOfCell(bcId));
 			const size_t brfFaces(brfId);
 			U_nplus1[rfFaces] = Ucalc_nplus1[brfFaces];
 		});
 	}
 	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
+		const auto bottomCells(mesh.getGroup("BottomCells"));
 		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
 		{
 			const Id bcId(bottomCells[bcBottomCells]);
-			const Id rfId(mesh->getRightFaceOfCell(bcId));
+			const Id rfId(mesh.getRightFaceOfCell(bcId));
 			const size_t rfFaces(rfId);
-			const Id bcfId(mesh->getTopCell(bcId));
-			const Id trfId(mesh->getRightFaceOfCell(bcfId));
+			const Id bcfId(mesh.getTopCell(bcId));
+			const Id trfId(mesh.getRightFaceOfCell(bcfId));
 			const size_t trfFaces(trfId);
 			U_nplus1[rfFaces] = Ucalc_nplus1[trfFaces];
 		});
 	}
 	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
+		const auto leftCells(mesh.getGroup("LeftCells"));
 		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
 		{
 			const Id lcId(leftCells[lcLeftCells]);
-			const Id lfId(mesh->getLeftFaceOfCell(lcId));
+			const Id lfId(mesh.getLeftFaceOfCell(lcId));
 			const size_t lfFaces(lfId);
-			const Id rfId(mesh->getRightFaceOfCell(lcId));
+			const Id rfId(mesh.getRightFaceOfCell(lcId));
 			const size_t rfFaces(rfId);
 			U_nplus1[lfFaces] = Ucalc_nplus1[rfFaces];
 		});
 	}
 	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
+		const auto rightCells(mesh.getGroup("RightCells"));
 		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
 		{
 			const Id rcId(rightCells[rcRightCells]);
-			const Id rfId(mesh->getRightFaceOfCell(rcId));
+			const Id rfId(mesh.getRightFaceOfCell(rcId));
 			const size_t rfFaces(rfId);
-			const Id lfId(mesh->getLeftFaceOfCell(rcId));
+			const Id lfId(mesh.getLeftFaceOfCell(rcId));
 			const size_t lfFaces(lfId);
 			U_nplus1[rfFaces] = Ucalc_nplus1[lfFaces];
 		});
 	}
 	{
-		const auto topCells(mesh->getTopCells());
-		const size_t nbTopCells(topCells.size());
+		const auto topCells(mesh.getGroup("TopCells"));
 		parallel_exec(nbTopCells, [&](const size_t& tcTopCells)
 		{
 			const Id tcId(topCells[tcTopCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(tcId));
+			const Id bfId(mesh.getBottomFaceOfCell(tcId));
 			const size_t bfFaces(bfId);
-			const Id tfId(mesh->getTopFaceOfCell(tcId));
+			const Id tfId(mesh.getTopFaceOfCell(tcId));
 			const size_t tfFaces(tfId);
 			U_nplus1[tfFaces] = U_n[bfFaces];
 		});
 	}
 	{
-		const auto bottomCells(mesh->getBottomCells());
-		const size_t nbBottomCells(bottomCells.size());
+		const auto bottomCells(mesh.getGroup("BottomCells"));
 		parallel_exec(nbBottomCells, [&](const size_t& bcBottomCells)
 		{
 			const Id bcId(bottomCells[bcBottomCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(bcId));
+			const Id bfId(mesh.getBottomFaceOfCell(bcId));
 			const size_t bfFaces(bfId);
-			const Id tfId(mesh->getTopFaceOfCell(bcId));
+			const Id tfId(mesh.getTopFaceOfCell(bcId));
 			const size_t tfFaces(tfId);
 			U_nplus1[bfFaces] = U_n[tfFaces];
 		});
 	}
 	{
-		const auto leftCells(mesh->getLeftCells());
-		const size_t nbLeftCells(leftCells.size());
+		const auto leftCells(mesh.getGroup("LeftCells"));
 		parallel_exec(nbLeftCells, [&](const size_t& lcLeftCells)
 		{
 			const Id lcId(leftCells[lcLeftCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(lcId));
+			const Id bfId(mesh.getBottomFaceOfCell(lcId));
 			const size_t bfFaces(bfId);
-			const Id rcId(mesh->getRightCell(lcId));
-			const Id bfrcId(mesh->getBottomFaceOfCell(rcId));
+			const Id rcId(mesh.getRightCell(lcId));
+			const Id bfrcId(mesh.getBottomFaceOfCell(rcId));
 			const size_t bfrcFaces(bfrcId);
 			U_nplus1[bfFaces] = U_n[bfrcFaces];
 		});
 	}
 	{
-		const auto rightCells(mesh->getRightCells());
-		const size_t nbRightCells(rightCells.size());
+		const auto rightCells(mesh.getGroup("RightCells"));
 		parallel_exec(nbRightCells, [&](const size_t& rcRightCells)
 		{
 			const Id rcId(rightCells[rcRightCells]);
-			const Id bfId(mesh->getBottomFaceOfCell(rcId));
+			const Id bfId(mesh.getBottomFaceOfCell(rcId));
 			const size_t bfFaces(bfId);
-			const Id lcId(mesh->getLeftCell(rcId));
-			const Id bflcId(mesh->getBottomFaceOfCell(lcId));
+			const Id lcId(mesh.getLeftCell(rcId));
+			const Id bflcId(mesh.getBottomFaceOfCell(lcId));
 			const size_t bflcFaces(bflcId);
 			U_nplus1[bfFaces] = U_n[bflcFaces];
 		});
@@ -984,7 +922,7 @@ void Swangeo::setUpTimeLoopN() noexcept
 
 /**
  * Job executeTimeLoopN called @7.0 in simulate method.
- * In variables: Dij_n, Dt_n, H_n, Hcalc_n, Hplot_n, U_n, Ucalc_n, t_n
+ * In variables: Dij_n, Dt_n, H_n, Hcalc_n, Hplot_n, U_n, Ucalc_n, lastDump, maxIter, n, outputPeriod, stopTime, t_n, t_nplus1
  * Out variables: Dij_nplus1, Dt_nplus1, H_nplus1, Hcalc_nplus1, Hplot_nplus1, U_nplus1, Ucalc_nplus1, t_nplus1
  */
 void Swangeo::executeTimeLoopN() noexcept
@@ -996,7 +934,7 @@ void Swangeo::executeTimeLoopN() noexcept
 		globalTimer.start();
 		cpuTimer.start();
 		n++;
-		if (!writer.isDisabled() && n >= lastDump + options.outputPeriod)
+		if (writer != NULL && !writer->isDisabled() && n >= lastDump + outputPeriod)
 			dumpVariables(n);
 		if (n!=1)
 			std::cout << "[" << __CYAN__ << __BOLD__ << setw(3) << n << __RESET__ "] t = " << __BOLD__
@@ -1015,88 +953,85 @@ void Swangeo::executeTimeLoopN() noexcept
 		
 	
 		// Evaluate loop condition with variables at time n
-		continueLoop = (t_nplus1 < options.stopTime && n < options.maxIter);
+		continueLoop = (t_nplus1 < stopTime && n < maxIter);
 	
-		if (continueLoop)
+		t_n = t_nplus1;
+		parallel_exec(nbFaces, [&](const size_t& i1Faces)
 		{
-			t_n = t_nplus1;
-			parallel_exec(nbFaces, [&](const size_t& i1Faces)
-			{
-				U_n[i1Faces] = U_nplus1[i1Faces];
-			});
-			parallel_exec(nbFaces, [&](const size_t& i1Faces)
-			{
-				Ucalc_n[i1Faces] = Ucalc_nplus1[i1Faces];
-			});
-			parallel_exec(nbCells, [&](const size_t& i1Cells)
-			{
-				H_n[i1Cells] = H_nplus1[i1Cells];
-			});
-			parallel_exec(nbCells, [&](const size_t& i1Cells)
-			{
-				Hcalc_n[i1Cells] = Hcalc_nplus1[i1Cells];
-			});
-			parallel_exec(nbCells, [&](const size_t& i1Cells)
-			{
-				Hplot_n[i1Cells] = Hplot_nplus1[i1Cells];
-			});
-			parallel_exec(nbCells, [&](const size_t& i1Cells)
-			{
-				Dij_n[i1Cells] = Dij_nplus1[i1Cells];
-			});
-			parallel_exec(nbCells, [&](const size_t& i1Cells)
-			{
-				Dt_n[i1Cells] = Dt_nplus1[i1Cells];
-			});
-		}
+			U_n[i1Faces] = U_nplus1[i1Faces];
+		});
+		parallel_exec(nbFaces, [&](const size_t& i1Faces)
+		{
+			Ucalc_n[i1Faces] = Ucalc_nplus1[i1Faces];
+		});
+		parallel_exec(nbCells, [&](const size_t& i1Cells)
+		{
+			H_n[i1Cells] = H_nplus1[i1Cells];
+		});
+		parallel_exec(nbCells, [&](const size_t& i1Cells)
+		{
+			Hcalc_n[i1Cells] = Hcalc_nplus1[i1Cells];
+		});
+		parallel_exec(nbCells, [&](const size_t& i1Cells)
+		{
+			Hplot_n[i1Cells] = Hplot_nplus1[i1Cells];
+		});
+		parallel_exec(nbCells, [&](const size_t& i1Cells)
+		{
+			Dij_n[i1Cells] = Dij_nplus1[i1Cells];
+		});
+		parallel_exec(nbCells, [&](const size_t& i1Cells)
+		{
+			Dt_n[i1Cells] = Dt_nplus1[i1Cells];
+		});
 	
 		cpuTimer.stop();
 		globalTimer.stop();
 	
 		// Timers display
-		if (!writer.isDisabled())
+		if (writer != NULL && !writer->isDisabled())
 			std::cout << " {CPU: " << __BLUE__ << cpuTimer.print(true) << __RESET__ ", IO: " << __BLUE__ << ioTimer.print(true) << __RESET__ "} ";
 		else
 			std::cout << " {CPU: " << __BLUE__ << cpuTimer.print(true) << __RESET__ ", IO: " << __RED__ << "none" << __RESET__ << "} ";
 		
 		// Progress
-		std::cout << progress_bar(n, options.maxIter, t_n, options.stopTime, 25);
+		std::cout << progress_bar(n, maxIter, t_n, stopTime, 25);
 		std::cout << __BOLD__ << __CYAN__ << Timer::print(
-			eta(n, options.maxIter, t_n, options.stopTime, options.deltat, globalTimer), true)
+			eta(n, maxIter, t_n, stopTime, deltat, globalTimer), true)
 			<< __RESET__ << "\r";
 		std::cout.flush();
 	
 		cpuTimer.reset();
 		ioTimer.reset();
 	} while (continueLoop);
-	// force a last output at the end
-	dumpVariables(n, false);
+	if (writer != NULL && !writer->isDisabled())
+		dumpVariables(n+1, false);
 }
 
 void Swangeo::dumpVariables(int iteration, bool useTimer)
 {
-	if (!writer.isDisabled())
+	if (writer != NULL && !writer->isDisabled())
 	{
 		if (useTimer)
 		{
 			cpuTimer.stop();
 			ioTimer.start();
 		}
-		auto quads = mesh->getGeometry()->getQuads();
-		writer.startVtpFile(iteration, t_n, nbNodes, X.data(), nbCells, quads.data());
-		writer.openNodeData();
-		writer.closeNodeData();
-		writer.openCellData();
-		writer.openCellArray("hauteur", 0);
+		auto quads = mesh.getGeometry()->getQuads();
+		writer->startVtpFile(iteration, t_n, nbNodes, X.data(), nbCells, quads.data());
+		writer->openNodeData();
+		writer->closeNodeData();
+		writer->openCellData();
+		writer->openCellArray("hauteur", 0);
 		for (size_t i=0 ; i<nbCells ; ++i)
-			writer.write(H_n[i]);
-		writer.closeCellArray();
-		writer.openCellArray("plot", 0);
+			writer->write(H_n[i]);
+		writer->closeCellArray();
+		writer->openCellArray("plot", 0);
 		for (size_t i=0 ; i<nbCells ; ++i)
-			writer.write(Hplot_n[i]);
-		writer.closeCellArray();
-		writer.closeCellData();
-		writer.closeVtpFile();
+			writer->write(Hplot_n[i]);
+		writer->closeCellArray();
+		writer->closeCellData();
+		writer->closeVtpFile();
 		lastDump = n;
 		if (useTimer)
 		{
@@ -1112,8 +1047,8 @@ void Swangeo::simulate()
 	
 	std::cout << "[" << __GREEN__ << "TOPOLOGY" << __RESET__ << "]  HWLOC unavailable cannot get topological informations" << std::endl;
 	
-	if (!writer.isDisabled())
-		std::cout << "[" << __GREEN__ << "OUTPUT" << __RESET__ << "]    VTK files stored in " << __BOLD__ << writer.outputDirectory() << __RESET__ << " directory" << std::endl;
+	if (writer != NULL && !writer->isDisabled())
+		std::cout << "[" << __GREEN__ << "OUTPUT" << __RESET__ << "]    VTK files stored in " << __BOLD__ << writer->outputDirectory() << __RESET__ << " directory" << std::endl;
 	else
 		std::cout << "[" << __GREEN__ << "OUTPUT" << __RESET__ << "]    " << __BOLD__ << "Disabled" << __RESET__ << std::endl;
 
@@ -1132,6 +1067,7 @@ void Swangeo::simulate()
 	setUpTimeLoopN(); // @6.0
 	executeTimeLoopN(); // @7.0
 	
+	std::cout << "\nFinal time = " << t_n << endl;
 	std::cout << __YELLOW__ << "\n\tDone ! Took " << __MAGENTA__ << __BOLD__ << globalTimer.print() << __RESET__ << std::endl;
 }
 
@@ -1159,32 +1095,27 @@ int main(int argc, char* argv[])
 	assert(d.IsObject());
 	
 	// Mesh instanciation
-	CartesianMesh2DFactory meshFactory;
-	if (d.HasMember("mesh"))
-	{
-		rapidjson::StringBuffer strbuf;
-		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
-		d["mesh"].Accept(writer);
-		meshFactory.jsonInit(strbuf.GetString());
-	}
-	CartesianMesh2D* mesh = meshFactory.create();
+	CartesianMesh2D mesh;
+	assert(d.HasMember("mesh"));
+	rapidjson::StringBuffer strbuf;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
+	d["mesh"].Accept(writer);
+	mesh.jsonInit(strbuf.GetString());
 	
 	// Module instanciation(s)
-	Swangeo::Options swangeoOptions;
+	Swangeo* swangeo = new Swangeo(mesh);
 	if (d.HasMember("swangeo"))
 	{
 		rapidjson::StringBuffer strbuf;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);
 		d["swangeo"].Accept(writer);
-		swangeoOptions.jsonInit(strbuf.GetString());
+		swangeo->jsonInit(strbuf.GetString());
 	}
-	Swangeo* swangeo = new Swangeo(mesh, swangeoOptions);
 	
 	// Start simulation
 	// Simulator must be a pointer when a finalize is needed at the end (Kokkos, omp...)
 	swangeo->simulate();
 	
 	delete swangeo;
-	delete mesh;
 	return ret;
 }

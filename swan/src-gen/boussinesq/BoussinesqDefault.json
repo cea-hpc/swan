@@ -1,28 +1,29 @@
 {
 	"_comment": "GENERATED FILE - DO NOT OVERWRITE",
-	"swan":
+	"boussinesq":
 	{
 		"_outputPath_comment":"empty outputPath to disable output",
 		"outputPath":"output",
 		"outputPeriod":3,
 		"X_EDGE_LENGTH":3.0,
 		"Y_EDGE_LENGTH":3.0,
-		"loadBathy":true,
-		"Dini":3.0,
-		"Dup":3.0,
 		"deltat":3.0,
 		"maxIter":3,
+		"maxIterationsK":3,
 		"stopTime":3.0,
 		"loadWave":true,
 		"waveMode":3,
-		"LX":3.0,
 		"X0":3.0,
 		"Y0":3.0,
 		"Amp":3.0,
 		"Sigma":3.0,
-		"epsh":3.0,
-		"epsu":3.0,
-		"bathyLib":{}
+		"loadBathy":true,
+		"LX":3.0,
+		"Dini":3.0,
+		"Dup":3.0,
+		"epsilon":3.0,
+		"bathyLib":{},
+		"linearAlgebra":{}
 	},
 	"mesh":
 	{

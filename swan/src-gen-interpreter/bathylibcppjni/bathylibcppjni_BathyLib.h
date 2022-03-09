@@ -33,18 +33,18 @@ JNIEXPORT void JNICALL Java_bathylibcppjni_BathyLib_jsonInit
 
 /*
  * Class:     bathylibcppjni_BathyLib
- * Method:    nextDepth
- * Signature: ()D
- */
-JNIEXPORT jdouble JNICALL Java_bathylibcppjni_BathyLib_nextDepth
-  (JNIEnv *, jobject);
-
-/*
- * Class:     bathylibcppjni_BathyLib
  * Method:    nextWaveHeight
  * Signature: ()D
  */
 JNIEXPORT jdouble JNICALL Java_bathylibcppjni_BathyLib_nextWaveHeight
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     bathylibcppjni_BathyLib
+ * Method:    nextDepth
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_bathylibcppjni_BathyLib_nextDepth
   (JNIEnv *, jobject);
 
 #ifdef __cplusplus

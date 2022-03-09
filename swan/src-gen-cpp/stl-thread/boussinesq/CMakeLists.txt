@@ -5,14 +5,15 @@ cmake_policy(SET CMP0074 NEW)
 set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
 # SET VARIABLES
-set(CMAKE_CXX_COMPILER /usr/bin/g++)
+set(N_CXX_COMPILER /usr/bin/g++)
 set(N_WS_PATH $ENV{HOME}/workspaces/swan)
 set(BATHYLIBCPP_PATH ${N_WS_PATH}/swan/src-gen-cpp/stl-thread/bathylibcpp)
+set(LINEARALGEBRASTL_PATH ${N_WS_PATH}/.nablab/linearalgebra/linearalgebrastl)
 set(CARTESIANMESH2DSTL_PATH ${N_WS_PATH}/.nablab/mesh/cartesianmesh2dstl)
 
 
 # PROJECT
-project(SwanProject CXX)
+project(BoussinesqProject CXX)
 
 # CHECK CXX VERSION: must be done after the project() (CMAKE_CXX_COMPILER_ID not defined before)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -32,13 +33,16 @@ endif()
 if(NOT TARGET bathylibcpp)
 	add_subdirectory(${BATHYLIBCPP_PATH} ${CMAKE_BINARY_DIR}/bathylibcpp)
 endif()
+if(NOT TARGET linearalgebrastl)
+	add_subdirectory(${LINEARALGEBRASTL_PATH} ${CMAKE_BINARY_DIR}/linearalgebrastl)
+endif()
 if(NOT TARGET cartesianmesh2dstl)
 	add_subdirectory(${CARTESIANMESH2DSTL_PATH} ${CMAKE_BINARY_DIR}/cartesianmesh2dstl)
 endif()
 
-# EXECUTABLE swan
-add_executable(swan Swan.cc)
-target_link_libraries(swan PUBLIC nablalib pthread bathylibcpp cartesianmesh2dstl)
+# EXECUTABLE boussinesq
+add_executable(boussinesq Boussinesq.cc)
+target_link_libraries(boussinesq PUBLIC nablalib pthread bathylibcpp linearalgebrastl cartesianmesh2dstl)
 
 # OPTIONAL USER OPTIONS IN Project.cmake
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Project.cmake)

@@ -5,14 +5,12 @@ cmake_policy(SET CMP0074 NEW)
 set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
 # SET VARIABLES
-set(CMAKE_CXX_COMPILER /usr/bin/g++)
 set(N_WS_PATH $ENV{HOME}/workspaces/swan)
-set(BATHYLIBCPP_PATH ${N_WS_PATH}/swan/src-gen-cpp/stl-thread/bathylibcpp)
-set(CARTESIANMESH2DSTL_PATH ${N_WS_PATH}/.nablab/mesh/cartesianmesh2dstl)
-
+set(JAVA_HOME $ENV{HOME}/NabLabTool/graalvm-ce-java11-21.1.0)
+set(BATHYLIBCPPJNI_PATH ${N_WS_PATH}/swan/src-gen-interpreter/bathylibcppjni)
 
 # PROJECT
-project(SwanProject CXX)
+project(BoussinesqProject CXX)
 
 # CHECK CXX VERSION: must be done after the project() (CMAKE_CXX_COMPILER_ID not defined before)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -26,19 +24,9 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 # SUB_DIRECTORIES
-if(NOT TARGET nablalib)
-	add_subdirectory(${N_WS_PATH}/.nablab/nablalib ${CMAKE_BINARY_DIR}/nablalib)
+if(NOT TARGET bathylibcppjni)
+	add_subdirectory(${BATHYLIBCPPJNI_PATH} ${CMAKE_BINARY_DIR}/bathylibcppjni)
 endif()
-if(NOT TARGET bathylibcpp)
-	add_subdirectory(${BATHYLIBCPP_PATH} ${CMAKE_BINARY_DIR}/bathylibcpp)
-endif()
-if(NOT TARGET cartesianmesh2dstl)
-	add_subdirectory(${CARTESIANMESH2DSTL_PATH} ${CMAKE_BINARY_DIR}/cartesianmesh2dstl)
-endif()
-
-# EXECUTABLE swan
-add_executable(swan Swan.cc)
-target_link_libraries(swan PUBLIC nablalib pthread bathylibcpp cartesianmesh2dstl)
 
 # OPTIONAL USER OPTIONS IN Project.cmake
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/Project.cmake)

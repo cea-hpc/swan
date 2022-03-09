@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="ASCII"?>
+<instrumentationInterface:InstrumentationInterface xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:instrumentationInterface="http://www.gemoc.org/instrument/InstrumentationInterface"
+    name="Boussinesq">
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="ComputeTn"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="IniB"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="IniCenter"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="IniMcurr"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="IniNcurr"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitM"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitMm"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitN"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitNm"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitTime"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="SetUpTimeLoopK"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateA"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateB"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateC"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateMm"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateMouter"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateNm"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateNouter"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="ExecuteTimeLoopK"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitDijini"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitHini"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateMcurr"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitDij"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitH"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="TearDownTimeLoopK"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateD"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="InitDt"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateM"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateN"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateNcurr"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="ComputeResidual"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="IniD"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateMinner"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateNinner"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="SetUpTimeLoopN"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateH"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="ExecuteTimeLoopN"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateHinner"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateHouter"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="UpdateDt"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="check"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="sumR1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="maxR0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="max"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="sin"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="exp"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="abs"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="nextWaveHeight"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="nextDepth"/>
+  <instrumentableElements xsi:type="instrumentationInterface:CallableElement" name="solveLinearSystem"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="t_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="B_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="reduction0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="center"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Mcurr_nplus1_k"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Ncurr_nplus1_k"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="M_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Mm_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="N_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Nm_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="t_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="A"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="B_nplus1_k"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="C"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Mm_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="M_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Nm_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="N_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="D_nplus1_k"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dijini"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Hini"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Mcurr_nplus1_kplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dij"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="H_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="B_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="D_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Mcurr_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Ncurr_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dt_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Mcalc_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Ncalc_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Ncurr_nplus1_kplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="residual"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="D_n0"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="t_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="H_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="B_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="D_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="M_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Mm_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="N_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Nm_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dt_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Hcalc_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Hcalc_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Mcalc_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Mcurr_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Ncalc_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Ncurr_n"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="H_nplus1"/>
+  <instrumentableElements xsi:type="instrumentationInterface:WriteableElement" name="Dt_nplus1"/>
+  <readableElements name="a"/>
+  <readableElements name="x"/>
+  <readableElements name="a"/>
+  <readableElements name="b"/>
+  <readableElements name="a"/>
+  <readableElements name="b"/>
+  <readableElements name="outputPeriod"/>
+  <readableElements name="lastDump"/>
+  <readableElements name="n"/>
+  <readableElements name="k"/>
+  <readableElements name="X_EDGE_LENGTH"/>
+  <readableElements name="Y_EDGE_LENGTH"/>
+  <readableElements name="deltat"/>
+  <readableElements name="maxIter"/>
+  <readableElements name="maxIterationsK"/>
+  <readableElements name="stopTime"/>
+  <readableElements name="X"/>
+  <readableElements name="loadWave"/>
+  <readableElements name="waveMode"/>
+  <readableElements name="X0"/>
+  <readableElements name="Y0"/>
+  <readableElements name="Amp"/>
+  <readableElements name="Sigma"/>
+  <readableElements name="loadBathy"/>
+  <readableElements name="LX"/>
+  <readableElements name="Dini"/>
+  <readableElements name="Dup"/>
+  <readableElements name="epsilon"/>
+  <readableElements name="deltax"/>
+  <readableElements name="deltay"/>
+  <readableElements name="g"/>
+  <readableElements name="B_nplus1_kplus1"/>
+  <readableElements name="D_nplus1_kplus1"/>
+  <readableElements name="reduction1"/>
+  <readableElements name="x0"/>
+  <readableElements name="x1"/>
+  <readableElements name="x0"/>
+  <readableElements name="x0"/>
+  <readableElements name="x0"/>
+  <readableElements name="x"/>
+  <readableElements name="x0"/>
+  <readableElements name="x1"/>
+</instrumentationInterface:InstrumentationInterface>

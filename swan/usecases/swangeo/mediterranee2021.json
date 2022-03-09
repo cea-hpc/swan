@@ -5,7 +5,7 @@
 		"outputPath":"output",
 		"outputPeriod":100,
 		"deltat":1.0,
-		"maxIter":1000000,
+		"maxIter":2,
 		"stopTime":18000.0,
 		"dx":0.004,
 		"dy":0.004,

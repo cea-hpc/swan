@@ -23,10 +23,17 @@ Interpreter
 	JAVA_HOME = "$ENV{HOME}/NabLabTool/graalvm-ce-java11-21.1.0";
 }
 
+Kokkos
+{
+	outputPath = "/swan/src-gen-cpp/kokkos";
+	extension BathyLib providedBy BathyLibCpp;
+	CMAKE_CXX_COMPILER = "/usr/bin/g++";
+	Kokkos_ROOT = "$ENV{HOME}/kokkos/install";
+}
+
 StlThread
 {
 	outputPath = "/swan/src-gen-cpp/stl-thread";
 	extension BathyLib providedBy BathyLibCpp;
-	N_CXX_COMPILER = "/usr/bin/g++";
+	CMAKE_CXX_COMPILER = "/usr/bin/g++";
 }
-

@@ -8,7 +8,7 @@ package bathylibcppjni;
 
 public class BathyLib
 {
-	private final static String N_WS_PATH = "/cea/dsku/u-pong/temp1/b4/lemairen/Workspace/swan";
+	private final static String N_WS_PATH = System.getProperty("user.home") + "/workspaces/swan";
 
 	static
 	{

@@ -9,16 +9,15 @@
 #include <limits>
 #include <utility>
 #include <cmath>
-#include "nablalib/mesh/CartesianMesh2DFactory.h"
-#include "nablalib/mesh/CartesianMesh2D.h"
-#include "nablalib/mesh/PvdFileWriter2D.h"
+#include <rapidjson/document.h>
 #include "nablalib/utils/Utils.h"
 #include "nablalib/utils/Timer.h"
 #include "nablalib/types/Types.h"
 #include "nablalib/utils/stl/Parallel.h"
+#include "CartesianMesh2D.h"
+#include "PvdFileWriter2D.h"
 #include "BathyLib.h"
 
-using namespace nablalib::mesh;
 using namespace nablalib::utils;
 using namespace nablalib::types;
 using namespace nablalib::utils::stl;
@@ -28,22 +27,10 @@ using namespace nablalib::utils::stl;
 class Swangeo
 {
 public:
-	struct Options
-	{
-		std::string outputPath;
-		int outputPeriod;
-		double deltat;
-		int maxIter;
-		double stopTime;
-		double dx;
-		double dy;
-		BathyLib bathyLib;
-
-		void jsonInit(const char* jsonContent);
-	};
-
-	Swangeo(CartesianMesh2D* aMesh, Options& aOptions);
+	Swangeo(CartesianMesh2D& aMesh);
 	~Swangeo();
+
+	void jsonInit(const char* jsonContent);
 
 	void simulate();
 	void computeTn() noexcept;
@@ -75,24 +62,32 @@ private:
 	void dumpVariables(int iteration, bool useTimer=true);
 
 	// Mesh and mesh variables
-	CartesianMesh2D* mesh;
-	size_t nbNodes, nbNodesOfCell, nbFaces, nbInnerFaces, nbCells, nbInnerCells, nbTopCells, nbBottomCells, nbLeftCells, nbRightCells, nbOuterCells;
+	CartesianMesh2D& mesh;
+	size_t nbCells;
+	size_t nbNodes;
+	size_t nbFaces;
+	size_t nbInnerCells;
+	size_t nbInnerFaces;
+	size_t nbTopCells;
+	size_t nbBottomCells;
+	size_t nbLeftCells;
+	size_t nbRightCells;
+	size_t nbOuterCells;
 
-	// User options
-	Options& options;
-	PvdFileWriter2D writer;
-
-	// Timers
-	Timer globalTimer;
-	Timer cpuTimer;
-	Timer ioTimer;
-
-public:
-	// Global variables
+	// Options and global variables
+	PvdFileWriter2D* writer;
+	std::string outputPath;
+	BathyLib bathyLib;
+	int outputPeriod;
 	int lastDump;
 	int n;
-	const double deltax_lon;
-	const double deltay_lat;
+	double deltat;
+	int maxIter;
+	double stopTime;
+	double dx;
+	double dy;
+	double deltax_lon;
+	double deltay_lat;
 	static constexpr double DEG2RAD_DP = 0.01745;
 	static constexpr double DEG2RAD = DEG2RAD_DP;
 	static constexpr double DEG2M_DP = 111194.9266;
@@ -128,6 +123,11 @@ public:
 	std::vector<double> Dt_n;
 	std::vector<double> Dt_nplus1;
 	std::vector<double> Dt_n0;
+
+	// Timers
+	Timer globalTimer;
+	Timer cpuTimer;
+	Timer ioTimer;
 };
 
 #endif

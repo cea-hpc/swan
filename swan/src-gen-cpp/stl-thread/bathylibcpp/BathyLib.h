@@ -2,7 +2,7 @@
 #define __BATHYLIB_H_
 
 #include "IBathyLib.h"
-#include <string.h>
+#include <string>
 
 class BathyLib : public IBathyLib
 {
@@ -18,7 +18,7 @@ public:
 	double nextLon() override;
 
 private:
-	void replaceHomeVar(string& s)
+	void replaceHomeVar(std::string& s)
 	{
 		std::string homeVar("$ENV{HOME}");
 		std::string homeValue(getenv("HOME"));
