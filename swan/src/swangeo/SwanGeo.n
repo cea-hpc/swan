@@ -1,4 +1,13 @@
-module SwanGEO;
+/*******************************************************************************
+ * Copyright (c) 2022 CEA
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ * Contributors: see AUTHORS file
+ *******************************************************************************/
+module SwanGeo;
 
 with Math.*;
 with BathyLib.*;
@@ -56,15 +65,16 @@ InitXc: ∀ic∈cells("InnerCells"),
 // init δx and δy on each cell
 Initδxδy:
 {
+	// only OuterCells if the group exists
+	∀oc∈cells(), 
+	{
+		δx{oc} = 3000.0;
+		δy{oc} = 3000.0;
+	}
 	∀ic∈cells("InnerCells"),
 	{
 		δx{ic} = δx_lon * DEG2M * cos(Xc{ic}[1] * DEG2RAD);
 		δy{ic} = δy_lat * DEG2M_DP;
-	}
-	∀oc∈cells("OuterCells"), 
-	{
-		δx{oc} = 3000.0;
-		δy{oc} = 3000.0;
 	}
 }
 // depth initialization

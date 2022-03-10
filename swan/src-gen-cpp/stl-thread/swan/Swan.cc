@@ -385,7 +385,7 @@ void Swan::initHini() noexcept
 				if (center[icCells][0] < X0) 
 					Hini[icCells] = Amp;
 				else
-					Hini[icCells] = 0.0;
+					Hini[icCells] = 2.0;
 			}
 			else
 				if (waveMode == 2) 
@@ -1308,7 +1308,7 @@ int main(int argc, char* argv[])
 	
 	// Module instanciation(s)
 	Swan* swan = new Swan(mesh);
-	if (d.HasMember("swan"))
+	assert(d.HasMember("swan"));
 	{
 		rapidjson::StringBuffer strbuf;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(strbuf);

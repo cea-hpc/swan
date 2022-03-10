@@ -6,7 +6,7 @@ set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
 # SET VARIABLES
 set(CMAKE_CXX_COMPILER /usr/bin/g++)
-set(N_WS_PATH $ENV{HOME}/workspaces/swan)
+set(N_WS_PATH $ENV{HOME}/workspaces/runtime-EclipseApplication/swan)
 set(BATHYLIBCPP_PATH ${N_WS_PATH}/swan/src-gen-cpp/stl-thread/bathylibcpp)
 set(CARTESIANMESH2DSTL_PATH ${N_WS_PATH}/.nablab/mesh/cartesianmesh2dstl)
 

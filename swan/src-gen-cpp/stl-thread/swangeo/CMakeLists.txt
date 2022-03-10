@@ -6,13 +6,13 @@ set(CMAKE_VERBOSE_MAKEFILE FALSE)
 
 # SET VARIABLES
 set(N_CXX_COMPILER /usr/bin/g++)
-set(N_WS_PATH $ENV{HOME}/workspaces/swan)
+set(N_WS_PATH $ENV{HOME}/workspaces/runtime-EclipseApplication/swan)
 set(BATHYLIBCPP_PATH ${N_WS_PATH}/swan/src-gen-cpp/stl-thread/bathylibcpp)
 set(CARTESIANMESH2DSTL_PATH ${N_WS_PATH}/.nablab/mesh/cartesianmesh2dstl)
 
 
 # PROJECT
-project(SwanGEOProject CXX)
+project(SwanGeoProject CXX)
 
 # CHECK CXX VERSION: must be done after the project() (CMAKE_CXX_COMPILER_ID not defined before)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -37,7 +37,7 @@ if(NOT TARGET cartesianmesh2dstl)
 endif()
 
 # EXECUTABLE swangeo
-add_executable(swangeo Swangeo.cc)
+add_executable(swangeo SwanGeo.cc)
 target_link_libraries(swangeo PUBLIC nablalib pthread bathylibcpp cartesianmesh2dstl)
 
 # OPTIONAL USER OPTIONS IN Project.cmake

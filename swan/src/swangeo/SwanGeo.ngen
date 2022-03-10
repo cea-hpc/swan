@@ -7,9 +7,35 @@
  * SPDX-License-Identifier: EPL-2.0
  * Contributors: see AUTHORS file
  *******************************************************************************/
-// C++ Extension Provider
-Provider BathyLibCpp : BathyLib
+Application SwanGeo;
+
+MainModule SwanGeo swanGeo
 {
-	target = StlThread;
+	nodeCoord = X;
+	time = t;
+	timeStep = δt;
+	iterationMax = maxIter;
+	timeMax = stopTime;
+}
+
+
+VtkOutput
+{
+	periodReferenceVariable = swanGeo.n;
+	outputVariables = swanGeo.H as "hauteur", 
+		swanGeo.Hplot as "plot";
+}
+
+StlThread
+{
 	outputPath = "/swan/src-gen-cpp/stl-thread";
+	N_CXX_COMPILER ="/usr/bin/g++";
+}
+
+Arcane
+{
+	outputPath = "/swan/src-gen-arcane";
+	extension BathyLib providedBy BathyLibCpp;
+	CMAKE_CXX_COMPILER = "/usr/bin/g++";
+	Arcane_ROOT = "$ENV{HOME}/arcane/install";
 }
