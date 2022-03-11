@@ -284,6 +284,7 @@ void SwanGeoModule::initdeltaxdeltay()
  */
 void SwanGeoModule::updateHcalc()
 {
+	const Real tmp_deltat(options()->deltat());
 	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 	{
 		ENUMERATE_CELL(icInnerCells, view)
@@ -344,7 +345,7 @@ void SwanGeoModule::updateHcalc()
 				const auto tfFaces(tfId);
 				const auto bfId(m_mesh->getBottomFaceOfCell(icId));
 				const auto bfFaces(bfId);
-				m_Hcalc_nplus1[icCells] = m_H_n[icCells] - options()->deltat() / (m_deltax[icCells]) * (m_U_n[rfFaces] * TD1 - m_U_n[lfFaces] * TD2) - options()->deltat() / m_deltay[icCells] * (m_U_n[tfFaces] * TV1 - m_U_n[bfFaces] * TV2);
+				m_Hcalc_nplus1[icCells] = m_H_n[icCells] - tmp_deltat / (m_deltax[icCells]) * (m_U_n[rfFaces] * TD1 - m_U_n[lfFaces] * TD2) - tmp_deltat / m_deltay[icCells] * (m_U_n[tfFaces] * TV1 - m_U_n[bfFaces] * TV2);
 			}
 			else
 				m_Hcalc_nplus1[icCells] = 0.0;
@@ -561,6 +562,7 @@ void SwanGeoModule::initH()
  */
 void SwanGeoModule::updateUcalc()
 {
+	const Real tmp_deltat(options()->deltat());
 	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 	{
 		ENUMERATE_CELL(icInnerCells, view)
@@ -616,7 +618,7 @@ void SwanGeoModule::updateUcalc()
 			{
 				const auto icpId(m_mesh->getRightCell(icId));
 				const auto icpCells(icpId);
-				m_Ucalc_nplus1[rfcFaces] = m_U_n[rfcFaces] - (options()->deltat() / m_deltax[icCells]) * (m_U_n[rfcFaces] * TU1 - m_g * (m_H_nplus1[icpCells] - m_H_nplus1[icCells])) - (options()->deltat() / m_deltay[icCells]) * (V1 * TV1);
+				m_Ucalc_nplus1[rfcFaces] = m_U_n[rfcFaces] - (tmp_deltat / m_deltax[icCells]) * (m_U_n[rfcFaces] * TU1 - m_g * (m_H_nplus1[icpCells] - m_H_nplus1[icCells])) - (tmp_deltat / m_deltay[icCells]) * (V1 * TV1);
 			}
 			Real TV2(0.0);
 			Real TU2(0.0);
@@ -663,7 +665,7 @@ void SwanGeoModule::updateUcalc()
 			{
 				const auto icpId(m_mesh->getTopCell(icId));
 				const auto icpCells(icpId);
-				m_Ucalc_nplus1[tfcFaces] = m_U_n[tfcFaces] - (options()->deltat() / m_deltay[icCells]) * (m_U_n[tfcFaces] * TV2 - m_g * (m_H_nplus1[icpCells] - m_H_nplus1[icCells])) - (options()->deltat() / m_deltax[icCells]) * (U1 * TU2);
+				m_Ucalc_nplus1[tfcFaces] = m_U_n[tfcFaces] - (tmp_deltat / m_deltay[icCells]) * (m_U_n[tfcFaces] * TV2 - m_g * (m_H_nplus1[icpCells] - m_H_nplus1[icCells])) - (tmp_deltat / m_deltax[icCells]) * (U1 * TU2);
 			}
 		}
 	});

@@ -163,6 +163,7 @@ void SwanModule::updateDij()
  */
 void SwanModule::updateHcalc()
 {
+	const Real tmp_deltat(options()->deltat());
 	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 	{
 		ENUMERATE_CELL(icInnerCells, view)
@@ -222,7 +223,7 @@ void SwanModule::updateHcalc()
 				const auto tfFaces(tfId);
 				const auto bfId(m_mesh->getBottomFaceOfCell(icId));
 				const auto bfFaces(bfId);
-				m_Hcalc_nplus1[icCells] = m_H_n[icCells] - options()->deltat() / (m_deltax) * (m_U_n[rfFaces] * TD1 - m_U_n[lfFaces] * TD2) - options()->deltat() / m_deltay * (m_U_n[tfFaces] * TV1 - m_U_n[bfFaces] * TV2);
+				m_Hcalc_nplus1[icCells] = m_H_n[icCells] - tmp_deltat / (m_deltax) * (m_U_n[rfFaces] * TD1 - m_U_n[lfFaces] * TD2) - tmp_deltat / m_deltay * (m_U_n[tfFaces] * TV1 - m_U_n[bfFaces] * TV2);
 			}
 		}
 	});
@@ -235,14 +236,18 @@ void SwanModule::updateHcalc()
  */
 void SwanModule::initDijini()
 {
+	const bool tmp_loadBathy(options()->loadBathy());
+	const Real tmp_Dini(options()->dini());
+	const Real tmp_Dup(options()->dup());
+	const Real tmp_LX(options()->lX());
 	ENUMERATE_CELL(icInnerCells, m_mesh->getGroup("InnerCells"))
 	{
 		const auto icId(icInnerCells.asItemLocalId());
 		const auto icCells(icId);
-		if (options()->loadBathy()) 
+		if (tmp_loadBathy) 
 			m_Dijini[icCells] = m_bathy_lib.nextDepth();
 		else
-			m_Dijini[icCells] = options()->dini() + m_center[icCells][0] * (options()->dup() - options()->dini()) / (options()->lX());
+			m_Dijini[icCells] = tmp_Dini + m_center[icCells][0] * (tmp_Dup - tmp_Dini) / (tmp_LX);
 	}
 }
 
@@ -253,31 +258,37 @@ void SwanModule::initDijini()
  */
 void SwanModule::initHini()
 {
+	const bool tmp_loadWave(options()->loadWave());
+	const Int32 tmp_waveMode(options()->waveMode());
+	const Real tmp_X0(options()->x0());
+	const Real tmp_Amp(options()->amp());
+	const Real tmp_Sigma(options()->sigma());
+	const Real tmp_Y0(options()->y0());
 	ENUMERATE_CELL(icInnerCells, m_mesh->getGroup("InnerCells"))
 	{
 		const auto icId(icInnerCells.asItemLocalId());
 		const auto icCells(icId);
-		if (options()->loadWave()) 
+		if (tmp_loadWave) 
 			m_Hini[icCells] = m_bathy_lib.nextWaveHeight();
 		else
-			if (options()->waveMode() == 1) 
+			if (tmp_waveMode == 1) 
 		{
-			if (m_center[icCells][0] < options()->x0()) 
-				m_Hini[icCells] = options()->amp();
+			if (m_center[icCells][0] < tmp_X0) 
+				m_Hini[icCells] = tmp_Amp;
 			else
 				m_Hini[icCells] = 2.0;
 		}
 		else
-			if (options()->waveMode() == 2) 
-			m_Hini[icCells] = options()->amp() * std::exp(-0.5 * (m_center[icCells][0] - options()->x0()) * (m_center[icCells][0] - options()->x0()) / (options()->sigma() * options()->sigma())) * std::exp(-0.5 * (m_center[icCells][1] - options()->y0()) * (m_center[icCells][1] - options()->y0()) / (options()->sigma() * options()->sigma()));
+			if (tmp_waveMode == 2) 
+			m_Hini[icCells] = tmp_Amp * std::exp(-0.5 * (m_center[icCells][0] - tmp_X0) * (m_center[icCells][0] - tmp_X0) / (tmp_Sigma * tmp_Sigma)) * std::exp(-0.5 * (m_center[icCells][1] - tmp_Y0) * (m_center[icCells][1] - tmp_Y0) / (tmp_Sigma * tmp_Sigma));
 		else
-			if (options()->waveMode() == 3) 
-			m_Hini[icCells] = options()->amp() * std::exp(-0.5 * (m_center[icCells][0] - options()->x0()) * (m_center[icCells][0] - options()->x0()) / (options()->sigma() * options()->sigma()));
+			if (tmp_waveMode == 3) 
+			m_Hini[icCells] = tmp_Amp * std::exp(-0.5 * (m_center[icCells][0] - tmp_X0) * (m_center[icCells][0] - tmp_X0) / (tmp_Sigma * tmp_Sigma));
 		else
-			if (options()->waveMode() == 4) 
+			if (tmp_waveMode == 4) 
 		{
-			if (m_center[icCells][0] < (options()->x0() / 2.0)) 
-				m_Hini[icCells] = options()->amp() * std::sin(m_center[icCells][0] * (2 * 3.1415 / options()->x0()));
+			if (m_center[icCells][0] < (tmp_X0 / 2.0)) 
+				m_Hini[icCells] = tmp_Amp * std::sin(m_center[icCells][0] * (2 * 3.1415 / tmp_X0));
 			else
 				m_Hini[icCells] = 0.0;
 		}
@@ -613,6 +624,7 @@ void SwanModule::initHcalc()
  */
 void SwanModule::updateUcalc()
 {
+	const Real tmp_deltat(options()->deltat());
 	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 	{
 		ENUMERATE_CELL(icInnerCells, view)
@@ -668,7 +680,7 @@ void SwanModule::updateUcalc()
 			{
 				const auto icpId(m_mesh->getRightCell(icId));
 				const auto icpCells(icpId);
-				m_Ucalc_nplus1[rfcFaces] = m_U_n[rfcFaces] - (options()->deltat() / m_deltax) * (m_U_n[rfcFaces] * TU1 - m_g * (m_H_nplus1[icpCells] - m_H_nplus1[icCells])) - (options()->deltat() / m_deltay) * (V1 * TV1);
+				m_Ucalc_nplus1[rfcFaces] = m_U_n[rfcFaces] - (tmp_deltat / m_deltax) * (m_U_n[rfcFaces] * TU1 - m_g * (m_H_nplus1[icpCells] - m_H_nplus1[icCells])) - (tmp_deltat / m_deltay) * (V1 * TV1);
 			}
 			Real TV2(0.0);
 			Real TU2(0.0);
@@ -715,7 +727,7 @@ void SwanModule::updateUcalc()
 			{
 				const auto icpId(m_mesh->getTopCell(icId));
 				const auto icpCells(icpId);
-				m_Ucalc_nplus1[tfcFaces] = m_U_n[tfcFaces] - (options()->deltat() / m_deltay) * (m_U_n[tfcFaces] * TV2 - m_g * (m_H_nplus1[icpCells] - m_H_nplus1[icCells])) - (options()->deltat() / m_deltax) * (U1 * TU2);
+				m_Ucalc_nplus1[tfcFaces] = m_U_n[tfcFaces] - (tmp_deltat / m_deltay) * (m_U_n[tfcFaces] * TV2 - m_g * (m_H_nplus1[icpCells] - m_H_nplus1[icCells])) - (tmp_deltat / m_deltax) * (U1 * TU2);
 			}
 		}
 	});
@@ -764,129 +776,133 @@ void SwanModule::iniHru()
  */
 void SwanModule::updateUrunup()
 {
-	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
+	const Real tmp_epsh(options()->epsh());
+	const Real tmp_epsu(options()->epsu());
 	{
-		ENUMERATE_CELL(icInnerCells, view)
+		arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 		{
-			const auto icId(icInnerCells.asItemLocalId());
-			const auto icCells(icId);
-			const auto rfcId(m_mesh->getRightFaceOfCell(icId));
-			const auto rfcFaces(rfcId);
-			if ((m_Dt_nplus1[icCells] < options()->epsh())) 
-				m_Urn_nplus1[rfcFaces] = 0.0;
-			else
-				m_Urn_nplus1[rfcFaces] = m_Ucalc_nplus1[rfcFaces];
-		}
-	});
-	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
-	{
-		ENUMERATE_CELL(icInnerCells, view)
+			ENUMERATE_CELL(icInnerCells, view)
+			{
+				const auto icId(icInnerCells.asItemLocalId());
+				const auto icCells(icId);
+				const auto rfcId(m_mesh->getRightFaceOfCell(icId));
+				const auto rfcFaces(rfcId);
+				if ((m_Dt_nplus1[icCells] < tmp_epsh)) 
+					m_Urn_nplus1[rfcFaces] = 0.0;
+				else
+					m_Urn_nplus1[rfcFaces] = m_Ucalc_nplus1[rfcFaces];
+			}
+		});
+		arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 		{
-			const auto icId(icInnerCells.asItemLocalId());
-			const auto icCells(icId);
-			const auto lfcId(m_mesh->getRightFaceOfCell(icId));
-			const auto lfcFaces(lfcId);
-			if ((m_Dt_nplus1[icCells] < options()->epsh())) 
-				m_Urn_nplus1[lfcFaces] = 0.0;
-			else
-				m_Urn_nplus1[lfcFaces] = m_Ucalc_nplus1[lfcFaces];
-		}
-	});
-	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
-	{
-		ENUMERATE_CELL(icInnerCells, view)
+			ENUMERATE_CELL(icInnerCells, view)
+			{
+				const auto icId(icInnerCells.asItemLocalId());
+				const auto icCells(icId);
+				const auto lfcId(m_mesh->getRightFaceOfCell(icId));
+				const auto lfcFaces(lfcId);
+				if ((m_Dt_nplus1[icCells] < tmp_epsh)) 
+					m_Urn_nplus1[lfcFaces] = 0.0;
+				else
+					m_Urn_nplus1[lfcFaces] = m_Ucalc_nplus1[lfcFaces];
+			}
+		});
+		arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 		{
-			const auto icId(icInnerCells.asItemLocalId());
-			const auto icCells(icId);
-			const auto tfcId(m_mesh->getTopFaceOfCell(icId));
-			const auto tfcFaces(tfcId);
-			if ((m_Dt_nplus1[icCells] < options()->epsh())) 
-				m_Urn_nplus1[tfcFaces] = 0.0;
-			else
-				m_Urn_nplus1[tfcFaces] = m_Ucalc_nplus1[tfcFaces];
-		}
-	});
-	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
-	{
-		ENUMERATE_CELL(icInnerCells, view)
+			ENUMERATE_CELL(icInnerCells, view)
+			{
+				const auto icId(icInnerCells.asItemLocalId());
+				const auto icCells(icId);
+				const auto tfcId(m_mesh->getTopFaceOfCell(icId));
+				const auto tfcFaces(tfcId);
+				if ((m_Dt_nplus1[icCells] < tmp_epsh)) 
+					m_Urn_nplus1[tfcFaces] = 0.0;
+				else
+					m_Urn_nplus1[tfcFaces] = m_Ucalc_nplus1[tfcFaces];
+			}
+		});
+		arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 		{
-			const auto icId(icInnerCells.asItemLocalId());
-			const auto icCells(icId);
-			const auto bfcId(m_mesh->getBottomFaceOfCell(icId));
-			const auto bfcFaces(bfcId);
-			if ((m_Dt_nplus1[icCells] < options()->epsh())) 
-				m_Urn_nplus1[bfcFaces] = 0.0;
-			else
-				m_Urn_nplus1[bfcFaces] = m_Ucalc_nplus1[bfcFaces];
-		}
-	});
-	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
-	{
-		ENUMERATE_CELL(icInnerCells, view)
+			ENUMERATE_CELL(icInnerCells, view)
+			{
+				const auto icId(icInnerCells.asItemLocalId());
+				const auto icCells(icId);
+				const auto bfcId(m_mesh->getBottomFaceOfCell(icId));
+				const auto bfcFaces(bfcId);
+				if ((m_Dt_nplus1[icCells] < tmp_epsh)) 
+					m_Urn_nplus1[bfcFaces] = 0.0;
+				else
+					m_Urn_nplus1[bfcFaces] = m_Ucalc_nplus1[bfcFaces];
+			}
+		});
+		arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 		{
-			const auto icId(icInnerCells.asItemLocalId());
-			const auto icCells(icId);
-			const auto icpId(m_mesh->getRightCell(icId));
-			const auto icpCells(icpId);
-			const auto icmId(m_mesh->getLeftCell(icId));
-			const auto lfcId(m_mesh->getLeftFaceOfCell(icId));
-			const auto lfcFaces(lfcId);
-			const auto rfcId(m_mesh->getRightFaceOfCell(icId));
-			const auto rfcFaces(rfcId);
-			const auto rfcmId(m_mesh->getRightFaceOfCell(icmId));
-			const auto rfcmFaces(rfcmId);
-			if ((m_Dt_nplus1[icCells] > options()->epsh()) && (m_Dt_nplus1[icpCells] < options()->epsh()) && (m_Ucalc_nplus1[lfcFaces] > options()->epsu()) && (m_H_nplus1[icCells] > m_H_n[icpCells] + options()->epsh())) 
-				m_Urn_nplus1[rfcFaces] = m_Ucalc_nplus1[rfcmFaces];
-		}
-	});
-	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
-	{
-		ENUMERATE_CELL(icInnerCells, view)
+			ENUMERATE_CELL(icInnerCells, view)
+			{
+				const auto icId(icInnerCells.asItemLocalId());
+				const auto icCells(icId);
+				const auto icpId(m_mesh->getRightCell(icId));
+				const auto icpCells(icpId);
+				const auto icmId(m_mesh->getLeftCell(icId));
+				const auto lfcId(m_mesh->getLeftFaceOfCell(icId));
+				const auto lfcFaces(lfcId);
+				const auto rfcId(m_mesh->getRightFaceOfCell(icId));
+				const auto rfcFaces(rfcId);
+				const auto rfcmId(m_mesh->getRightFaceOfCell(icmId));
+				const auto rfcmFaces(rfcmId);
+				if ((m_Dt_nplus1[icCells] > tmp_epsh) && (m_Dt_nplus1[icpCells] < tmp_epsh) && (m_Ucalc_nplus1[lfcFaces] > tmp_epsu) && (m_H_nplus1[icCells] > m_H_n[icpCells] + tmp_epsh)) 
+					m_Urn_nplus1[rfcFaces] = m_Ucalc_nplus1[rfcmFaces];
+			}
+		});
+		arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 		{
-			const auto icId(icInnerCells.asItemLocalId());
-			const auto icCells(icId);
-			const auto icmId(m_mesh->getLeftCell(icId));
-			const auto icmCells(icmId);
-			const auto lfcId(m_mesh->getLeftFaceOfCell(icId));
-			const auto lfcFaces(lfcId);
-			const auto rfcId(m_mesh->getRightFaceOfCell(icId));
-			const auto rfcFaces(rfcId);
-			if ((m_Dt_nplus1[icCells] > options()->epsh()) && (m_Dt_nplus1[icmCells] < options()->epsh()) && (m_Ucalc_nplus1[rfcFaces] < -1 * options()->epsu()) && (m_H_nplus1[icCells] > m_H_n[icmCells] + options()->epsh())) 
-				m_Urn_nplus1[lfcFaces] = m_Ucalc_nplus1[rfcFaces];
-		}
-	});
-	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
-	{
-		ENUMERATE_CELL(icInnerCells, view)
+			ENUMERATE_CELL(icInnerCells, view)
+			{
+				const auto icId(icInnerCells.asItemLocalId());
+				const auto icCells(icId);
+				const auto icmId(m_mesh->getLeftCell(icId));
+				const auto icmCells(icmId);
+				const auto lfcId(m_mesh->getLeftFaceOfCell(icId));
+				const auto lfcFaces(lfcId);
+				const auto rfcId(m_mesh->getRightFaceOfCell(icId));
+				const auto rfcFaces(rfcId);
+				if ((m_Dt_nplus1[icCells] > tmp_epsh) && (m_Dt_nplus1[icmCells] < tmp_epsh) && (m_Ucalc_nplus1[rfcFaces] < -1 * tmp_epsu) && (m_H_nplus1[icCells] > m_H_n[icmCells] + tmp_epsh)) 
+					m_Urn_nplus1[lfcFaces] = m_Ucalc_nplus1[rfcFaces];
+			}
+		});
+		arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 		{
-			const auto icId(icInnerCells.asItemLocalId());
-			const auto icCells(icId);
-			const auto ictId(m_mesh->getTopCell(icId));
-			const auto ictCells(ictId);
-			const auto tfcId(m_mesh->getTopFaceOfCell(icId));
-			const auto tfcFaces(tfcId);
-			const auto bfcId(m_mesh->getBottomFaceOfCell(icId));
-			const auto bfcFaces(bfcId);
-			if ((m_Dt_nplus1[icCells] > options()->epsh()) && (m_Dt_nplus1[ictCells] < options()->epsh()) && (m_Ucalc_nplus1[bfcFaces] > options()->epsu()) && (m_H_nplus1[icCells] > m_H_n[ictCells] + options()->epsh())) 
-				m_Urn_nplus1[tfcFaces] = m_Ucalc_nplus1[bfcFaces];
-		}
-	});
-	arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
-	{
-		ENUMERATE_CELL(icInnerCells, view)
+			ENUMERATE_CELL(icInnerCells, view)
+			{
+				const auto icId(icInnerCells.asItemLocalId());
+				const auto icCells(icId);
+				const auto ictId(m_mesh->getTopCell(icId));
+				const auto ictCells(ictId);
+				const auto tfcId(m_mesh->getTopFaceOfCell(icId));
+				const auto tfcFaces(tfcId);
+				const auto bfcId(m_mesh->getBottomFaceOfCell(icId));
+				const auto bfcFaces(bfcId);
+				if ((m_Dt_nplus1[icCells] > tmp_epsh) && (m_Dt_nplus1[ictCells] < tmp_epsh) && (m_Ucalc_nplus1[bfcFaces] > tmp_epsu) && (m_H_nplus1[icCells] > m_H_n[ictCells] + tmp_epsh)) 
+					m_Urn_nplus1[tfcFaces] = m_Ucalc_nplus1[bfcFaces];
+			}
+		});
+		arcaneParallelForeach(m_mesh->getGroup("InnerCells"), [&](CellVectorView view)
 		{
-			const auto icId(icInnerCells.asItemLocalId());
-			const auto icCells(icId);
-			const auto icbId(m_mesh->getBottomCell(icId));
-			const auto icbCells(icbId);
-			const auto tfcId(m_mesh->getTopFaceOfCell(icId));
-			const auto tfcFaces(tfcId);
-			const auto bfcId(m_mesh->getBottomFaceOfCell(icId));
-			const auto bfcFaces(bfcId);
-			if ((m_Dt_nplus1[icCells] > options()->epsh()) && (m_Dt_nplus1[icbCells] < options()->epsh()) && (m_Ucalc_nplus1[tfcFaces] < -1 * options()->epsu()) && (m_H_nplus1[icCells] > m_H_n[icbCells] + options()->epsh())) 
-				m_Urn_nplus1[bfcFaces] = m_Ucalc_nplus1[tfcFaces];
-		}
-	});
+			ENUMERATE_CELL(icInnerCells, view)
+			{
+				const auto icId(icInnerCells.asItemLocalId());
+				const auto icCells(icId);
+				const auto icbId(m_mesh->getBottomCell(icId));
+				const auto icbCells(icbId);
+				const auto tfcId(m_mesh->getTopFaceOfCell(icId));
+				const auto tfcFaces(tfcId);
+				const auto bfcId(m_mesh->getBottomFaceOfCell(icId));
+				const auto bfcFaces(bfcId);
+				if ((m_Dt_nplus1[icCells] > tmp_epsh) && (m_Dt_nplus1[icbCells] < tmp_epsh) && (m_Ucalc_nplus1[tfcFaces] < -1 * tmp_epsu) && (m_H_nplus1[icCells] > m_H_n[icbCells] + tmp_epsh)) 
+					m_Urn_nplus1[bfcFaces] = m_Ucalc_nplus1[tfcFaces];
+			}
+		});
+	}
 }
 
 /**
